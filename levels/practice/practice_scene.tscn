@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://bwaspoyx1oedm"]
+
+[ext_resource type="PackedScene" uid="uid://is2uetc08kav" path="res://entities/player/player_scene.tscn" id="1_3l573"]
+[ext_resource type="PackedScene" uid="uid://dmyy0v70370li" path="res://entities/dummy/dummy_scene.tscn" id="2_3skfe"]
+
+[sub_resource type="Environment" id="Environment_3l573"]
+background_mode = 1
+background_color = Color(0, 0.5778433, 0.8595153, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_3l573"]
+size = Vector3(50, 0.5, 50)
+
+[sub_resource type="BoxMesh" id="BoxMesh_3l573"]
+
+[node name="practice" type="Node3D" unique_id=759790201]
+
+[node name="sun" type="DirectionalLight3D" parent="." unique_id=88342058]
+transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 0, 15, 0)
+shadow_enabled = true
+
+[node name="environment" type="WorldEnvironment" parent="." unique_id=1214889743]
+environment = SubResource("Environment_3l573")
+
+[node name="player" parent="." unique_id=220854978 instance=ExtResource("1_3l573")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.87448406, 0)
+
+[node name="ground" type="StaticBody3D" parent="." unique_id=163813085]
+
+[node name="collision" type="CollisionShape3D" parent="ground" unique_id=1123984383]
+shape = SubResource("BoxShape3D_3l573")
+
+[node name="mesh" type="MeshInstance3D" parent="ground" unique_id=1994144104]
+transform = Transform3D(50, 0, 0, 0, 0.5, 0, 0, 0, 50, 0, 0, 0)
+mesh = SubResource("BoxMesh_3l573")
+
+[node name="dummy1" parent="." unique_id=1063714536 instance=ExtResource("2_3skfe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.7651014, 0.3061533, 0)
+
+[node name="dummy2" parent="." unique_id=1369600363 instance=ExtResource("2_3skfe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.7651014, 0.3061533, 2.6550074)
+
+[node name="dummy3" parent="." unique_id=1478228177 instance=ExtResource("2_3skfe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.7651014, 0.3061533, 5.6625776)

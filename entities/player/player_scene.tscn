@@ -1,0 +1,118 @@
+[gd_scene format=3 uid="uid://is2uetc08kav"]
+
+[ext_resource type="Script" uid="uid://c3ltnnrsiabaq" path="res://entities/player/player_script.gd" id="1_bk7tw"]
+[ext_resource type="Texture2D" uid="uid://c6ughjbb7w73y" path="res://ui/touch/direction-up-black.png" id="2_ygi5u"]
+[ext_resource type="Texture2D" uid="uid://cbp0amgop1gje" path="res://ui/touch/direction-up-white.png" id="3_n8j47"]
+[ext_resource type="Texture2D" uid="uid://cevpj7tpnxsly" path="res://ui/touch/trigger-black.png" id="4_3xm0v"]
+[ext_resource type="Texture2D" uid="uid://v8wu8mu24373" path="res://ui/touch/direction-right-black.png" id="4_hycpi"]
+[ext_resource type="Texture2D" uid="uid://cfv2mu1inqdfr" path="res://ui/touch/direction-right-white.png" id="5_k0nwe"]
+[ext_resource type="Texture2D" uid="uid://csoywosq0dvw2" path="res://ui/touch/trigger-white.png" id="5_qnxqa"]
+[ext_resource type="Texture2D" uid="uid://b72fu8rf3gupj" path="res://ui/touch/direction-down-black.png" id="6_kmx06"]
+[ext_resource type="Texture2D" uid="uid://xhslr4r5s7rf" path="res://ui/touch/direction-down-white.png" id="7_k2n06"]
+[ext_resource type="Texture2D" uid="uid://clf2s0fqt71yh" path="res://ui/touch/direction-left-black.png" id="8_rsjbd"]
+[ext_resource type="Texture2D" uid="uid://cdy1i8t58248i" path="res://ui/touch/direction-left-white.png" id="9_db1fq"]
+[ext_resource type="Texture2D" uid="uid://bl85bxj834ox1" path="res://ui/touch/jump-black.png" id="10_32adv"]
+[ext_resource type="Texture2D" uid="uid://bw5nxmjqado4h" path="res://ui/touch/jump-white.png" id="11_rbw6g"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uufrl"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_uufrl"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_32adv"]
+
+[node name="player" type="CharacterBody3D" unique_id=220854978]
+script = ExtResource("1_bk7tw")
+
+[node name="collision" type="CollisionShape3D" parent="." unique_id=1624968112]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_uufrl")
+
+[node name="mesh" type="MeshInstance3D" parent="." unique_id=2025473190]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_uufrl")
+
+[node name="pivot" type="Node3D" parent="." unique_id=1038422704]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6337768, 0)
+
+[node name="spring-arm" type="SpringArm3D" parent="pivot" unique_id=226998772]
+shape = SubResource("SphereShape3D_32adv")
+spring_length = 5.0
+
+[node name="camera" type="Camera3D" parent="pivot/spring-arm" unique_id=1689409089]
+unique_name_in_owner = true
+
+[node name="shoot-marker" type="Marker3D" parent="pivot" unique_id=775972075]
+unique_name_in_owner = true
+
+[node name="hud" type="CanvasLayer" parent="." unique_id=1531191293]
+unique_name_in_owner = true
+
+[node name="control" type="Control" parent="hud" unique_id=2026052892]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="jump" type="TouchScreenButton" parent="hud/control" unique_id=1989971277]
+position = Vector2(1200, 350)
+scale = Vector2(5, 5)
+texture_normal = ExtResource("10_32adv")
+texture_pressed = ExtResource("11_rbw6g")
+action = "jump"
+
+[node name="trigger" type="TouchScreenButton" parent="hud/control" unique_id=2100857492]
+position = Vector2(1000, 350)
+scale = Vector2(5, 5)
+texture_normal = ExtResource("4_3xm0v")
+texture_pressed = ExtResource("5_qnxqa")
+action = "trigger"
+
+[node name="direction-pad" type="Control" parent="hud/control" unique_id=1897145696]
+layout_mode = 1
+anchor_left = 0.2
+anchor_top = 0.66400003
+anchor_right = 0.2
+anchor_bottom = 0.66400003
+offset_left = -180.40001
+offset_top = -180.27203
+offset_right = 179.59999
+offset_bottom = 179.72797
+pivot_offset = Vector2(183, 176)
+
+[node name="direction-up" type="TouchScreenButton" parent="hud/control/direction-pad" unique_id=405375197]
+position = Vector2(100, 0)
+scale = Vector2(5, 5)
+texture_normal = ExtResource("2_ygi5u")
+texture_pressed = ExtResource("3_n8j47")
+passby_press = true
+action = "move-forward"
+
+[node name="direction-right" type="TouchScreenButton" parent="hud/control/direction-pad" unique_id=466380470]
+position = Vector2(200, 100)
+scale = Vector2(5, 5)
+texture_normal = ExtResource("4_hycpi")
+texture_pressed = ExtResource("5_k0nwe")
+passby_press = true
+action = "move-right"
+
+[node name="direction-left" type="TouchScreenButton" parent="hud/control/direction-pad" unique_id=1647260839]
+position = Vector2(0, 100)
+scale = Vector2(5, 5)
+texture_normal = ExtResource("8_rsjbd")
+texture_pressed = ExtResource("9_db1fq")
+passby_press = true
+action = "move-left"
+
+[node name="direction-down" type="TouchScreenButton" parent="hud/control/direction-pad" unique_id=313673643]
+position = Vector2(100, 200)
+scale = Vector2(5, 5)
+texture_normal = ExtResource("6_kmx06")
+texture_pressed = ExtResource("7_k2n06")
+passby_press = true
+action = "move-backward"
