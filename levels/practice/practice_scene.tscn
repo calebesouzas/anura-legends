@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://is2uetc08kav" path="res://entities/player/player_scene.tscn" id="1_3l573"]
 [ext_resource type="PackedScene" uid="uid://dmyy0v70370li" path="res://entities/dummy/dummy_scene.tscn" id="2_3skfe"]
+[ext_resource type="PackedScene" uid="uid://10d8e1y1ntae" path="res://plasma/plasma_manager_scene.tscn" id="2_au8na"]
 
 [sub_resource type="Environment" id="Environment_3l573"]
 background_mode = 1
@@ -21,9 +22,6 @@ shadow_enabled = true
 [node name="environment" type="WorldEnvironment" parent="." unique_id=1214889743]
 environment = SubResource("Environment_3l573")
 
-[node name="player" parent="." unique_id=220854978 instance=ExtResource("1_3l573")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.87448406, 0)
-
 [node name="ground" type="StaticBody3D" parent="." unique_id=163813085]
 
 [node name="collision" type="CollisionShape3D" parent="ground" unique_id=1123984383]
@@ -41,3 +39,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.7651014, 0.3061533, 2.65500
 
 [node name="dummy3" parent="." unique_id=1478228177 instance=ExtResource("2_3skfe")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.7651014, 0.3061533, 5.6625776)
+
+[node name="spawn_point" type="Marker3D" parent="." unique_id=1368845624]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+
+[node name="plasma_manager" parent="." unique_id=1367300187 instance=ExtResource("2_au8na")]
+player_scene = ExtResource("1_3l573")
