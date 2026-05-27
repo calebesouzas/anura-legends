@@ -11,6 +11,8 @@ const JUMP_VELOCITY: float = 4.5
 const TOUCH_SENSITIVITY: float = 0.25
 const MOUSE_SENSITIVITY: float = 0.25
 
+var id: int
+
 @onready var pivot: Node3D = %pivot
 @onready var camera: Camera3D = %camera
 
