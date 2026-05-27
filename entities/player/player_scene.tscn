@@ -43,14 +43,14 @@ mesh = SubResource("BoxMesh_3xm0v")
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6337768, 0)
 
-[node name="spring-arm" type="SpringArm3D" parent="pivot" unique_id=226998772]
+[node name="spring_arm" type="SpringArm3D" parent="pivot" unique_id=226998772]
 shape = SubResource("SphereShape3D_32adv")
 spring_length = 5.0
 
-[node name="camera" type="Camera3D" parent="pivot/spring-arm" unique_id=1689409089]
+[node name="camera" type="Camera3D" parent="pivot/spring_arm" unique_id=1689409089]
 unique_name_in_owner = true
 
-[node name="shoot-marker" type="Marker3D" parent="pivot" unique_id=775972075]
+[node name="shoot_marker" type="Marker3D" parent="pivot" unique_id=775972075]
 unique_name_in_owner = true
 
 [node name="hud" type="CanvasLayer" parent="." unique_id=1531191293]
@@ -79,7 +79,7 @@ texture_normal = ExtResource("4_3xm0v")
 texture_pressed = ExtResource("5_qnxqa")
 action = "trigger"
 
-[node name="direction-pad" type="Control" parent="hud/control" unique_id=1897145696]
+[node name="direction_pad" type="Control" parent="hud/control" unique_id=1897145696]
 layout_mode = 1
 anchor_left = 0.2
 anchor_top = 0.66400003
@@ -91,34 +91,34 @@ offset_right = 179.59999
 offset_bottom = 179.72797
 pivot_offset = Vector2(183, 176)
 
-[node name="direction-up" type="TouchScreenButton" parent="hud/control/direction-pad" unique_id=405375197]
+[node name="direction_up" type="TouchScreenButton" parent="hud/control/direction_pad" unique_id=405375197]
 position = Vector2(100, 0)
 scale = Vector2(5, 5)
 texture_normal = ExtResource("2_ygi5u")
 texture_pressed = ExtResource("3_n8j47")
 passby_press = true
-action = "move-forward"
+action = "move_forward"
 
-[node name="direction-right" type="TouchScreenButton" parent="hud/control/direction-pad" unique_id=466380470]
+[node name="direction_right" type="TouchScreenButton" parent="hud/control/direction_pad" unique_id=466380470]
 position = Vector2(200, 100)
 scale = Vector2(5, 5)
 texture_normal = ExtResource("4_hycpi")
 texture_pressed = ExtResource("5_k0nwe")
 passby_press = true
-action = "move-right"
+action = "move_right"
 
-[node name="direction-left" type="TouchScreenButton" parent="hud/control/direction-pad" unique_id=1647260839]
+[node name="direction_left" type="TouchScreenButton" parent="hud/control/direction_pad" unique_id=1647260839]
 position = Vector2(0, 100)
 scale = Vector2(5, 5)
 texture_normal = ExtResource("8_rsjbd")
 texture_pressed = ExtResource("9_db1fq")
 passby_press = true
-action = "move-left"
+action = "move_left"
 
-[node name="direction-down" type="TouchScreenButton" parent="hud/control/direction-pad" unique_id=313673643]
+[node name="direction_down" type="TouchScreenButton" parent="hud/control/direction_pad" unique_id=313673643]
 position = Vector2(100, 200)
 scale = Vector2(5, 5)
 texture_normal = ExtResource("6_kmx06")
 texture_pressed = ExtResource("7_k2n06")
 passby_press = true
-action = "move-backward"
+action = "move_backward"

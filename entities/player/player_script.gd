@@ -28,7 +28,7 @@ func _physics_process(delta: float) -> void:
 
   # Get the input direction and handle the movement/deceleration.
   # As good practice, you should replace UI actions with custom gameplay actions.
-  input_direction = Input.get_vector("move-left", "move-right", "move-forward", "move-backward")
+  input_direction = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
   move_direction = get_camera_relative_movement().normalized()
   if move_direction.length_squared() > 0:
     velocity.x = move_direction.x * SPEED
