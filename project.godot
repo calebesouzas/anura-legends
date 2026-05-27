@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="anura-legends"
-run/main_scene="uid://bwaspoyx1oedm"
+run/main_scene="uid://c4bm8haw68u0k"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
 
