@@ -55,8 +55,6 @@ func get_camera_relative_movement() -> Vector2:
   right.y = 0
   forward = forward.normalized()
   right = right.normalized()
-                
-  # PERF: Não acho que seja muito bom ficar alocando tantos 'Vector' intermediários...
   var direction: Vector3 = forward * self.input_direction.y + right * self.input_direction.x
   return Vector2(direction.x, direction.z)
 
