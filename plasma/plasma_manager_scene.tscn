@@ -1,12 +1,14 @@
 [gd_scene format=3 uid="uid://10d8e1y1ntae"]
 
 [ext_resource type="Script" uid="uid://dp4ybp6586uv6" path="res://plasma/plasma_manager_script.gd" id="1_sxmns"]
+[ext_resource type="PackedScene" uid="uid://is2uetc08kav" path="res://entities/player/player_scene.tscn" id="2_1ujch"]
 
 [node name="plasma_manager" type="Node3D" unique_id=1367300187]
 script = ExtResource("1_sxmns")
+player_scene = ExtResource("2_1ujch")
 
 [node name="players" type="Node3D" parent="." unique_id=48554262]
 unique_name_in_owner = true
 
-[node name="entities" type="Node3D" parent="." unique_id=279063635]
+[node name="projectiles" type="Node3D" parent="." unique_id=279063635]
 unique_name_in_owner = true

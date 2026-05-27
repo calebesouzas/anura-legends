@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://c4bm8haw68u0k"]
+
+[ext_resource type="Script" uid="uid://wc80r0uciwhd" path="res://game/game_scene.gd" id="1_slngj"]
+[ext_resource type="PackedScene" uid="uid://10d8e1y1ntae" path="res://plasma/plasma_manager_scene.tscn" id="2_2rju1"]
+
+[node name="game" type="Node" unique_id=123493972]
+script = ExtResource("1_slngj")
+plasma_manager_scene = ExtResource("2_2rju1")

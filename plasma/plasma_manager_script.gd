@@ -2,24 +2,27 @@ class_name PlasmaManager extends Node3D
 
 @export var player_scene: PackedScene
 
+var game: Game
+
 @onready var players: Node3D = %players
-@onready var entities: Node3D = %entities
+@onready var projectiles: Node3D = %projectiles
+var world: World
 
 var world_spawn_gpos: Vector3 = Vector3.ZERO
 
-# Called when the node enters the scene tree for the first time.
 func _ready() -> void:
   assert(self.player_scene != null, "Should provide player scene to PlasmaManager")
-  self.spawn_player()
 
-func setup(world_spawn_global_position: Vector3) -> void:
-  self.world_spawn_gpos = world_spawn_global_position
+func setup(world_reference: World) -> void:
+  self.world = world_reference
+  self.world_spawn_gpos = self.world.spawn_point_global_position
+  self.add_child(self.world)
+  self.spawn_new_player()
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
   pass
 
-func spawn_player(spawn_position: Vector3 = self.world_spawn_gpos) -> void:
+func spawn_new_player(spawn_position: Vector3 = self.world_spawn_gpos) -> void:
   var player: Player = self.player_scene.instantiate()
   player.visible = false
   player.id = self.players.get_child_count()
