@@ -15,6 +15,7 @@ var id: int
 
 @onready var pivot: Node3D = %pivot
 @onready var camera: Camera3D = %camera
+@onready var mesh: MeshInstance3D = %mesh
 
 var input_direction: Vector2
 var move_direction: Vector2
@@ -32,13 +33,15 @@ func _physics_process(delta: float) -> void:
   # As good practice, you should replace UI actions with custom gameplay actions.
   self.input_direction = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
   self.move_direction = self.get_camera_relative_movement().normalized()
+  
+  self.rotate_skin()
+  
   if self.move_direction.length_squared() > 0:
     self.velocity.x = self.move_direction.x * self.SPEED
     self.velocity.z = self.move_direction.y * self.SPEED
   else:
     self.velocity.x = move_toward(self.velocity.x, 0, self.SPEED)
     self.velocity.z = move_toward(self.velocity.z, 0, self.SPEED)
-
   self.move_and_slide()
   
   #if Input.is_action_just_pressed("trigger"):
@@ -56,6 +59,12 @@ func get_camera_relative_movement() -> Vector2:
   # PERF: Não acho que seja muito bom ficar alocando tantos 'Vector' intermediários...
   var direction: Vector3 = forward * self.input_direction.y + right * self.input_direction.x
   return Vector2(direction.x, direction.z)
+
+func rotate_skin() -> void:
+  if self.move_direction.length_squared() > 0:
+    self.mesh.look_at(self.position + Vector3(self.move_direction.x, 0, self.move_direction.y))
+    self.mesh.rotation.x = 0
+    self.mesh.rotation.z = 0
 
 func _unhandled_input(event: InputEvent) -> void:
   if event is InputEventScreenDrag:
