@@ -21,16 +21,12 @@ var input_direction: Vector2
 var move_direction: Vector2
 
 func _physics_process(delta: float) -> void:
-  # Add the gravity.
   if not self.is_on_floor():
     self.velocity += self.get_gravity() * delta
 
-  # Handle jump.
   if Input.is_action_pressed("jump") and self.is_on_floor():
     self.velocity.y = self.JUMP_VELOCITY
 
-  # Get the input direction and handle the movement/deceleration.
-  # As good practice, you should replace UI actions with custom gameplay actions.
   self.input_direction = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
   self.move_direction = self.get_camera_relative_movement().normalized()
   
@@ -60,7 +56,8 @@ func get_camera_relative_movement() -> Vector2:
 
 func rotate_skin() -> void:
   if self.move_direction.length_squared() > 0:
-    self.mesh.look_at(self.position + Vector3(self.move_direction.x, 0, self.move_direction.y))
+    var target: Vector3 = self.position + Vector3(self.move_direction.x, 0, self.move_direction.y)
+    self.mesh.look_at(target) #@todo find a way to touch only the `y` field
     self.mesh.rotation.x = 0
     self.mesh.rotation.z = 0
 
