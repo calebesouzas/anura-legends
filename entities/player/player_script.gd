@@ -1,4 +1,8 @@
-class_name Player extends CharacterBody3D
+class_name Player extends Entity.AliveEntity
+
+func _init() -> void:
+  self.kind = Kind.PLAYER
+  self.health = 1000
 
 func _ready() -> void:
   if not OS.has_feature("android"):
@@ -11,11 +15,13 @@ const JUMP_VELOCITY: float = 4.5
 const TOUCH_SENSITIVITY: float = 0.25
 const MOUSE_SENSITIVITY: float = 0.25
 
-var id: int
+var plasma_manager: PlasmaManager
 
 @onready var pivot: Node3D = %pivot
 @onready var camera: Camera3D = %camera
 @onready var mesh: MeshInstance3D = %mesh
+
+@export var bullet_scene: PackedScene
 
 var input_direction: Vector2
 var move_direction: Vector2
@@ -40,8 +46,8 @@ func _physics_process(delta: float) -> void:
     self.velocity.z = move_toward(self.velocity.z, 0, self.SPEED)
   self.move_and_slide()
   
-  #if Input.is_action_just_pressed("trigger"):
-  #  trigger()
+  if Input.is_action_just_pressed("trigger"):
+    self.trigger()
 
 
 func get_camera_relative_movement() -> Vector2:
@@ -60,6 +66,10 @@ func rotate_skin() -> void:
     self.mesh.look_at(target) #@todo find a way to touch only the `y` field
     self.mesh.rotation.x = 0
     self.mesh.rotation.z = 0
+
+func trigger() -> void:
+  var direction: Vector3 = self.position.direction_to(-self.camera.position)
+  self.plasma_manager.spawn_new_projectile(self.id, self.bullet_scene, direction)
 
 func _unhandled_input(event: InputEvent) -> void:
   if event is InputEventScreenDrag:

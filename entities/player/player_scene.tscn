@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://is2uetc08kav"]
 
 [ext_resource type="Script" uid="uid://c3ltnnrsiabaq" path="res://entities/player/player_script.gd" id="1_bk7tw"]
+[ext_resource type="PackedScene" uid="uid://bna5yi5v2qjxn" path="res://entities/projectiles/ball_bullet.tscn" id="2_qnxqa"]
 [ext_resource type="Texture2D" uid="uid://c6ughjbb7w73y" path="res://ui/touch/direction-up-black.png" id="2_ygi5u"]
 [ext_resource type="Texture2D" uid="uid://cbp0amgop1gje" path="res://ui/touch/direction-up-white.png" id="3_n8j47"]
 [ext_resource type="Texture2D" uid="uid://cevpj7tpnxsly" path="res://ui/touch/trigger-black.png" id="4_3xm0v"]
@@ -24,6 +25,7 @@
 
 [node name="player" type="CharacterBody3D" unique_id=220854978]
 script = ExtResource("1_bk7tw")
+bullet_scene = ExtResource("2_qnxqa")
 
 [node name="collision" type="CollisionShape3D" parent="." unique_id=1624968112]
 unique_name_in_owner = true
