@@ -56,7 +56,12 @@ func get_camera_relative_movement() -> Vector2:
 
 func rotate_skin() -> void:
   if self.move_direction.length_squared() > 0:
-    var target: Vector3 = self.position + Vector3(self.move_direction.x, 0, self.move_direction.y)
+    var target: Vector3 = Vector3(self.move_direction.x, 0, self.move_direction.y).normalized()
+    var pos: Vector3 = self.mesh.position.normalized()
+    var dot: float = pos.dot(target) - 1.0
+    var angle: float = dot * 90
+    self.mesh.rotation_degrees.y = angle
+    return
     self.mesh.look_at(target) #@todo find a way to touch only the `y` field
     self.mesh.rotation.x = 0
     self.mesh.rotation.z = 0
