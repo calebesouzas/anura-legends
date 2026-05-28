@@ -35,9 +35,8 @@ func spawn_new_player(spawn_position: Vector3 = self.world_spawn_gpos) -> void:
 func spawn_new_projectile(id: int, scene: PackedScene, direction: Vector3) -> int:
   var bullet: PlasmaProjectile = scene.instantiate()
   bullet.setup(id, self.projectiles.get_child_count(), direction)
-  assert(false, "@todo handle bullet spawn position and fix direction")
   var player: Player = self.players.get_child(bullet.owner_id)
-  var spawn_position = player.position + bullet.direction
-  bullet.position = spawn_position
+  var spawn_position = player.pivot.global_position + bullet.direction
   self.projectiles.add_child(bullet)
+  bullet.global_position = spawn_position
   return bullet.id

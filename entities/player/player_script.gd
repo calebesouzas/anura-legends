@@ -20,6 +20,7 @@ var plasma_manager: PlasmaManager
 @onready var pivot: Node3D = %pivot
 @onready var camera: Camera3D = %camera
 @onready var mesh: MeshInstance3D = %mesh
+@onready var aim: Marker3D = %aim
 
 @export var bullet_scene: PackedScene
 
@@ -68,7 +69,7 @@ func rotate_skin() -> void:
     self.mesh.rotation.z = 0
 
 func trigger() -> void:
-  var direction: Vector3 = self.position.direction_to(-self.camera.position)
+  var direction: Vector3 = self.camera.global_position.direction_to(self.aim.global_position)
   self.plasma_manager.spawn_new_projectile(self.id, self.bullet_scene, direction)
 
 func _unhandled_input(event: InputEvent) -> void:
