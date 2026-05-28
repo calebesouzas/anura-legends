@@ -11,9 +11,8 @@ albedo_color = Color(0, 0, 1, 1)
 
 [node name="bullet" type="CharacterBody3D" unique_id=253246150]
 collision_layer = 0
-collision_mask = 0
 script = ExtResource("1_aep8o")
-speed = 500.0
+speed = 2000.0
 damage = 100
 metadata/_custom_type_script = "uid://b13h30jq0pghh"
 
