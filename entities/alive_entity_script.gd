@@ -49,4 +49,3 @@ func play_vulnerability_effect() -> void:
 
 func play_invincibility_effect() -> void:
   print("Invincible")
-
