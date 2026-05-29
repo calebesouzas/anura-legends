@@ -1,7 +1,6 @@
 class_name Player extends AliveEntity
 
 func _init() -> void:
-  self.kind = Kind.PLAYER
   self.health = 1000
 
 func _ready() -> void:
