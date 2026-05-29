@@ -1,4 +1,4 @@
-class_name Player extends Entity.AliveEntity
+class_name Player extends AliveEntity
 
 func _init() -> void:
   self.kind = Kind.PLAYER

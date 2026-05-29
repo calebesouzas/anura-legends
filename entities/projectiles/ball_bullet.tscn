@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bna5yi5v2qjxn"]
 
-[ext_resource type="Script" uid="uid://b13h30jq0pghh" path="res://plasma/plasma_projectile_script.gd" id="1_aep8o"]
+[ext_resource type="Script" uid="uid://lb7i1yddi7sw" path="res://entities/projectiles/projectile_script.gd" id="1_aep8o"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_aep8o"]
 
@@ -14,7 +14,6 @@ collision_layer = 0
 script = ExtResource("1_aep8o")
 speed = 2000.0
 damage = 100
-metadata/_custom_type_script = "uid://b13h30jq0pghh"
 
 [node name="collision" type="CollisionShape3D" parent="." unique_id=29827701]
 shape = SubResource("SphereShape3D_aep8o")
