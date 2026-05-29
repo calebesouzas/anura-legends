@@ -1,4 +1,3 @@
 class_name Dummy extends AliveEntity
 
-func _init() -> void:
-  self.health = 1000
+# there is literally no difference between this and the default implementation
