@@ -4,7 +4,11 @@ var vulnerable: bool = true
 
 @export var initial_health: int = 1000
 
-var health: int = self.initial_health
+signal health_changed
+var health: int = self.initial_health:
+  set(value):
+    health = value
+    self.health_changed.emit()
 
 @export var respawn_delay_seconds: float = 3.0
 @export var respawn_timer: Timer:
