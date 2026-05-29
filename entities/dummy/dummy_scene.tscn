@@ -1,5 +1,7 @@
 [gd_scene format=3 uid="uid://dmyy0v70370li"]
 
+[ext_resource type="Script" uid="uid://bu24uc75w1524" path="res://entities/dummy/dummy_script.gd" id="1_mq0lg"]
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_1g8wn"]
 size = Vector3(1, 2, 1)
 
@@ -10,6 +12,7 @@ size = Vector3(1, 2, 1)
 albedo_color = Color(1, 0, 0, 1)
 
 [node name="dummy" type="CharacterBody3D" unique_id=1063714536]
+script = ExtResource("1_mq0lg")
 
 [node name="collision" type="CollisionShape3D" parent="." unique_id=1127210864]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
