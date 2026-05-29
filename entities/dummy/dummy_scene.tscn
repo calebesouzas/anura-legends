@@ -11,8 +11,10 @@ size = Vector3(1, 2, 1)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cy40j"]
 albedo_color = Color(1, 0, 0, 1)
 
-[node name="dummy" type="CharacterBody3D" unique_id=1063714536]
+[node name="dummy" type="CharacterBody3D" unique_id=1063714536 node_paths=PackedStringArray("respawn_timer")]
+up_direction = Vector3(-0.39379898, 0.9191966, 0)
 script = ExtResource("1_mq0lg")
+respawn_timer = NodePath("respawn_timer")
 
 [node name="collision" type="CollisionShape3D" parent="." unique_id=1127210864]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -22,3 +24,7 @@ shape = SubResource("BoxShape3D_1g8wn")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("BoxMesh_mq0lg")
 surface_material_override/0 = SubResource("StandardMaterial3D_cy40j")
+
+[node name="respawn_timer" type="Timer" parent="." unique_id=1691056545]
+unique_name_in_owner = true
+one_shot = true
