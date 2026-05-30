@@ -20,8 +20,6 @@ var TOUCH_SENSITIVITY: float = 0.25
 @export_range(0.0, 1.0, 0.05, "Sensitivity on mouse")
 var MOUSE_SENSITIVITY: float = 0.25
 
-var plasma_manager: PlasmaManager
-
 @onready var pivot: Node3D = %pivot
 @onready var camera: Camera3D = %camera
 @onready var mesh: MeshInstance3D = %mesh
