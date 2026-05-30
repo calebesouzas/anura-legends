@@ -7,6 +7,9 @@ func _ready() -> void:
   if not OS.has_feature("android"):
     %hud.queue_free()
   Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+  self.aim_lock_timer.timeout.connect(func(): self.aim_locked = false)
+
+var aim_locked: bool = false
 
 @export_group("Physics")
 @export var SPEED: float = 5.0
@@ -20,10 +23,13 @@ var TOUCH_SENSITIVITY: float = 0.25
 @export_range(0.0, 1.0, 0.05, "Sensitivity on mouse")
 var MOUSE_SENSITIVITY: float = 0.25
 
+var camera_direction: Vector3
+
 @onready var pivot: Node3D = %pivot
 @onready var camera: Camera3D = %camera
 @onready var mesh: MeshInstance3D = %mesh
 @onready var aim: Marker3D = %aim
+@onready var aim_lock_timer: Timer = %aim_lock_timer
 
 @export_group("Combat")
 @export var bullet_scene: PackedScene
@@ -32,6 +38,10 @@ var input_direction: Vector2
 var move_direction: Vector2
 
 func _physics_process(delta: float) -> void:
+  self.camera_direction = self.camera.global_position.direction_to(
+    self.aim.global_position
+  )
+
   if not self.is_on_floor():
     self.velocity.y -= self.GRAVITY * delta
 
@@ -41,19 +51,28 @@ func _physics_process(delta: float) -> void:
   self.input_direction = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
   self.move_direction = self.get_camera_relative_movement().normalized()
 
-  self.rotate_skin()
-
   if self.move_direction.length_squared() > 0:
     self.velocity.x = self.move_direction.x * self.SPEED
     self.velocity.z = self.move_direction.y * self.SPEED
+    var target: Vector3 = self.position \
+      + Vector3(self.move_direction.x, 0, self.move_direction.y)
+    self.mesh.look_at(target) #@todo find a way to touch only the `y` field
+    self.mesh.rotation.x = 0
+    self.mesh.rotation.z = 0
   else:
     self.velocity.x = move_toward(self.velocity.x, 0, self.SPEED)
     self.velocity.z = move_toward(self.velocity.z, 0, self.SPEED)
   self.move_and_slide()
 
   if Input.is_action_just_pressed("trigger"):
+    self.aim_locked = true
+    self.aim_lock_timer.start()
     self.trigger()
 
+  if self.aim_locked:
+    self.mesh.look_at(self.position + self.camera_direction)
+    self.mesh.rotation.x = 0
+    self.mesh.rotation.z = 0
 
 func get_camera_relative_movement() -> Vector2:
   var forward: Vector3 = self.camera.global_transform.basis.z
@@ -62,19 +81,8 @@ func get_camera_relative_movement() -> Vector2:
     + right * self.input_direction.x
   return Vector2(direction.x, direction.z)
 
-func rotate_skin() -> void:
-  if self.move_direction.length_squared() > 0:
-    var target: Vector3 = self.position \
-      + Vector3(self.move_direction.x, 0, self.move_direction.y)
-    self.mesh.look_at(target) #@todo find a way to touch only the `y` field
-    self.mesh.rotation.x = 0
-    self.mesh.rotation.z = 0
-
 func trigger() -> void:
-  var direction: Vector3 = self.camera.global_position.direction_to(
-    self.aim.global_position
-  )
-  self.plasma_manager.spawn_new_projectile(self.id, self.bullet_scene, direction)
+  self.plasma_manager.spawn_new_projectile(self.id, self.bullet_scene, self.camera_direction)
 
 func _unhandled_input(event: InputEvent) -> void:
   var is_camera_motion: bool = false
