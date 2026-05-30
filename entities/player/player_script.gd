@@ -8,9 +8,10 @@ func _ready() -> void:
     %hud.queue_free()
   Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
-@export_group("Movement")
+@export_group("Physics")
 @export var SPEED: float = 5.0
-@export var JUMP_VELOCITY: float = 4.5
+@export var JUMP_VELOCITY: float = 5.0
+@export var GRAVITY: float = 12.0
 
 @export_group("Camera")
 @export_range(0.0, 1.0, 0.05, "Sensitivity on mobile")
@@ -34,7 +35,7 @@ var move_direction: Vector2
 
 func _physics_process(delta: float) -> void:
   if not self.is_on_floor():
-    self.velocity += self.get_gravity() * delta
+    self.velocity.y -= self.GRAVITY * delta
 
   if Input.is_action_pressed("jump") and self.is_on_floor():
     self.velocity.y = self.JUMP_VELOCITY
