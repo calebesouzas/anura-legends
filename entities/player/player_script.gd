@@ -3,12 +3,6 @@ class_name Player extends AliveEntity
 func _init() -> void:
   self.health = 1000
 
-func _ready() -> void:
-  if not OS.has_feature("android"):
-    %hud.queue_free()
-  Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-  self.aim_lock_timer.timeout.connect(func(): self.aim_locked = false)
-
 var aim_locked: bool = false
 
 @export_group("Physics")
@@ -30,12 +24,20 @@ var camera_direction: Vector3
 @onready var mesh: MeshInstance3D = %mesh
 @onready var aim: Marker3D = %aim
 @onready var aim_lock_timer: Timer = %aim_lock_timer
+@onready var fire_locked_timer: Timer = %fire_locked_timer
 
 @export_group("Combat")
 @export var bullet_scene: PackedScene
+@export var shots_per_second: float
 
 var input_direction: Vector2
 var move_direction: Vector2
+
+func _ready() -> void:
+  if not OS.has_feature("android"):
+    %hud.queue_free()
+  Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+  self.aim_lock_timer.timeout.connect(func(): self.aim_locked = false)
 
 func _physics_process(delta: float) -> void:
   self.camera_direction = self.camera.global_position.direction_to(
@@ -64,9 +66,10 @@ func _physics_process(delta: float) -> void:
     self.velocity.z = move_toward(self.velocity.z, 0, self.SPEED)
   self.move_and_slide()
 
-  if Input.is_action_just_pressed("trigger"):
+  if Input.is_action_pressed("trigger") and self.fire_locked_timer.is_stopped():
     self.aim_locked = true
     self.aim_lock_timer.start()
+    self.fire_locked_timer.start(1.0 / self.shots_per_second)
     self.trigger()
 
   if self.aim_locked:

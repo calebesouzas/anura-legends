@@ -26,6 +26,7 @@
 [node name="player" type="CharacterBody3D" unique_id=220854978]
 script = ExtResource("1_bk7tw")
 bullet_scene = ExtResource("2_qnxqa")
+shots_per_second = 5.0
 
 [node name="collision" type="CollisionShape3D" parent="." unique_id=1624968112]
 unique_name_in_owner = true
@@ -59,6 +60,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
 [node name="aim_lock_timer" type="Timer" parent="." unique_id=833833159]
 unique_name_in_owner = true
 wait_time = 0.5
+
+[node name="fire_locked_timer" type="Timer" parent="." unique_id=372755683]
+unique_name_in_owner = true
+one_shot = true
 
 [node name="hud" type="CanvasLayer" parent="." unique_id=1531191293]
 unique_name_in_owner = true
