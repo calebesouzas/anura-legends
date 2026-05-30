@@ -6,6 +6,7 @@ var game: Game
 
 @onready var players: Node3D = %players
 @onready var projectiles: Node3D = %projectiles
+@onready var particles: Node3D = %particles
 var world: World
 
 var world_spawn_gpos: Vector3 = Vector3.ZERO
@@ -40,3 +41,8 @@ func spawn_new_projectile(id: int, scene: PackedScene, direction: Vector3) -> in
   self.projectiles.add_child(bullet)
   bullet.global_position = spawn_position
   return bullet.id
+
+func spawn_new_particle(particle_instance: Node3D, particle_global_position: Vector3) \
+-> void:
+  self.particles.add_child(particle_instance)
+  particle_instance.global_position = particle_global_position

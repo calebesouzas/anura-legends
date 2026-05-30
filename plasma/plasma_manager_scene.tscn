@@ -12,3 +12,6 @@ unique_name_in_owner = true
 
 [node name="projectiles" type="Node3D" parent="." unique_id=279063635]
 unique_name_in_owner = true
+
+[node name="particles" type="Node3D" parent="." unique_id=2130035044]
+unique_name_in_owner = true

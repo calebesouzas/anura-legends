@@ -21,6 +21,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("BoxShape3D_1g8wn")
 
 [node name="mesh" type="MeshInstance3D" parent="." unique_id=255796105]
+unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("BoxMesh_mq0lg")
 surface_material_override/0 = SubResource("StandardMaterial3D_cy40j")
