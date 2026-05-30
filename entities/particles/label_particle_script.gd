@@ -3,8 +3,9 @@ class_name ParticleLabel extends Label3D
 @export var life_time_secs: float = 1.0
 var lived_time_secs: float = 0.0
 
-func _init(label_text: String) -> void:
+func _init(label_text: String, text_color: Color) -> void:
   self.text = label_text
+  self.modulate = text_color
   self.billboard = BaseMaterial3D.BILLBOARD_ENABLED
   self.font_size = 72
 
