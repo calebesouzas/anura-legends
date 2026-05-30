@@ -12,7 +12,7 @@ func _ready() -> void:
     reference = reference.get_parent_node_3d()
 
 func play_damage_success_effect(amount: int) -> void:
-  var particle: ParticleLabel = ParticleLabel.new(str(amount))
+  var particle: ParticleLabel = ParticleLabel.new(str(amount), Color.RED)
   self.plasma_manager.spawn_new_particle(
     particle,
     self.global_position + Vector3.UP * 2.25
