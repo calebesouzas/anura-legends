@@ -1,8 +1,8 @@
 # Anura Legends Plan
 ## Current
-Implement the entity respawn system.
+Implement the movement system
 
 ## Next
-1. Movement
+1. World block grid
 2. Painting
 3. Walk In Plasma
