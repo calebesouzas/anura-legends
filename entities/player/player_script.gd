@@ -21,17 +21,20 @@ var camera_direction: Vector3
 
 @onready var pivot: Node3D = %pivot
 @onready var camera: Camera3D = %camera
-@onready var mesh: MeshInstance3D = %mesh
 @onready var aim: Marker3D = %aim
 @onready var aim_lock_timer: Timer = %aim_lock_timer
 @onready var fire_locked_timer: Timer = %fire_locked_timer
+
+@export_group("Skin")
+@onready var skin: Node3D = %skin
+@export var rotation_speed: float = 12.0
 
 @export_group("Combat")
 @export var bullet_scene: PackedScene
 @export var shots_per_second: float
 
 var input_direction: Vector2
-var move_direction: Vector2
+var move_direction: Vector3
 
 func _ready() -> void:
   if not OS.has_feature("android"):
@@ -52,15 +55,17 @@ func _physics_process(delta: float) -> void:
 
   self.input_direction = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
   self.move_direction = self.get_camera_relative_movement().normalized()
+  self.move_direction.y = 0.0
 
   if self.move_direction.length_squared() > 0:
     self.velocity.x = self.move_direction.x * self.SPEED
-    self.velocity.z = self.move_direction.y * self.SPEED
-    var target: Vector3 = self.position \
-      + Vector3(self.move_direction.x, 0, self.move_direction.y)
-    self.mesh.look_at(target) #@todo find a way to touch only the `y` field
-    self.mesh.rotation.x = 0
-    self.mesh.rotation.z = 0
+    self.velocity.z = self.move_direction.z * self.SPEED
+    var target_angle: float = Vector3.FORWARD.signed_angle_to(self.move_direction, Vector3.UP)
+    self.skin.rotation.y = lerp_angle(
+      self.skin.rotation.y,
+      target_angle,
+      self.rotation_speed * delta
+    )
   else:
     self.velocity.x = move_toward(self.velocity.x, 0, self.SPEED)
     self.velocity.z = move_toward(self.velocity.z, 0, self.SPEED)
@@ -73,16 +78,18 @@ func _physics_process(delta: float) -> void:
     self.trigger()
 
   if self.aim_locked:
-    self.mesh.look_at(self.position + self.camera_direction)
-    self.mesh.rotation.x = 0
-    self.mesh.rotation.z = 0
+    var target_angle: float = Vector3.FORWARD.signed_angle_to(self.camera_direction, Vector3.UP)
+    self.skin.rotation.y = lerp_angle(
+      self.skin.rotation.y,
+      target_angle,
+      self.rotation_speed * 2.0 * delta
+    )
 
-func get_camera_relative_movement() -> Vector2:
+func get_camera_relative_movement() -> Vector3:
   var forward: Vector3 = self.camera.global_transform.basis.z
   var right: Vector3 = self.camera.global_transform.basis.x
-  var direction: Vector3 = forward * self.input_direction.y \
+  return forward * self.input_direction.y \
     + right * self.input_direction.x
-  return Vector2(direction.x, direction.z)
 
 func trigger() -> void:
   self.plasma_manager.spawn_new_projectile(self.id, self.bullet_scene, self.camera_direction)
