@@ -31,6 +31,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_uufrl")
 
 [node name="skin" parent="." unique_id=563597635 instance=ExtResource("3_lcggp")]
+unique_name_in_owner = true
 
 [node name="pivot" type="Node3D" parent="." unique_id=1038422704]
 unique_name_in_owner = true
@@ -124,3 +125,5 @@ texture_normal = ExtResource("6_kmx06")
 texture_pressed = ExtResource("7_k2n06")
 passby_press = true
 action = "move_backward"
+
+[editable path="skin"]
