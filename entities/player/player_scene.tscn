@@ -18,10 +18,6 @@
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uufrl"]
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_uufrl"]
-
-[sub_resource type="BoxMesh" id="BoxMesh_3xm0v"]
-
 [sub_resource type="SphereShape3D" id="SphereShape3D_32adv"]
 
 [node name="player" type="CharacterBody3D" unique_id=220854978]
@@ -34,19 +30,7 @@ unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_uufrl")
 
-[node name="skin" type="Node3D" parent="." unique_id=2039273338]
-unique_name_in_owner = true
-
-[node name="capsule" type="MeshInstance3D" parent="skin" unique_id=2025473190]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-visible = false
-mesh = SubResource("CapsuleMesh_uufrl")
-
-[node name="face" type="MeshInstance3D" parent="skin/capsule" unique_id=1861268368]
-transform = Transform3D(0.7004224, 0, 0, 0, 0.26493424, 0, 0, 0, 0.32116872, 0, 0.3607118, -0.5395989)
-mesh = SubResource("BoxMesh_3xm0v")
-
-[node name="player_model_thin" parent="skin" unique_id=563597635 instance=ExtResource("3_lcggp")]
+[node name="skin" parent="." unique_id=563597635 instance=ExtResource("3_lcggp")]
 
 [node name="pivot" type="Node3D" parent="." unique_id=1038422704]
 unique_name_in_owner = true
