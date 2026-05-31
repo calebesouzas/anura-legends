@@ -1,5 +1,8 @@
 class_name AliveEntity extends Entity
 
+var saved_collision_layer: int
+var saved_collision_mask: int
+
 var vulnerable: bool = true
 
 @export var initial_health: int = 1000
@@ -43,6 +46,10 @@ func play_damage_failure_effect(amount: int) -> void:
 func kill() -> void:
   self.play_kill_effect()
   self.vulnerable = false # so we don't get killed again without even respawning
+  self.saved_collision_layer = self.collision_layer
+  self.collision_layer = 0
+  self.saved_collision_mask = self.collision_mask
+  self.collision_mask = 0
   self.respawn_timer.start(self.respawn_delay_seconds)
 
 func play_kill_effect() -> void:
@@ -52,6 +59,8 @@ func respawn() -> void:
   self.global_position = self.respawn_global_position
   self.health = self.initial_health
   self.vulnerable = true
+  self.collision_layer = self.saved_collision_layer
+  self.collision_mask = self.saved_collision_mask
   self.play_respawn_effect()
 
 func play_respawn_effect() -> void:
