@@ -33,12 +33,12 @@ unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_uufrl")
 
-[node name="mesh" type="MeshInstance3D" parent="." unique_id=2025473190]
+[node name="skin" type="MeshInstance3D" parent="." unique_id=2025473190]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("CapsuleMesh_uufrl")
 
-[node name="face" type="MeshInstance3D" parent="mesh" unique_id=1861268368]
+[node name="face" type="MeshInstance3D" parent="skin" unique_id=1861268368]
 transform = Transform3D(0.7004224, 0, 0, 0, 0.26493424, 0, 0, 0, 0.32116872, 0, 0.3607118, -0.5395989)
 mesh = SubResource("BoxMesh_3xm0v")
 
