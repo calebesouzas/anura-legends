@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://c3ltnnrsiabaq" path="res://entities/player/player_script.gd" id="1_bk7tw"]
 [ext_resource type="PackedScene" uid="uid://bna5yi5v2qjxn" path="res://entities/projectiles/ball_bullet.tscn" id="2_qnxqa"]
 [ext_resource type="Texture2D" uid="uid://c6ughjbb7w73y" path="res://ui/touch/direction-up-black.png" id="2_ygi5u"]
+[ext_resource type="PackedScene" uid="uid://bygh8hojl5q1l" path="res://entities/player/player_model_thin.tscn" id="3_lcggp"]
 [ext_resource type="Texture2D" uid="uid://cbp0amgop1gje" path="res://ui/touch/direction-up-white.png" id="3_n8j47"]
 [ext_resource type="Texture2D" uid="uid://cevpj7tpnxsly" path="res://ui/touch/trigger-black.png" id="4_3xm0v"]
 [ext_resource type="Texture2D" uid="uid://v8wu8mu24373" path="res://ui/touch/direction-right-black.png" id="4_hycpi"]
@@ -33,14 +34,19 @@ unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_uufrl")
 
-[node name="skin" type="MeshInstance3D" parent="." unique_id=2025473190]
+[node name="skin" type="Node3D" parent="." unique_id=2039273338]
 unique_name_in_owner = true
+
+[node name="capsule" type="MeshInstance3D" parent="skin" unique_id=2025473190]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+visible = false
 mesh = SubResource("CapsuleMesh_uufrl")
 
-[node name="face" type="MeshInstance3D" parent="skin" unique_id=1861268368]
+[node name="face" type="MeshInstance3D" parent="skin/capsule" unique_id=1861268368]
 transform = Transform3D(0.7004224, 0, 0, 0, 0.26493424, 0, 0, 0, 0.32116872, 0, 0.3607118, -0.5395989)
 mesh = SubResource("BoxMesh_3xm0v")
+
+[node name="player_model_thin" parent="skin" unique_id=563597635 instance=ExtResource("3_lcggp")]
 
 [node name="pivot" type="Node3D" parent="." unique_id=1038422704]
 unique_name_in_owner = true
