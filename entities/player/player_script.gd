@@ -25,6 +25,8 @@ var camera_direction: Vector3
 @onready var aim_lock_timer: Timer = %aim_lock_timer
 @onready var fire_locked_timer: Timer = %fire_locked_timer
 @onready var animations: AnimationPlayer = %animations
+@onready var animator: AnimationNodeStateMachinePlayback = \
+  %animator.get("parameters/playback")
 
 @export_group("Skin")
 @onready var skin: Node3D = %skin
@@ -67,11 +69,11 @@ func _physics_process(delta: float) -> void:
       target_angle,
       self.rotation_speed * delta
     )
-    self.animations.play("player/running")
+    self.animator.travel("running")
   else:
     self.velocity.x = move_toward(self.velocity.x, 0, self.SPEED)
     self.velocity.z = move_toward(self.velocity.z, 0, self.SPEED)
-    self.animations.stop()
+    self.animator.travel("idle")
   self.move_and_slide()
 
   if Input.is_action_pressed("trigger") and self.fire_locked_timer.is_stopped():
