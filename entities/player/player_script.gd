@@ -25,8 +25,16 @@ var camera_direction: Vector3
 @onready var aim_lock_timer: Timer = %aim_lock_timer
 @onready var fire_locked_timer: Timer = %fire_locked_timer
 @onready var animations: AnimationPlayer = %animations
-@onready var animator: AnimationNodeStateMachinePlayback = \
-  %animator.get("parameters/playback")
+@onready var animator: PlayerAnimator = %animator
+@onready var hands: Array[Marker3D] = [
+  $skin/body/arms/left_arm/left_hand,
+  $skin/body/arms/right_arm/right_hand
+]
+var current_hand: Marker3D
+var current_hand_index: int = 0:
+  set(value):
+    current_hand_index = value
+    self.current_hand = self.hands[current_hand_index]
 
 @export_group("Skin")
 @onready var skin: Node3D = %skin
@@ -69,11 +77,11 @@ func _physics_process(delta: float) -> void:
       target_angle,
       self.rotation_speed * delta
     )
-    self.animator.travel("running")
+    self.animator.play("running")
   else:
     self.velocity.x = move_toward(self.velocity.x, 0, self.SPEED)
     self.velocity.z = move_toward(self.velocity.z, 0, self.SPEED)
-    self.animator.travel("idle")
+    self.animator.play("idle")
   self.move_and_slide()
 
   if Input.is_action_pressed("trigger") and self.fire_locked_timer.is_stopped():
