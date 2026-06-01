@@ -431,6 +431,9 @@ mesh = SubResource("ArrayMesh_82sno")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, -1.45, 0)
 mesh = SubResource("ArrayMesh_md358")
 
+[node name="right_hand" type="Marker3D" parent="body/arms/right_arm" unique_id=1388227488]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, -0.65, 0)
+
 [node name="left_arm" type="Node3D" parent="body/arms" unique_id=1317183776]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0, 0)
 
@@ -441,6 +444,9 @@ mesh = SubResource("ArrayMesh_t8t5l")
 [node name="left_arm_out" type="MeshInstance3D" parent="body/arms/left_arm" unique_id=623865659]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, -1.45, 0)
 mesh = SubResource("ArrayMesh_cps6i")
+
+[node name="left_hand" type="Marker3D" parent="body/arms/left_arm" unique_id=246451945]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, -0.65, 0)
 
 [node name="legs" type="Node3D" parent="." unique_id=1238449082]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)

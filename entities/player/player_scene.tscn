@@ -646,6 +646,7 @@ libraries/player = SubResource("AnimationLibrary_lcggp")
 
 [node name="animator" type="AnimationTree" parent="." unique_id=1273356069]
 unique_name_in_owner = true
+active = false
 root_node = NodePath("%skin")
 tree_root = SubResource("AnimationNodeStateMachine_qnxqa")
 anim_player = NodePath("../animations")
@@ -689,6 +690,9 @@ mesh = SubResource("ArrayMesh_ucnxd")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, -1.45, 0)
 mesh = SubResource("ArrayMesh_xgoka")
 
+[node name="right_hand" type="Marker3D" parent="skin/body/arms/right_arm" unique_id=1493953394]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, -0.65, 0)
+
 [node name="left_arm" type="Node3D" parent="skin/body/arms" unique_id=1815136138]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0, 0)
 
@@ -699,6 +703,9 @@ mesh = SubResource("ArrayMesh_uvpxj")
 [node name="left_arm_out" type="MeshInstance3D" parent="skin/body/arms/left_arm" unique_id=2038546077]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, -1.45, 0)
 mesh = SubResource("ArrayMesh_t2pnh")
+
+[node name="left_hand" type="Marker3D" parent="skin/body/arms/left_arm" unique_id=928613496]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, -0.65, 0)
 
 [node name="legs" type="Node3D" parent="skin" unique_id=1231424450]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
