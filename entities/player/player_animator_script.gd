@@ -9,10 +9,14 @@ class_name PlayerAnimator extends AnimationTree
   self.root.get_node("body/arms/left_arm/left_hand"),
   self.root.get_node("body/arms/right_arm/right_hand")
 ]
+var other_hand: Marker3D
+var other_hand_index: int = 1
 var current_hand: Marker3D
 var current_hand_index: int = 0:
   set(value):
     current_hand_index = value
+    self.other_hand_index = not current_hand_index
+    self.other_hand = self.hands[self.other_hand_index]
     self.current_hand = self.hands[current_hand_index]
 
 func play(animation: StringName) -> void:
