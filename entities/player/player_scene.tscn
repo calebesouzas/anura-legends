@@ -646,6 +646,7 @@ libraries/player = SubResource("AnimationLibrary_lcggp")
 
 [node name="animator" type="AnimationTree" parent="." unique_id=1103485495]
 unique_name_in_owner = true
+active = false
 root_node = NodePath("%skin")
 callback_mode_process = 2
 tree_root = SubResource("AnimationNodeStateMachine_1h5a1")
