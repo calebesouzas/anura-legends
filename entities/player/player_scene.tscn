@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://c3ltnnrsiabaq" path="res://entities/player/player_script.gd" id="1_bk7tw"]
 [ext_resource type="PackedScene" uid="uid://bna5yi5v2qjxn" path="res://entities/projectiles/ball_bullet.tscn" id="2_qnxqa"]
 [ext_resource type="Texture2D" uid="uid://c6ughjbb7w73y" path="res://ui/touch/direction-up-black.png" id="2_ygi5u"]
+[ext_resource type="Script" uid="uid://fuftf5wav32k" path="res://entities/player/player_animator_script.gd" id="3_lcggp"]
 [ext_resource type="Texture2D" uid="uid://cbp0amgop1gje" path="res://ui/touch/direction-up-white.png" id="3_n8j47"]
 [ext_resource type="Texture2D" uid="uid://cevpj7tpnxsly" path="res://ui/touch/trigger-black.png" id="4_3xm0v"]
 [ext_resource type="Texture2D" uid="uid://v8wu8mu24373" path="res://ui/touch/direction-right-black.png" id="4_hycpi"]
@@ -208,30 +209,29 @@ _data = {
 &"running": SubResource("Animation_qnxqa")
 }
 
-[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_qnxqa"]
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_lcggp"]
 animation = &"player/idle"
 
-[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_lcggp"]
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_1h5a1"]
 animation = &"player/running"
 
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_qnxqa"]
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_t5o3e"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_ucnxd"]
 xfade_time = 0.1
 
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_lcggp"]
-xfade_time = 0.05
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_xgoka"]
+xfade_time = 0.2
 
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_1h5a1"]
-advance_mode = 2
-
-[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_qnxqa"]
-states/End/position = Vector2(507.13242, 188.33333)
-states/Start/position = Vector2(131.66667, 180)
-states/idle/node = SubResource("AnimationNodeAnimation_qnxqa")
-states/idle/position = Vector2(191.49997, 67.83333)
-states/running/node = SubResource("AnimationNodeAnimation_lcggp")
-states/running/position = Vector2(469.8333, 99.49999)
-transitions = ["idle", "running", SubResource("AnimationNodeStateMachineTransition_qnxqa"), "running", "idle", SubResource("AnimationNodeStateMachineTransition_lcggp"), "Start", "idle", SubResource("AnimationNodeStateMachineTransition_1h5a1")]
-graph_offset = Vector2(90.03146, 41.43628)
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_1h5a1"]
+states/End/position = Vector2(618.1205, 113.333336)
+states/Start/position = Vector2(367.0833, 127.5)
+states/idle/node = SubResource("AnimationNodeAnimation_lcggp")
+states/idle/position = Vector2(394.91125, 6.646675)
+states/running/node = SubResource("AnimationNodeAnimation_1h5a1")
+states/running/position = Vector2(513.2446, 6.924452)
+transitions = ["Start", "idle", SubResource("AnimationNodeStateMachineTransition_t5o3e"), "idle", "running", SubResource("AnimationNodeStateMachineTransition_ucnxd"), "running", "idle", SubResource("AnimationNodeStateMachineTransition_xgoka")]
+graph_offset = Vector2(163.89748, -47.949303)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_f2dv2"]
 resource_name = "material_0"
@@ -644,12 +644,13 @@ root_node = NodePath("../skin")
 libraries/ = SubResource("AnimationLibrary_1h5a1")
 libraries/player = SubResource("AnimationLibrary_lcggp")
 
-[node name="animator" type="AnimationTree" parent="." unique_id=1273356069]
+[node name="animator" type="AnimationTree" parent="." unique_id=1103485495]
 unique_name_in_owner = true
-active = false
 root_node = NodePath("%skin")
-tree_root = SubResource("AnimationNodeStateMachine_qnxqa")
+tree_root = SubResource("AnimationNodeStateMachine_1h5a1")
 anim_player = NodePath("../animations")
+script = ExtResource("3_lcggp")
+metadata/_custom_type_script = "uid://fuftf5wav32k"
 
 [node name="skin" type="Node3D" parent="." unique_id=1344860767]
 unique_name_in_owner = true
