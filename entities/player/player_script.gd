@@ -33,7 +33,11 @@ var camera_direction: Vector3
 
 @export_group("Combat")
 @export var bullet_scene: PackedScene
-@export var shots_per_second: float
+@export var shots_per_second: float:
+  set(value):
+    shots_per_second = value
+    self.fire_time = 1.0 / shots_per_second
+var fire_time: float
 
 var input_direction: Vector2
 var move_direction: Vector3
@@ -79,7 +83,7 @@ func _physics_process(delta: float) -> void:
   if Input.is_action_pressed("trigger") and self.fire_locked_timer.is_stopped():
     self.aim_locked = true
     self.aim_lock_timer.start()
-    self.fire_locked_timer.start(1.0 / self.shots_per_second)
+    self.fire_locked_timer.start(self.fire_time)
     self.trigger()
 
   if self.aim_locked:
