@@ -84,6 +84,7 @@ func _physics_process(delta: float) -> void:
     self.aim_locked = true
     self.aim_lock_timer.start()
     self.fire_locked_timer.start(self.fire_time)
+    self.animator.shoot(self.fire_time)
     self.trigger()
 
   if self.aim_locked:

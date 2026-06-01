@@ -25,3 +25,11 @@ func play(animation: StringName) -> void:
 
 func lock_head_at_angle(head_global_rotation: Vector3) -> void:
   self.head.global_rotation = head_global_rotation
+
+func shoot(fire_time: float) -> void:
+  var shoulder_angle_direction: float = -1 if self.current_arm_index == 0 else 1
+  var current_rotation: Vector3 = \
+    Vector3.RIGHT * 90 + Vector3(0.0, 0.0, shoulder_angle_direction) * 60
+  var tween: Tween = self.create_tween()
+  tween.tween_property(self.arms[self.current_arm_index], "rotation_degrees", current_rotation, fire_time * 0.5)
+  self.current_arm_index = not self.current_arm_index
