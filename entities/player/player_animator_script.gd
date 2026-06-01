@@ -5,19 +5,20 @@ class_name PlayerAnimator extends AnimationTree
 
 @onready var root: Node3D = self.get_node(self.root_node)
 @onready var head: Node3D = self.root.get_node("body/head")
-@onready var hands: Array[Marker3D] = [
-  self.root.get_node("body/arms/left_arm/left_hand"),
-  self.root.get_node("body/arms/right_arm/right_hand")
+
+@onready var arms: Array[Node3D] = [
+  self.root.get_node("body/arms/left_arm"),
+  self.root.get_node("body/arms/right_arm")
 ]
-var other_hand: Marker3D
-var other_hand_index: int = 1
-var current_hand: Marker3D
-var current_hand_index: int = 0:
+var other_arm: Node3D
+var other_arm_index: int = 1
+var current_arm: Node3D
+var current_arm_index: int = 0:
   set(value):
-    current_hand_index = value
-    self.other_hand_index = not current_hand_index
-    self.other_hand = self.hands[self.other_hand_index]
-    self.current_hand = self.hands[current_hand_index]
+    current_arm_index = value
+    self.other_arm_index = not current_arm_index
+    self.other_arm = self.arms[self.other_arm_index]
+    self.current_arm = self.arms[current_arm_index]
 
 func play(animation: StringName) -> void:
   self.state_machine.travel(animation)
