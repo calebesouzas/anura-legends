@@ -26,6 +26,7 @@ var camera_direction: Vector3
 @onready var fire_locked_timer: Timer = %fire_locked_timer
 @onready var animations: AnimationPlayer = %animations
 @onready var animator: PlayerAnimator = %animator
+@onready var head: Node3D = $skin/body/head
 @onready var hands: Array[Marker3D] = [
   $skin/body/arms/left_arm/left_hand,
   $skin/body/arms/right_arm/right_hand
@@ -54,6 +55,7 @@ func _ready() -> void:
   self.aim_lock_timer.timeout.connect(func(): self.aim_locked = false)
 
 func _physics_process(delta: float) -> void:
+  self.animator.advance(delta)
   self.camera_direction = self.camera.global_position.direction_to(
     self.aim.global_position
   )
@@ -97,6 +99,7 @@ func _physics_process(delta: float) -> void:
       target_angle,
       self.rotation_speed * 2.0 * delta
     )
+    self.head.global_rotation = self.pivot.global_rotation
 
 func get_camera_relative_movement() -> Vector3:
   var forward: Vector3 = self.camera.global_transform.basis.z
