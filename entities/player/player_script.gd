@@ -6,9 +6,13 @@ func _init() -> void:
 var aim_locked: bool = false
 
 @export_group("Physics")
-@export var SPEED: float = 7.0
+@export var GROUND_SPEED: float = 7.0
+@export_range(0.1, 1.0, 0.05) var GROUND_CONTROL: float = 1.0
+@export_range(0.1, 1.0, 0.05) var AIR_CONTROL: float = 0.5
 @export var JUMP_VELOCITY: float = 5.0
 @export var GRAVITY: float = 12.0
+var speed: float = self.GROUND_SPEED
+var control_ratio: float = self.GROUND_CONTROL
 
 @export_group("Camera")
 @export_range(0.0, 1.0, 0.05, "Sensitivity on mobile")
@@ -56,6 +60,9 @@ func _physics_process(delta: float) -> void:
 
   if not self.is_on_floor():
     self.velocity.y -= self.GRAVITY * delta
+    self.control_ratio = self.AIR_CONTROL
+  else:
+    self.control_ratio = self.GROUND_CONTROL
 
   if Input.is_action_pressed("jump") and self.is_on_floor():
     self.velocity.y = self.JUMP_VELOCITY
@@ -65,8 +72,8 @@ func _physics_process(delta: float) -> void:
   self.move_direction.y = 0.0
 
   if self.move_direction.length_squared() > 0:
-    self.velocity.x = self.move_direction.x * self.SPEED
-    self.velocity.z = self.move_direction.z * self.SPEED
+    self.velocity.x = self.move_direction.x * self.speed * self.control_ratio
+    self.velocity.z = self.move_direction.z * self.speed * self.control_ratio
     var target_angle: float = Vector3.FORWARD.signed_angle_to(self.move_direction, Vector3.UP)
     self.skin.rotation.y = lerp_angle(
       self.skin.rotation.y,
@@ -76,8 +83,8 @@ func _physics_process(delta: float) -> void:
     self.animator.play("running")
     self.animator.walk(delta)
   else:
-    self.velocity.x = move_toward(self.velocity.x, 0, self.SPEED)
-    self.velocity.z = move_toward(self.velocity.z, 0, self.SPEED)
+    self.velocity.x = move_toward(self.velocity.x, 0, self.speed)
+    self.velocity.z = move_toward(self.velocity.z, 0, self.speed)
     self.animator.play("idle")
   self.move_and_slide()
 
