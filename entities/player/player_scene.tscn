@@ -628,10 +628,11 @@ shadow_mesh = SubResource("ArrayMesh_sat1a")
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_32adv"]
 
-[node name="player" type="CharacterBody3D" unique_id=220854978]
+[node name="player" type="CharacterBody3D" unique_id=220854978 node_paths=PackedStringArray("respawn_timer")]
 script = ExtResource("1_bk7tw")
 bullet_scene = ExtResource("2_qnxqa")
 shots_per_second = 5.0
+respawn_timer = NodePath("respawn_timer")
 
 [node name="collision" type="CollisionShape3D" parent="." unique_id=1624968112]
 unique_name_in_owner = true
@@ -755,6 +756,10 @@ unique_name_in_owner = true
 wait_time = 0.5
 
 [node name="fire_locked_timer" type="Timer" parent="." unique_id=372755683]
+unique_name_in_owner = true
+one_shot = true
+
+[node name="respawn_timer" type="Timer" parent="." unique_id=378425836]
 unique_name_in_owner = true
 one_shot = true
 
