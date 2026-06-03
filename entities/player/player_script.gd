@@ -7,6 +7,7 @@ var aim_locked: bool = false
 
 @export_group("Physics")
 @export var GROUND_SPEED: float = 7.0
+@export var ACCELERATION: float = 21.0
 @export_range(0.1, 1.0, 0.05) var GROUND_CONTROL: float = 1.0
 @export_range(0.1, 1.0, 0.05) var AIR_CONTROL: float = 0.5
 @export var JUMP_VELOCITY: float = 5.0
@@ -72,8 +73,16 @@ func _physics_process(delta: float) -> void:
   self.move_direction.y = 0.0
 
   if self.move_direction.length_squared() > 0:
-    self.velocity.x = self.move_direction.x * self.speed * self.control_ratio
-    self.velocity.z = self.move_direction.z * self.speed * self.control_ratio
+    self.velocity.x = move_toward(
+      self.velocity.x,
+      self.move_direction.x * self.speed,
+      self.ACCELERATION * self.control_ratio * delta
+    )
+    self.velocity.z = move_toward(
+      self.velocity.z,
+      self.move_direction.z * self.speed,
+      self.ACCELERATION * self.control_ratio * delta
+    )
     var target_angle: float = Vector3.FORWARD.signed_angle_to(self.move_direction, Vector3.UP)
     self.skin.rotation.y = lerp_angle(
       self.skin.rotation.y,
@@ -83,8 +92,8 @@ func _physics_process(delta: float) -> void:
     self.animator.play("running")
     self.animator.walk(delta)
   else:
-    self.velocity.x = move_toward(self.velocity.x, 0, self.speed)
-    self.velocity.z = move_toward(self.velocity.z, 0, self.speed)
+    self.velocity.x = move_toward(self.velocity.x, 0, self.ACCELERATION * delta)
+    self.velocity.z = move_toward(self.velocity.z, 0, self.ACCELERATION * delta)
     self.animator.play("idle")
   self.move_and_slide()
 
