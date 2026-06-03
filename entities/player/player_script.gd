@@ -38,11 +38,13 @@ var camera_direction: Vector3
 
 @export_group("Combat")
 @export var bullet_scene: PackedScene
+@onready var bullet: PlasmaProjectile = self.bullet_scene.instantiate()
 @export var shots_per_second: float:
   set(value):
     shots_per_second = value
     self.fire_time = 1.0 / shots_per_second
 var fire_time: float
+@onready var aim_ray: RayCast3D = %aim_ray
 
 var input_direction: Vector2
 var move_direction: Vector3
@@ -52,6 +54,7 @@ func _ready() -> void:
     %hud.queue_free()
   Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
   self.aim_lock_timer.timeout.connect(func(): self.aim_locked = false)
+  self.aim_ray.target_position = Vector3.FORWARD * self.bullet.reach
 
 func _physics_process(delta: float) -> void:
   self.animator.advance(delta)
