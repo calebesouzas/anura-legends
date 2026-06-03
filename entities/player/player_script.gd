@@ -6,7 +6,7 @@ func _init() -> void:
 var aim_locked: bool = false
 
 @export_group("Physics")
-@export var SPEED: float = 5.0
+@export var SPEED: float = 7.0
 @export var JUMP_VELOCITY: float = 5.0
 @export var GRAVITY: float = 12.0
 
