@@ -42,6 +42,15 @@ func spawn_new_projectile(id: int, scene: PackedScene, direction: Vector3) -> in
   bullet.global_position = spawn_position
   return bullet.id
 
+func spawn_new_bullet(id: int, bullet_instance: PlasmaProjectile, direction: Vector3) \
+-> int:
+  bullet_instance.setup(id, self.projectiles.get_child_count(), direction)
+  var player: Player = self.players.get_child(bullet_instance.owner_id)
+  var spawn_position = player.pivot.global_position + bullet_instance.direction
+  self.projectiles.add_child(bullet_instance)
+  bullet_instance.global_position = spawn_position
+  return bullet_instance.id
+
 func spawn_new_particle(particle_instance: Node3D, particle_global_position: Vector3) \
 -> void:
   self.particles.add_child(particle_instance)
