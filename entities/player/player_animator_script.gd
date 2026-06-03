@@ -12,18 +12,27 @@ class_name PlayerAnimator extends AnimationTree
 ]
 var current_arm: int = 0
 
+@onready var legs: Array[Node3D] = [
+  self.root.get_node("legs/left_leg"),
+  self.root.get_node("legs/right_leg")
+]
+var current_leg: int = 0
+
 func play(animation: StringName) -> void:
   self.state_machine.travel(animation)
 
-func walk() -> void:
+func walk(delta: float) -> void:
   var player: Player = self.get_parent()
   var ground_speed: float = \
-    Vector2(player.global_position.x, player.global_position.z).length_squared()
+    Vector2(player.velocity.x, player.velocity.z).length_squared()
   var angle: float = sin(ground_speed * 0.1)
-  var left_leg: Node3D = self.root.get_node("legs/left_leg")
-  left_leg.rotation.x = angle
-  var right_leg: Node3D = self.root.get_node("legs/right_leg")
-  right_leg.rotation.x = -angle
+  var current_rotation: float = self.legs[self.current_leg].rotation.x
+  current_rotation = lerp(current_rotation, angle, delta)
+  self.legs[self.current_leg].rotation.x = current_rotation
+  self.current_leg = not self.current_leg
+  var other_rotation: float = self.legs[self.current_leg].rotation.x
+  other_rotation = lerp(other_rotation, -angle, delta)
+  self.legs[self.current_leg].rotation.x = other_rotation
 
 func lock_head_at_angle(head_global_rotation: Vector3) -> void:
   self.head.global_rotation = head_global_rotation
