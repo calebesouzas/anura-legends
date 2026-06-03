@@ -23,6 +23,16 @@ var current_arm_index: int = 0:
 func play(animation: StringName) -> void:
   self.state_machine.travel(animation)
 
+func walk() -> void:
+  var player: Player = self.get_parent()
+  var ground_speed: float = \
+    Vector2(player.global_position.x, player.global_position.z).length_squared()
+  var angle: float = sin(ground_speed * 0.1)
+  var left_leg: Node3D = self.root.get_node("legs/left_leg")
+  left_leg.rotation.x = angle
+  var right_leg: Node3D = self.root.get_node("legs/right_leg")
+  right_leg.rotation.x = -angle
+
 func lock_head_at_angle(head_global_rotation: Vector3) -> void:
   self.head.global_rotation = head_global_rotation
 

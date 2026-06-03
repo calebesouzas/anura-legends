@@ -74,6 +74,7 @@ func _physics_process(delta: float) -> void:
       self.rotation_speed * delta
     )
     self.animator.play("running")
+    self.animator.walk()
   else:
     self.velocity.x = move_toward(self.velocity.x, 0, self.SPEED)
     self.velocity.z = move_toward(self.velocity.z, 0, self.SPEED)
