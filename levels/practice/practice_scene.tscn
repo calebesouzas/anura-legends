@@ -7,7 +7,7 @@ background_mode = 1
 background_color = Color(0, 0.5778433, 0.8595153, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_3l573"]
-size = Vector3(50, 0.5, 50)
+size = Vector3(500, 0.5, 500)
 
 [sub_resource type="BoxMesh" id="BoxMesh_3l573"]
 
@@ -29,7 +29,7 @@ environment = SubResource("Environment_3l573")
 shape = SubResource("BoxShape3D_3l573")
 
 [node name="mesh" type="MeshInstance3D" parent="ground" unique_id=1994144104]
-transform = Transform3D(50, 0, 0, 0, 0.5, 0, 0, 0, 50, 0, 0, 0)
+transform = Transform3D(500, 0, 0, 0, 0.5, 0, 0, 0, 500, 0, 0, 0)
 mesh = SubResource("BoxMesh_3l573")
 
 [node name="dummy1" parent="." unique_id=1063714536 instance=ExtResource("2_3skfe")]
