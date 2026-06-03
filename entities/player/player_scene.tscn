@@ -680,6 +680,12 @@ mesh = SubResource("ArrayMesh_1h5a1")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.5, 0)
 mesh = SubResource("ArrayMesh_t5o3e")
 
+[node name="aim_ray" type="RayCast3D" parent="skin/body/head" unique_id=1206688937]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+target_position = Vector3(0, 0, 0)
+debug_shape_custom_color = Color(0.9411765, 0.33333334, 0, 0.6117647)
+
 [node name="arms" type="Node3D" parent="skin/body" unique_id=1997366909]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
 
@@ -740,14 +746,17 @@ mesh = SubResource("ArrayMesh_agglp")
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7086544, 0)
 
-[node name="spring_arm" type="SpringArm3D" parent="pivot" unique_id=226998772]
+[node name="height_pivot" type="Node3D" parent="pivot" unique_id=553644735]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="spring_arm" type="SpringArm3D" parent="pivot/height_pivot" unique_id=226998772]
 shape = SubResource("SphereShape3D_32adv")
 spring_length = 5.0
 
-[node name="camera" type="Camera3D" parent="pivot/spring_arm" unique_id=1689409089]
+[node name="camera" type="Camera3D" parent="pivot/height_pivot/spring_arm" unique_id=1689409089]
 unique_name_in_owner = true
 
-[node name="aim" type="Marker3D" parent="pivot/spring_arm/camera" unique_id=1608299313]
+[node name="aim" type="Marker3D" parent="pivot/height_pivot/spring_arm/camera" unique_id=1608299313]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
 
