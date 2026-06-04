@@ -20,8 +20,8 @@ func setup(shooter_id: int, my_id: int, direction_to_go: Vector3) -> void:
   self.direction = direction_to_go
 
 func _physics_process(delta: float) -> void:
-  self.velocity = self.direction * self.speed * delta
-  self.velocity.y += self.gravity
+  self.velocity = self.velocity.move_toward(self.direction * self.speed, self.speed * delta)
+  # self.velocity.y += self.gravity
   self.travelled_distance_squared += self.velocity.length_squared()
   if self.move_and_slide():
     var collision: KinematicCollision3D = self.get_last_slide_collision()
@@ -33,5 +33,6 @@ func _physics_process(delta: float) -> void:
       entity.damage(self.damage)
     self.queue_free()
   if self.travelled_distance_squared >= self.reach_squared:
-    self.speed -= delta * 1000
-    self.gravity -= delta * 9.8
+    # self.speed -= delta * 1000
+    # self.gravity -= delta * 9.8
+    self.queue_free()
