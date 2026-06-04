@@ -841,3 +841,20 @@ texture_normal = ExtResource("6_kmx06")
 texture_pressed = ExtResource("7_k2n06")
 passby_press = true
 action = "move_backward"
+
+[node name="gui" type="CanvasLayer" parent="." unique_id=1537477114]
+unique_name_in_owner = true
+
+[node name="center" type="CenterContainer" parent="gui" unique_id=1606897195]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="crosshair" type="Label" parent="gui/center" unique_id=617174556]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-o-"
+horizontal_alignment = 1
+vertical_alignment = 1
