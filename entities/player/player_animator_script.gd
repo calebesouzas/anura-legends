@@ -23,14 +23,15 @@ func play(animation: StringName) -> void:
 
 func walk(delta: float) -> void:
   var player: Player = self.get_parent()
-  var angle: float = cos(player.speed * player.time)
-  var current_rotation: float = self.legs[self.current_leg].rotation.x
-  current_rotation = lerp(current_rotation, angle, delta)
-  self.legs[self.current_leg].rotation.x = current_rotation
+  var angle: float = sin(player.time) * deg_to_rad(45.0)
+  var final_angle: float = move_toward(
+    self.legs[self.current_leg].rotation.x,
+    angle,
+    player.speed * delta
+  )
+  self.legs[self.current_leg].rotation.x = final_angle
+  self.legs[not self.current_leg as int].rotation.x = -final_angle
   self.current_leg = not self.current_leg
-  var other_rotation: float = self.legs[self.current_leg].rotation.x
-  other_rotation = lerp(other_rotation, -angle, delta)
-  self.legs[self.current_leg].rotation.x = other_rotation
 
 func lock_head_at_angle(head_global_rotation: Vector3) -> void:
   self.head.global_rotation = head_global_rotation
