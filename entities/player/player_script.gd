@@ -14,6 +14,7 @@ var aim_locked: bool = false
 @export var GRAVITY: float = 12.0
 var speed: float = self.GROUND_SPEED
 var control_ratio: float = self.GROUND_CONTROL
+var time: float = 0.0
 
 @export_group("Camera")
 @export_range(0.0, 1.0, 0.05, "Sensitivity on mobile")
@@ -58,6 +59,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
   self.animator.advance(delta)
+  self.time += delta
   self.camera_direction = self.camera.global_position.direction_to(
     self.aim.global_position
   )

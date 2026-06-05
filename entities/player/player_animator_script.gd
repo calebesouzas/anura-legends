@@ -25,7 +25,7 @@ func walk(delta: float) -> void:
   var player: Player = self.get_parent()
   var ground_speed: float = \
     Vector2(player.velocity.x, player.velocity.z).length_squared()
-  var angle: float = sin(ground_speed * 0.1)
+  var angle: float = cos(ground_speed * player.time)
   var current_rotation: float = self.legs[self.current_leg].rotation.x
   current_rotation = lerp(current_rotation, angle, delta)
   self.legs[self.current_leg].rotation.x = current_rotation
