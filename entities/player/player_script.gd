@@ -12,9 +12,10 @@ var aim_locked: bool = false
 @export_range(0.1, 1.0, 0.05) var AIR_CONTROL: float = 0.5
 @export var JUMP_VELOCITY: float = 5.0
 @export var GRAVITY: float = 12.0
-var speed: float = self.GROUND_SPEED
+var max_speed: float = self.GROUND_SPEED
 var control_ratio: float = self.GROUND_CONTROL
 var time: float = 0.0
+var speed: float
 
 @export_group("Camera")
 @export_range(0.0, 1.0, 0.05, "Sensitivity on mobile")
@@ -80,12 +81,12 @@ func _physics_process(delta: float) -> void:
   if self.move_direction.length_squared() > 0:
     self.velocity.x = move_toward(
       self.velocity.x,
-      self.move_direction.x * self.speed,
+      self.move_direction.x * self.max_speed,
       self.ACCELERATION * self.control_ratio * delta
     )
     self.velocity.z = move_toward(
       self.velocity.z,
-      self.move_direction.z * self.speed,
+      self.move_direction.z * self.max_speed,
       self.ACCELERATION * self.control_ratio * delta
     )
     var target_angle: float = Vector3.FORWARD.signed_angle_to(self.move_direction, Vector3.UP)
@@ -94,11 +95,13 @@ func _physics_process(delta: float) -> void:
       target_angle,
       self.rotation_speed * delta
     )
+    self.update_speed()
     self.animator.play("running")
     self.animator.walk(delta)
   else:
     self.velocity.x = move_toward(self.velocity.x, 0, self.ACCELERATION * delta)
     self.velocity.z = move_toward(self.velocity.z, 0, self.ACCELERATION * delta)
+    self.update_speed()
     self.animator.play("idle")
   self.move_and_slide()
 
@@ -117,6 +120,9 @@ func _physics_process(delta: float) -> void:
       self.rotation_speed * 2.0 * delta
     )
     self.animator.lock_head_at_angle(self.pivot.global_rotation)
+
+func update_speed() -> void:
+  self.speed = Vector2(self.velocity.x, self.velocity.z).length()
 
 func get_camera_relative_movement() -> Vector3:
   var forward: Vector3 = self.camera.global_transform.basis.z
