@@ -31,8 +31,6 @@ var camera_direction: Vector3
 @onready var aim: Marker3D = %aim
 @onready var aim_lock_timer: Timer = %aim_lock_timer
 @onready var fire_locked_timer: Timer = %fire_locked_timer
-@onready var animations: AnimationPlayer = %animations
-@onready var animator: PlayerAnimator = %animator
 
 @export_group("Skin")
 @onready var skin: Node3D = %skin
@@ -46,7 +44,6 @@ var camera_direction: Vector3
     shots_per_second = value
     self.fire_time = 1.0 / shots_per_second
 var fire_time: float
-@onready var aim_ray: RayCast3D = %aim_ray
 
 var input_direction: Vector2
 var move_direction: Vector3
@@ -56,10 +53,8 @@ func _ready() -> void:
     %hud.queue_free()
   Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
   self.aim_lock_timer.timeout.connect(func(): self.aim_locked = false)
-  self.aim_ray.target_position = Vector3.FORWARD * self.bullet.reach
 
 func _physics_process(delta: float) -> void:
-  self.animator.advance(delta)
   self.time += delta
   self.camera_direction = self.camera.global_position.direction_to(
     self.aim.global_position
@@ -96,20 +91,16 @@ func _physics_process(delta: float) -> void:
       self.rotation_speed * delta
     )
     self.update_speed()
-    self.animator.play("running")
-    self.animator.walk(delta)
   else:
     self.velocity.x = move_toward(self.velocity.x, 0, self.ACCELERATION * delta)
     self.velocity.z = move_toward(self.velocity.z, 0, self.ACCELERATION * delta)
     self.update_speed()
-    self.animator.play("idle")
   self.move_and_slide()
 
   if Input.is_action_pressed("trigger") and self.fire_locked_timer.is_stopped():
     self.aim_locked = true
     self.aim_lock_timer.start()
     self.fire_locked_timer.start(self.fire_time)
-    self.animator.shoot(self.fire_time)
     self.trigger()
 
   if self.aim_locked:
@@ -119,7 +110,6 @@ func _physics_process(delta: float) -> void:
       target_angle,
       self.rotation_speed * 2.0 * delta
     )
-    self.animator.lock_head_at_angle(self.pivot.global_rotation)
 
 func update_speed() -> void:
   self.speed = Vector2(self.velocity.x, self.velocity.z).length()
