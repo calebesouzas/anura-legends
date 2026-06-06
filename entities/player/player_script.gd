@@ -7,15 +7,25 @@ var aim_locked: bool = false
 
 @export_group("Physics")
 @export var GROUND_SPEED: float = 7.0
-@export var ACCELERATION: float = 21.0
+@export var GROUND_ACCELERATION: float = 21.0
 @export_range(0.1, 1.0, 0.05) var GROUND_CONTROL: float = 1.0
 @export_range(0.1, 1.0, 0.05) var AIR_CONTROL: float = 0.5
 @export var JUMP_VELOCITY: float = 5.0
 @export var GRAVITY: float = 12.0
 var max_speed: float = self.GROUND_SPEED
+var gravity: float = self.GRAVITY
+var acceleration: float = self.GROUND_ACCELERATION
 var control_ratio: float = self.GROUND_CONTROL
 var time: float = 0.0
 var speed: float
+
+@export_group("Dashing")
+@export var DASH_SPEED: float = 20.0
+@export var DASH_ACCELERATION: float = 500.0
+@export var DASH_CONTROL: float = 0.0
+@export var DASH_GRAVITY: float = 0.0
+var locked_by_dash: bool = false
+@onready var dash_timer: Timer = %dash_timer
 
 @export_group("Camera")
 @export_range(0.0, 1.0, 0.05, "Sensitivity on mobile")
@@ -60,6 +70,17 @@ func _physics_process(delta: float) -> void:
     self.aim.global_position
   )
 
+  if Input.is_action_pressed("trigger") and Input.is_action_just_pressed("jump"):
+    self.control_ratio = self.DASH_CONTROL
+    self.acceleration = self.DASH_ACCELERATION
+    self.max_speed = self.DASH_SPEED
+    self.gravity = self.DASH_GRAVITY
+  else:
+    self.control_ratio = self.GROUND_CONTROL
+    self.acceleration = self.GROUND_ACCELERATION
+    self.max_speed = self.GROUND_SPEED
+    self.gravity = self.GRAVITY
+
   if not self.is_on_floor():
     self.velocity.y -= self.GRAVITY * delta
     self.control_ratio = self.AIR_CONTROL
@@ -77,12 +98,12 @@ func _physics_process(delta: float) -> void:
     self.velocity.x = move_toward(
       self.velocity.x,
       self.move_direction.x * self.max_speed,
-      self.ACCELERATION * self.control_ratio * delta
+      self.acceleration * self.control_ratio * delta
     )
     self.velocity.z = move_toward(
       self.velocity.z,
       self.move_direction.z * self.max_speed,
-      self.ACCELERATION * self.control_ratio * delta
+      self.acceleration * self.control_ratio * delta
     )
     var target_angle: float = Vector3.FORWARD.signed_angle_to(self.move_direction, Vector3.UP)
     self.skin.rotation.y = lerp_angle(
@@ -92,8 +113,8 @@ func _physics_process(delta: float) -> void:
     )
     self.update_speed()
   else:
-    self.velocity.x = move_toward(self.velocity.x, 0, self.ACCELERATION * delta)
-    self.velocity.z = move_toward(self.velocity.z, 0, self.ACCELERATION * delta)
+    self.velocity.x = move_toward(self.velocity.x, 0, self.acceleration * delta)
+    self.velocity.z = move_toward(self.velocity.z, 0, self.acceleration * delta)
     self.update_speed()
   self.move_and_slide()
 
