@@ -11,6 +11,43 @@ size = Vector3(500, 0.5, 500)
 
 [sub_resource type="BoxMesh" id="BoxMesh_3l573"]
 
+[sub_resource type="BoxMesh" id="BoxMesh_3skfe"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3l573"]
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_au8na"]
+material = SubResource("StandardMaterial3D_3l573")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3skfe"]
+albedo_color = Color(0, 0, 1, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_1i0el"]
+material = SubResource("StandardMaterial3D_3skfe")
+
+[sub_resource type="MeshLibrary" id="MeshLibrary_3l573"]
+item/0/name = "normal"
+item/0/mesh = SubResource("BoxMesh_3skfe")
+item/0/mesh_transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+item/0/mesh_cast_shadow = 1
+item/0/shapes = []
+item/0/navigation_mesh_transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+item/0/navigation_layers = 1
+item/1/name = "red"
+item/1/mesh = SubResource("BoxMesh_au8na")
+item/1/mesh_transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+item/1/mesh_cast_shadow = 1
+item/1/shapes = []
+item/1/navigation_mesh_transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+item/1/navigation_layers = 1
+item/2/name = "blue"
+item/2/mesh = SubResource("BoxMesh_1i0el")
+item/2/mesh_transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+item/2/mesh_cast_shadow = 1
+item/2/shapes = []
+item/2/navigation_mesh_transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+item/2/navigation_layers = 1
+
 [node name="world" type="Node3D" unique_id=759790201]
 
 [node name="spawn_point" type="Marker3D" parent="." unique_id=1368845624]
@@ -40,3 +77,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.7651014, 0.3061533, 2.65500
 
 [node name="dummy3" parent="." unique_id=1478228177 instance=ExtResource("2_3skfe")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.7651014, 0.3061533, 5.6625776)
+
+[node name="blocks" type="GridMap" parent="." unique_id=886353914]
+unique_name_in_owner = true
+mesh_library = SubResource("MeshLibrary_3l573")
+cell_size = Vector3(1, 1, 1)
