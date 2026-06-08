@@ -21,7 +21,7 @@ var aim_locked: bool = false
 @export var GRAVITY: float = 12.0
 @export var MOVE_DEADZONE: float = 0.2
 var time: float = 0.0
-var speed: float
+var ground_speed: float
 var jump_force: float
 
 @export_group("Dashing")
@@ -46,7 +46,7 @@ var camera_direction: Vector3
 
 @export_group("Skin")
 @onready var skin: Node3D = %skin
-@export var rotation_speed: float = 12.0
+@export var ROTATION_SPEED: float = 12.0
 
 @export_group("Combat")
 @export var bullet_scene: PackedScene
@@ -72,7 +72,7 @@ func _physics_process(delta: float) -> void:
   self.camera_direction = self.camera.global_position.direction_to(
     self.aim.global_position
   )
-  self.speed = Vector2(self.velocity.x, self.velocity.z).length()
+  self.ground_speed = Vector2(self.velocity.x, self.velocity.z).length()
   if self.is_on_floor():
     self.flags |= Flags.GROUNDED
   else:
@@ -80,8 +80,7 @@ func _physics_process(delta: float) -> void:
 
   if not self.flags & Flags.MOVE_LOCKED:
     self.input_direction = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
-    self.move_direction = self.get_camera_relative_movement().normalized()
-    self.move_direction.y = 0.0
+    self.move_direction = Vector3(self.input_direction.x, 0.0, self.input_direction.y).rotated(Vector3.UP, self.pivot.rotation.y)
 
   self.handle_state(delta)
 
@@ -96,43 +95,33 @@ func _physics_process(delta: float) -> void:
     self.fire_locked_timer.start(self.fire_time)
     self.trigger()
 
-  if self.aim_locked:
-    var target_angle: float = Vector3.FORWARD.signed_angle_to(self.camera_direction, Vector3.UP)
-    self.skin.rotation.y = lerp_angle(
-      self.skin.rotation.y,
-      target_angle,
-      self.rotation_speed * 2.0 * delta
-    )
+  if self.move_direction.length_squared() <= pow(self.MOVE_DEADZONE, 2):
+    return
+
+  var target_angle: float = \
+    Vector3.FORWARD.signed_angle_to(self.camera_direction, Vector3.UP) \
+  if self.aim_locked else Vector3.FORWARD.signed_angle_to(self.velocity, Vector3.UP)
+
+  self.skin.rotation.y = lerp_angle(
+    self.skin.rotation.y,
+    target_angle,
+    self.ROTATION_SPEED * 2.0 * delta
+  )
 
 func handle_state(delta: float) -> void:
   match self.state:
     State.IDLE:
       self.velocity.x = move_toward(self.velocity.x, 0, self.GROUND_ACCELERATION * delta)
       self.velocity.z = move_toward(self.velocity.z, 0, self.GROUND_ACCELERATION * delta)
-      if self.move_direction.length_squared() > 0:
+      if self.input_direction.length_squared() > self.MOVE_DEADZONE*self.MOVE_DEADZONE:
         self.set_state(State.RUN) #@issue one tick of input lag for movement...
       elif not self.flags & Flags.GROUNDED:
         self.set_state(State.FALL)
       elif Input.is_action_pressed("jump"):
         self.set_state(State.JUMP)
     State.RUN:
-      self.velocity.x = move_toward(
-        self.velocity.x,
-        self.move_direction.x * self.GROUND_SPEED,
-        self.GROUND_ACCELERATION * delta
-      )
-      self.velocity.z = move_toward(
-        self.velocity.z,
-        self.move_direction.z * self.GROUND_SPEED,
-        self.GROUND_ACCELERATION * delta
-      )
-      var target_angle: float = Vector3.FORWARD.signed_angle_to(self.move_direction, Vector3.UP)
-      self.skin.rotation.y = lerp_angle(
-        self.skin.rotation.y,
-        target_angle,
-        self.rotation_speed * delta
-      )
-      if self.move_direction.length_squared() < self.MOVE_DEADZONE:
+      self.move_2d(self.move_direction, self.GROUND_SPEED, self.GROUND_ACCELERATION, delta)
+      if self.input_direction.length_squared() < self.MOVE_DEADZONE*self.MOVE_DEADZONE:
         self.set_state(State.IDLE)
       elif not self.flags & Flags.GROUNDED:
         self.set_state(State.FALL)
@@ -142,48 +131,17 @@ func handle_state(delta: float) -> void:
       if self.flags & Flags.GROUNDED:
         self.set_state(State.IDLE)
         return
+      self.move_2d(self.move_direction, self.AIR_SPEED, self.AIR_ACCELERATION, delta)
       self.velocity.y -= self.GRAVITY * delta
-      self.velocity.x = move_toward(
-        self.velocity.x,
-        self.move_direction.x * self.AIR_SPEED,
-        self.AIR_ACCELERATION * delta
-      )
-      self.velocity.z = move_toward(
-        self.velocity.z,
-        self.move_direction.z * self.AIR_SPEED,
-        self.AIR_ACCELERATION * delta
-      )
-      var target_angle: float = Vector3.FORWARD.signed_angle_to(self.move_direction, Vector3.UP)
-      self.skin.rotation.y = lerp_angle(
-        self.skin.rotation.y,
-        target_angle,
-        self.rotation_speed * delta
-      )
     State.JUMP:
       if not Input.is_action_pressed("jump") or self.jump_force <= 0:
         self.jump_force = self.JUMP_FORCE
         self.set_state(State.FALL)
         return
+      self.move_2d(self.move_direction, self.GROUND_SPEED, self.AIR_ACCELERATION, delta)
       self.velocity.y = self.jump_force
-      self.velocity.x = move_toward(
-        self.velocity.x,
-        self.move_direction.x * self.GROUND_SPEED,
-        self.AIR_ACCELERATION * delta
-      )
-      self.velocity.z = move_toward(
-        self.velocity.z,
-        self.move_direction.z * self.GROUND_SPEED,
-        self.AIR_ACCELERATION * delta
-      )
-      var target_angle: float = Vector3.FORWARD.signed_angle_to(self.move_direction, Vector3.UP)
-      self.skin.rotation.y = lerp_angle(
-        self.skin.rotation.y,
-        target_angle,
-        self.rotation_speed * delta
-      )
 
       self.jump_force = move_toward(self.jump_force, 0.0, self.GRAVITY * delta)
-      print(self.jump_force)
     _:
       assert(false, "Unhandled state: " + State.keys()[self.state])
 
@@ -191,11 +149,12 @@ func set_state(new_state: State) -> void:
   self.state_changed.emit(self.state, new_state)
   self.state = new_state
 
-func get_camera_relative_movement() -> Vector3:
-  var forward: Vector3 = self.camera.global_transform.basis.z
-  var right: Vector3 = self.camera.global_transform.basis.x
-  return forward * self.input_direction.y \
-    + right * self.input_direction.x
+func move_3d(direction: Vector3, speed: float, acceleration: float, delta: float) -> void:
+  self.velocity = self.velocity.move_toward(direction * speed, acceleration * delta)
+
+func move_2d(direction: Vector3, speed: float, acceleration: float, delta: float) -> void:
+  self.velocity.x = move_toward(self.velocity.x, direction.x * speed, acceleration * delta)
+  self.velocity.z = move_toward(self.velocity.z, direction.z * speed, acceleration * delta)
 
 func trigger() -> void:
   self.plasma_manager.spawn_new_projectile(self.id, self.bullet_scene, self.camera_direction)
