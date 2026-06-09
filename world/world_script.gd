@@ -3,6 +3,7 @@ class_name World extends Node3D
 var plasma_manager: PlasmaManager
 var spawn_point_global_position: Vector3 = Vector3.ZERO
 var scene: Node3D
+@onready var grid: GridMap = $grid
 
 # Had to use `new_world` name because `new` is like a keyword and also a reserved static function
 func _init(scene_path: StringName, plasma_manager_reference: PlasmaManager) -> void:
