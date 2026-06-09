@@ -14,10 +14,20 @@ var travelled_distance_squared: float
 
 var gravity: float = 0.0
 
-func setup(shooter_id: int, my_id: int, direction_to_go: Vector3) -> void:
+func _enter_tree() -> void:
+  assert(
+    self.get_parent().get_parent() is PlasmaManager,
+    "Bullet is not grandchild of Plasma Manager"
+  )
+
+func setup(
+  shooter_id: int, my_id: int, direction_to_go: Vector3,
+  plasma_manager_reference: PlasmaManager) \
+-> void:
   self.owner_id = shooter_id
   self.id = my_id
   self.direction = direction_to_go
+  self.plasma_manager = plasma_manager_reference
 
 func _physics_process(delta: float) -> void:
   self.velocity = self.velocity.move_toward(self.direction * self.speed, self.speed * delta)

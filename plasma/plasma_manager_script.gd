@@ -11,12 +11,15 @@ var world: World
 
 var world_spawn_gpos: Vector3 = Vector3.ZERO
 
+var grid: GridMap
+
 func _ready() -> void:
   assert(self.player_scene != null, "Should provide player scene to PlasmaManager")
 
 func setup(world_reference: World) -> void:
   self.world = world_reference
   self.world_spawn_gpos = self.world.spawn_point_global_position
+  self.grid = self.world.grid
   self.add_child(self.world)
   self.spawn_new_player()
 
@@ -35,7 +38,7 @@ func spawn_new_player(spawn_position: Vector3 = self.world_spawn_gpos) -> void:
 
 func spawn_new_projectile(id: int, scene: PackedScene, direction: Vector3) -> int:
   var bullet: PlasmaProjectile = scene.instantiate()
-  bullet.setup(id, self.projectiles.get_child_count(), direction)
+  bullet.setup(id, self.projectiles.get_child_count(), direction, self)
   var player: Player = self.players.get_child(bullet.owner_id)
   var spawn_position = player.pivot.global_position + bullet.direction
   self.projectiles.add_child(bullet)
@@ -44,7 +47,7 @@ func spawn_new_projectile(id: int, scene: PackedScene, direction: Vector3) -> in
 
 func spawn_new_bullet(id: int, bullet_instance: PlasmaProjectile, direction: Vector3) \
 -> int:
-  bullet_instance.setup(id, self.projectiles.get_child_count(), direction)
+  bullet_instance.setup(id, self.projectiles.get_child_count(), direction, self)
   var player: Player = self.players.get_child(bullet_instance.owner_id)
   var spawn_position = player.pivot.global_position + bullet_instance.direction
   self.projectiles.add_child(bullet_instance)
@@ -55,3 +58,4 @@ func spawn_new_particle(particle_instance: Node3D, particle_global_position: Vec
 -> void:
   self.particles.add_child(particle_instance)
   particle_instance.global_position = particle_global_position
+
