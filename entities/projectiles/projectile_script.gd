@@ -21,11 +21,13 @@ func _enter_tree() -> void:
   )
 
 func setup(
-  shooter_id: int, my_id: int, direction_to_go: Vector3,
+  shooter_id: int, my_id: int, color: Team.TeamColor,
+  direction_to_go: Vector3,
   plasma_manager_reference: PlasmaManager) \
 -> void:
   self.owner_id = shooter_id
   self.id = my_id
+  self.team_color = color
   self.direction = direction_to_go
   self.plasma_manager = plasma_manager_reference
 
@@ -39,8 +41,10 @@ func _physics_process(delta: float) -> void:
     var entity: AliveEntity = null
     if collider is AliveEntity:
       entity = collider as AliveEntity
-    if entity != null:
-      entity.damage(self.damage)
+      if entity != null and entity.team_color != self.team_color:
+        entity.damage(self.damage)
+    else:
+      self.plasma_manager.paint(collision.get_position(), collision.get_normal(), self.team_color)
     self.queue_free()
   if self.travelled_distance_squared >= self.reach_squared:
     # self.speed -= delta * 1000

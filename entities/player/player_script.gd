@@ -157,7 +157,7 @@ func move_2d(direction: Vector3, speed: float, acceleration: float, delta: float
   self.velocity.z = move_toward(self.velocity.z, direction.z * speed, acceleration * delta)
 
 func trigger() -> void:
-  self.plasma_manager.spawn_new_projectile(self.id, self.bullet_scene, self.camera_direction)
+  self.plasma_manager.spawn_new_projectile(self.id, self.bullet_scene, self.team_color, self.camera_direction)
 
 func _unhandled_input(event: InputEvent) -> void:
   var is_camera_motion: bool = false
