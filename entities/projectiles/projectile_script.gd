@@ -46,7 +46,7 @@ func _physics_process(delta: float) -> void:
     else:
       self.plasma_manager.paint(collision.get_position(), collision.get_normal(), self.team_color)
     self.queue_free()
-  if self.travelled_distance_squared >= self.reach_squared:
+  elif self.travelled_distance_squared >= self.reach_squared:
     # self.speed -= delta * 1000
     # self.gravity -= delta * 9.8
     self.queue_free()
