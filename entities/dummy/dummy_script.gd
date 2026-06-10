@@ -2,6 +2,9 @@ class_name Dummy extends AliveEntity
 
 @onready var mesh: MeshInstance3D = %mesh
 
+func _init() -> void:
+  self.team_color = Team.TeamColor.RED
+
 #@perf this is not a very good approach... but it's what i could do
 func _ready() -> void:
   var reference: Node3D = self.get_parent_node_3d()
