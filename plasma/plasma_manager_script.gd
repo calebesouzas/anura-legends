@@ -18,9 +18,12 @@ func _ready() -> void:
 
 func setup(world_reference: World) -> void:
   self.world = world_reference
-  self.world_spawn_gpos = self.world.spawn_point_global_position
-  self.grid = self.world.grid
   self.add_child(self.world)
+  self.world_spawn_gpos = self.world.spawn_point_global_position
+  # for some reason there is a nested "world" node inside plasma_manager node...
+  self.grid = self.world.get_node("world/blocks")
+  if self.grid == null:
+    print("Couldn't find world blocks (GridMap)")
   self.spawn_new_player()
 
 func _process(_delta: float) -> void:
@@ -58,4 +61,3 @@ func spawn_new_particle(particle_instance: Node3D, particle_global_position: Vec
 -> void:
   self.particles.add_child(particle_instance)
   particle_instance.global_position = particle_global_position
-
