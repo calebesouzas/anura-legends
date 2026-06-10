@@ -14,6 +14,7 @@ collision_layer = 0
 script = ExtResource("1_aep8o")
 speed = 2000.0
 damage = 100
+paint_radius = 2
 reach = 1000.0
 
 [node name="collision" type="CollisionShape3D" parent="." unique_id=29827701]

@@ -70,8 +70,12 @@ func spawn_new_particle(particle_instance: Node3D, particle_global_position: Vec
   self.particles.add_child(particle_instance)
   particle_instance.global_position = particle_global_position
 
-func paint(exact_position: Vector3, normal: Vector3, color: Team.TeamColor) -> void:
+func paint(exact_position: Vector3, normal: Vector3, color: Team.TeamColor, offsets: Array[Vector3i] = []) -> void:
   var point: Vector3 = exact_position - 0.1 * normal
   var block_position: Vector3i = self.blocks.local_to_map(point)
   self.grid.set(block_position, color)
   self.blocks.set_cell_item(block_position, Team.team_to_block_color(color))
+  for offset: Vector3i in offsets:
+    if self.blocks.get_cell_item(block_position + offset) == GridMap.INVALID_CELL_ITEM:
+      continue
+    self.blocks.set_cell_item(block_position + offset, Team.team_to_block_color(color))

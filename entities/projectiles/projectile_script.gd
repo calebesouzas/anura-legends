@@ -5,6 +5,7 @@ var owner_id: int
 
 @export var speed: float
 @export var damage: int
+@export var paint_radius: int
 @export var reach: float:
   set(value):
     reach = value
@@ -44,9 +45,22 @@ func _physics_process(delta: float) -> void:
       if entity != null and entity.team_color != self.team_color:
         entity.damage(self.damage)
     else:
-      self.plasma_manager.paint(collision.get_position(), collision.get_normal(), self.team_color)
+      self.plasma_manager.paint(
+        collision.get_position(), collision.get_normal(),
+        self.team_color,
+        self.generate_paint_offsets()
+      )
     self.queue_free()
   elif self.travelled_distance_squared >= self.reach_squared:
     # self.speed -= delta * 1000
     # self.gravity -= delta * 9.8
     self.queue_free()
+
+func generate_paint_offsets() -> Array[Vector3i]:
+  var offsets: Array[Vector3i] = []
+  # this one is going to be badly slow
+  for x: int in range(-self.paint_radius, self.paint_radius):
+    for y: int in range(-self.paint_radius, self.paint_radius):
+      for z: int in range(-self.paint_radius, self.paint_radius):
+        offsets.append(Vector3i(x, y, z))
+  return offsets
