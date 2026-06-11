@@ -25,9 +25,11 @@ var ground_speed: float
 var jump_force: float
 
 @export_group("Dashing")
-@export var DASH_SPEED: float = 20.0
+@export var DASH_SPEED: float = 10.0
 @export var DASH_ACCELERATION: float = 500.0
-@onready var dash_timer: Timer = %dash_timer
+@export var DASH_DOWN_FORCE: float = -20.0
+@export var DASH_DURATION_IN_TICKS: int = 30
+var dash_ticks: int = 0 # how many Physics Ticks we've been dashing
 
 @export_group("Camera")
 @export_range(0.0, 1.0, 0.05, "Sensitivity on mobile")
@@ -119,6 +121,9 @@ func handle_state(delta: float) -> void:
         self.set_state(State.FALL)
       elif Input.is_action_pressed("jump"):
         self.set_state(State.JUMP)
+      elif Input.is_action_just_pressed("dash"):
+        self.set_state(State.DASH)
+        return
     State.RUN:
       self.move_2d(self.move_direction, self.GROUND_SPEED, self.GROUND_ACCELERATION, delta)
       if self.input_direction.length_squared() < self.MOVE_DEADZONE*self.MOVE_DEADZONE:
@@ -127,9 +132,15 @@ func handle_state(delta: float) -> void:
         self.set_state(State.FALL)
       elif Input.is_action_pressed("jump"):
         self.set_state(State.JUMP)
+      elif Input.is_action_just_pressed("dash"):
+        self.set_state(State.DASH)
+        return
     State.FALL:
       if self.flags & Flags.GROUNDED:
         self.set_state(State.IDLE)
+        return
+      elif Input.is_action_just_pressed("dash"):
+        self.set_state(State.DASH)
         return
       self.move_2d(self.move_direction, self.AIR_SPEED, self.AIR_ACCELERATION, delta)
       self.velocity.y -= self.GRAVITY * delta
@@ -138,10 +149,27 @@ func handle_state(delta: float) -> void:
         self.jump_force = self.JUMP_FORCE
         self.set_state(State.FALL)
         return
+      elif Input.is_action_just_pressed("dash"):
+        self.set_state(State.DASH)
+        return
       self.move_2d(self.move_direction, self.GROUND_SPEED, self.AIR_ACCELERATION, delta)
       self.velocity.y = self.jump_force
 
       self.jump_force = move_toward(self.jump_force, 0.0, self.GRAVITY * delta)
+    State.DASH:
+      self.dash_ticks += 1
+      if self.dash_ticks > self.DASH_DURATION_IN_TICKS:
+        self.set_state(State.FALL)
+        self.dash_ticks = 0
+        self.flags &= ~Flags.MOVE_LOCKED
+        return
+      if self.dash_ticks == 1:
+        self.flags |= Flags.MOVE_LOCKED
+        #@todo play some kind of effect
+      if self.flags & Flags.GROUNDED:
+        self.move_2d(self.move_direction, self.DASH_SPEED, self.DASH_ACCELERATION, delta)
+      else:
+        self.move_3d(self.move_direction + Vector3.DOWN, self.DASH_SPEED, self.DASH_ACCELERATION, delta)
     _:
       assert(false, "Unhandled state: " + State.keys()[self.state])
 
