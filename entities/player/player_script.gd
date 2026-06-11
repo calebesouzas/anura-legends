@@ -65,7 +65,7 @@ func _ready() -> void:
     %hud.queue_free()
   Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
   self.aim_lock_timer.timeout.connect(func(): self.aim_locked = false)
-  self.state_changed.connect(func(_old: State, new: State): print(State.keys()[new]))
+  # self.state_changed.connect(func(_old: State, new: State): print(State.keys()[new]))
 
 func _physics_process(delta: float) -> void:
   self.time += delta
