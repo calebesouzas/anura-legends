@@ -15,9 +15,14 @@
 [ext_resource type="Texture2D" uid="uid://bl85bxj834ox1" path="res://ui/touch/jump-black.png" id="10_32adv"]
 [ext_resource type="Texture2D" uid="uid://bw5nxmjqado4h" path="res://ui/touch/jump-white.png" id="11_rbw6g"]
 
+[sub_resource type="Curve" id="Curve_qnxqa"]
+_data = [Vector2(0, 0.68539333), 0.0, 2.4044938, 0, 0, Vector2(0.9672896, 0), -2.038593, 0.0, 0, 0]
+point_count = 2
+
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uufrl"]
 
 [sub_resource type="SystemFont" id="SystemFont_qnxqa"]
+subpixel_positioning = 0
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_lcggp"]
 
@@ -28,6 +33,7 @@ size = Vector3(0.75, 0.5, 0.5)
 
 [node name="player" type="CharacterBody3D" unique_id=220854978 node_paths=PackedStringArray("respawn_timer")]
 script = ExtResource("1_bk7tw")
+JUMP_CURVE = SubResource("Curve_qnxqa")
 bullet_scene = ExtResource("2_qnxqa")
 shots_per_second = 5.0
 respawn_timer = NodePath("respawn_timer")

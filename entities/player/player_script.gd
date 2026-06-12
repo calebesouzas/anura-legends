@@ -8,7 +8,7 @@ enum Flags {
   MOVE_LOCKED = 1, TRIGGER_LOCKED = 2,
   GROUNDED = 4,
   JUMP_PRESSED = 8, SWIM_PRESSED = 16, TRIGGER_PRESSED = 32,
-  JUST_MOVE = 64,
+  JUST_MOVE = 64, JUST_JUMP = 128,
 }
 
 var state: State
@@ -22,8 +22,8 @@ var aim_locked: bool = false
 @export var GROUND_ACCELERATION: float = 21.0
 @export var AIR_SPEED: float = 5.0
 @export var AIR_ACCELERATION: float = 10.5
-@export var JUMP_FORCE: float = 2.5
-@export var EXTRA_JUMP_FORCE: float = 10.0
+@export var JUMP_FORCE: float = 5.0
+@export var JUMP_CURVE: Curve
 @export var GRAVITY: float = 12.0
 @export var MOVE_DEADZONE: float = 0.2
 @export var ADD_POINT: float = 8.0
@@ -113,7 +113,7 @@ func _physics_process(delta: float) -> void:
 
   if self.is_on_floor():
     self.flags |= Flags.GROUNDED
-    if self.airbone_time > 0: print(self.airbone_time)
+    if self.airbone_time > 0: print("Air time ", self.airbone_time)
     self.airbone_time = 0
   else:
     self.flags &= ~Flags.GROUNDED
@@ -131,10 +131,14 @@ func _physics_process(delta: float) -> void:
 
   self.dot = self.velocity.dot(self.move_direction)
 
-  if Input.is_action_pressed("jump"):
+  if Input.is_action_just_pressed("jump"):
+    self.flags |= Flags.JUST_JUMP
+  elif Input.is_action_pressed("jump"):
+    self.flags &= ~Flags.JUST_JUMP
     self.flags |= Flags.JUMP_PRESSED
   else:
     self.flags &= ~Flags.JUMP_PRESSED
+    self.flags &= ~Flags.JUST_JUMP
 
   if Input.is_action_pressed("swim"):
     self.flags |= Flags.SWIM_PRESSED
@@ -214,12 +218,10 @@ func handle_state(delta: float) -> void:
         self.jump_force = self.JUMP_FORCE
         self.set_state(State.FALL)
         return
-      else:
-        self.jump_force = lerp(self.jump_force, self.EXTRA_JUMP_FORCE, delta)
 
       self.move_2d(self.move_direction, self.GROUND_SPEED, self.AIR_ACCELERATION, delta)
       self.velocity.y = self.jump_force
-      self.jump_force = move_toward(self.jump_force, 0.0, self.GRAVITY * delta)
+      self.jump_force = self.JUMP_CURVE.sample(self.airbone_time) * self.JUMP_FORCE
 
     State.DASH:
       self.dash_ticks += 1
