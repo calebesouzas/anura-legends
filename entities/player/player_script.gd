@@ -7,7 +7,8 @@ enum State {IDLE, RUN, JUMP, FALL, SWIM, DASH}
 enum Flags {
   MOVE_LOCKED = 1, TRIGGER_LOCKED = 2,
   GROUNDED = 4,
-  JUMP_PRESSED = 8, SWIM_PRESSED = 16, TRIGGER_PRESSED = 32
+  JUMP_PRESSED = 8, SWIM_PRESSED = 16, TRIGGER_PRESSED = 32,
+  JUST_MOVE = 64,
 }
 
 var state: State
@@ -25,6 +26,7 @@ var aim_locked: bool = false
 @export var EXTRA_JUMP_FORCE: float = 10.0
 @export var GRAVITY: float = 12.0
 @export var MOVE_DEADZONE: float = 0.2
+@export var ADD_POINT: float = 8.0
 var time: float = 0.0
 var ground_speed: float
 var jump_force: float
@@ -82,6 +84,10 @@ var fire_time: float
 
 var input_direction: Vector2
 var move_direction: Vector3
+var prev_move_len: float
+var curr_move_len: float
+
+var dot: float
 
 func _ready() -> void:
   if not OS.has_feature("android"):
@@ -109,8 +115,16 @@ func _physics_process(delta: float) -> void:
     self.airbone_time += delta
 
   if not self.flags & Flags.MOVE_LOCKED:
-    self.input_direction = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+    self.input_direction = self.get_movement()
+    self.prev_move_len = self.move_direction.length_squared()
     self.move_direction = Vector3(self.input_direction.x, 0.0, self.input_direction.y).rotated(Vector3.UP, self.pivot.rotation.y)
+    self.curr_move_len = self.move_direction.length_squared()
+    if is_equal_approx(self.prev_move_len, 0) and self.curr_move_len > self.MOVE_DEADZONE:
+      self.flags |= Flags.JUST_MOVE
+    else:
+      self.flags &= ~Flags.JUST_MOVE
+
+  self.dot = self.velocity.dot(self.move_direction)
 
   if Input.is_action_pressed("jump"):
     self.flags |= Flags.JUMP_PRESSED
@@ -230,7 +244,7 @@ func handle_state(delta: float) -> void:
       self.skin.visible = false
       self.move_2d(self.move_direction, self.SWIM_SPEED, self.SWIM_ACCELERATION, delta)
 
-      if self.flags & Flags.TRIGGER_PRESSED:
+      if self.flags & Flags.JUST_MOVE and self.flags & Flags.JUMP_PRESSED:
         self.set_state(State.DASH)
     _:
       assert(false, "Unhandled state: " + State.keys()[self.state])
@@ -240,14 +254,27 @@ func set_state(new_state: State) -> void:
   self.state = new_state
 
 func move_3d(direction: Vector3, speed: float, acceleration: float, delta: float) -> void:
-  self.velocity = self.velocity.move_toward(direction * speed, acceleration * delta)
+  var final_speed: float = lerp(
+    speed,
+    speed + (self.ground_speed if self.ground_speed > self.ADD_POINT else 0.0),
+    delta
+  )
+  self.velocity = self.velocity.move_toward(direction * final_speed, acceleration * delta)
 
 func move_2d(direction: Vector3, speed: float, acceleration: float, delta: float) -> void:
-  self.velocity.x = move_toward(self.velocity.x, direction.x * speed, acceleration * delta)
-  self.velocity.z = move_toward(self.velocity.z, direction.z * speed, acceleration * delta)
+  var final_speed: float = lerp(
+    speed,
+    speed + (self.ground_speed if self.ground_speed > self.ADD_POINT else 0.0),
+    delta
+  )
+  self.velocity.x = move_toward(self.velocity.x, direction.x * final_speed, acceleration * delta)
+  self.velocity.z = move_toward(self.velocity.z, direction.z * final_speed, acceleration * delta)
 
 func trigger() -> void:
   self.plasma_manager.spawn_new_projectile(self.id, self.bullet_scene, self.team_color, self.camera_direction)
+
+func get_movement() -> Vector2:
+  return Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 
 func _unhandled_input(event: InputEvent) -> void:
   var is_camera_motion: bool = false
