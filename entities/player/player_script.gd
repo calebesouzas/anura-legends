@@ -31,10 +31,15 @@ var time: float = 0.0
 var ground_speed: float
 var jump_force: float
 
+@export_group("Bunny Hopping")
+@export_range(-1.0, 1.0, 0.01) var DOT_POINT: float = 0.0
+@export_range(0.05, 0.5, 0.05) var DOT_RANGE: float = 0.1
+
 #@todo swim!
 @export_group("Swimming")
 @export var SWIM_SPEED: float = 12.0
 @export var SWIM_ACCELERATION: float = 3.0
+@export var SWIM_OPPOSITE_ACCELERATION: float = 10.0
 
 @export_group("Dashing")
 @export var DASH_SPEED: float = 10.0
@@ -242,7 +247,12 @@ func handle_state(delta: float) -> void:
 
       #@todo effect!
       self.skin.visible = false
-      self.move_2d(self.move_direction, self.SWIM_SPEED, self.SWIM_ACCELERATION, delta)
+      self.move_2d(
+        self.move_direction,
+        self.SWIM_SPEED,
+        self.SWIM_OPPOSITE_ACCELERATION if self.dot < 0.0 else self.SWIM_ACCELERATION,
+        delta
+      )
 
       if self.flags & Flags.JUST_MOVE and self.flags & Flags.JUMP_PRESSED:
         self.set_state(State.DASH)
@@ -275,6 +285,9 @@ func trigger() -> void:
 
 func get_movement() -> Vector2:
   return Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+
+func has_the_dot() -> bool:
+  return self.DOT_POINT - self.DOT_RANGE < self.dot and self.dot < self.DOT_POINT + self.DOT_RANGE
 
 func _unhandled_input(event: InputEvent) -> void:
   var is_camera_motion: bool = false
