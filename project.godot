@@ -13,6 +13,7 @@ config_version=5
 config/name="anura-legends"
 run/main_scene="uid://c4bm8haw68u0k"
 config/features=PackedStringArray("4.6", "GL Compatibility")
+run/low_processor_mode=true
 config/icon="res://icon.svg"
 
 [debug]
@@ -79,3 +80,7 @@ pointing/emulate_mouse_from_touch=false
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+environment/ssao/quality=0
+environment/ssil/quality=0
+global_illumination/sdfgi/frames_to_converge=0
+occlusion_culling/use_occlusion_culling=true
