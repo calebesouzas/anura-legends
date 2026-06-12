@@ -18,9 +18,11 @@ var flags: int = 0
 var aim_locked: bool = false
 
 @export_group("Physics")
-@export var GROUND_SPEED: float = 7.0
+@export var IDLE_SPEED: float = 5.0
+@export var RUN_SPEED: float = 7.0
+@export var FALL_SPEED: float = 5.0
+@export var JUMP_SPEED: float = 8.0
 @export var GROUND_ACCELERATION: float = 21.0
-@export var AIR_SPEED: float = 5.0
 @export var AIR_ACCELERATION: float = 10.5
 @export var JUMP_FORCE: float = 5.0
 @export var JUMP_CURVE: Curve
@@ -29,6 +31,9 @@ var aim_locked: bool = false
 @export var ADD_POINT: float = 8.0
 var time: float = 0.0
 var ground_speed: float
+var speed: float
+var final_speed: float
+var state_speeds: Array[float]
 var jump_force: float
 
 @export_group("Bunny Hopping")
@@ -101,6 +106,8 @@ func _ready() -> void:
   self.aim_lock_timer.timeout.connect(func(): self.aim_locked = false)
   self.skin.visibility_changed.connect(func(): self.health_indicator.visible = not self.skin.visible)
   self.health_indicator.visible = false
+  for state_key: StringName in State.keys():
+    self.state_speeds.append(self[state_key + "_SPEED"])
   # self.state_changed.connect(func(_old: State, new: State): print(State.keys()[new]))
 
 func _physics_process(delta: float) -> void:
@@ -151,6 +158,12 @@ func _physics_process(delta: float) -> void:
     else:
       self.flags &= ~Flags.TRIGGER_PRESSED
 
+  self.speed = self.state_speeds[self.state]
+  self.final_speed = lerp(
+    speed,
+    speed + (self.ground_speed if self.ground_speed > self.ADD_POINT else 0.0),
+    delta
+  )
   self.handle_state(delta)
 
   self.move_and_slide()
@@ -191,7 +204,7 @@ func handle_state(delta: float) -> void:
         self.set_state(State.SWIM)
 
     State.RUN:
-      self.move_2d(self.move_direction, self.GROUND_SPEED, self.GROUND_ACCELERATION, delta)
+      self.move_2d(self.move_direction, self.GROUND_ACCELERATION, delta)
 
       if self.input_direction.length_squared() < self.MOVE_DEADZONE*self.MOVE_DEADZONE:
         self.set_state(State.IDLE)
@@ -210,7 +223,7 @@ func handle_state(delta: float) -> void:
           self.set_state(State.IDLE)
         return
 
-      self.move_2d(self.move_direction, self.AIR_SPEED, self.AIR_ACCELERATION, delta)
+      self.move_2d(self.move_direction, self.AIR_ACCELERATION, delta)
       self.velocity.y -= self.GRAVITY * delta
 
     State.JUMP:
@@ -219,7 +232,7 @@ func handle_state(delta: float) -> void:
         self.set_state(State.FALL)
         return
 
-      self.move_2d(self.move_direction, self.GROUND_SPEED, self.AIR_ACCELERATION, delta)
+      self.move_2d(self.move_direction, self.AIR_ACCELERATION, delta)
       self.velocity.y = self.jump_force
       self.jump_force = self.JUMP_CURVE.sample(self.airbone_time) * self.JUMP_FORCE
 
@@ -236,9 +249,9 @@ func handle_state(delta: float) -> void:
         #@todo effect!
 
       if self.flags & Flags.GROUNDED:
-        self.move_2d(self.move_direction, self.DASH_SPEED, self.DASH_ACCELERATION, delta)
+        self.move_2d(self.move_direction, self.DASH_ACCELERATION, delta)
       else:
-        self.move_3d(self.move_direction + Vector3.DOWN, self.DASH_SPEED, self.DASH_ACCELERATION, delta)
+        self.move_3d(self.move_direction + Vector3.DOWN, self.DASH_ACCELERATION, delta)
 
     State.SWIM:
       if not self.plasma_manager.can_swim(self.feet_ray.get_collision_point(), self.team_color) \
@@ -251,7 +264,6 @@ func handle_state(delta: float) -> void:
       self.skin.visible = false
       self.move_2d(
         self.move_direction,
-        self.SWIM_SPEED,
         self.SWIM_OPPOSITE_ACCELERATION if self.dot < 0.0 else self.SWIM_ACCELERATION,
         delta
       )
@@ -265,22 +277,12 @@ func set_state(new_state: State) -> void:
   self.state_changed.emit(self.state, new_state)
   self.state = new_state
 
-func move_3d(direction: Vector3, speed: float, acceleration: float, delta: float) -> void:
-  var final_speed: float = lerp(
-    speed,
-    speed + (self.ground_speed if self.ground_speed > self.ADD_POINT else 0.0),
-    delta
-  )
-  self.velocity = self.velocity.move_toward(direction * final_speed, acceleration * delta)
+func move_3d(direction: Vector3, acceleration: float, delta: float) -> void:
+  self.velocity = self.velocity.move_toward(direction * self.final_speed, acceleration * delta)
 
-func move_2d(direction: Vector3, speed: float, acceleration: float, delta: float) -> void:
-  var final_speed: float = lerp(
-    speed,
-    speed + (self.ground_speed if self.ground_speed > self.ADD_POINT else 0.0),
-    delta
-  )
-  self.velocity.x = move_toward(self.velocity.x, direction.x * final_speed, acceleration * delta)
-  self.velocity.z = move_toward(self.velocity.z, direction.z * final_speed, acceleration * delta)
+func move_2d(direction: Vector3, acceleration: float, delta: float) -> void:
+  self.velocity.x = move_toward(self.velocity.x, direction.x * self.final_speed, acceleration * delta)
+  self.velocity.z = move_toward(self.velocity.z, direction.z * self.final_speed, acceleration * delta)
 
 func trigger() -> void:
   self.plasma_manager.spawn_new_projectile(self.id, self.bullet_scene, self.team_color, self.camera_direction)
