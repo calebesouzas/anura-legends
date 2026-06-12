@@ -21,7 +21,8 @@ var aim_locked: bool = false
 @export var GROUND_ACCELERATION: float = 21.0
 @export var AIR_SPEED: float = 5.0
 @export var AIR_ACCELERATION: float = 10.5
-@export var JUMP_FORCE: float = 5.0
+@export var JUMP_FORCE: float = 2.5
+@export var EXTRA_JUMP_FORCE: float = 10.0
 @export var GRAVITY: float = 12.0
 @export var MOVE_DEADZONE: float = 0.2
 var time: float = 0.0
@@ -63,6 +64,8 @@ var camera_direction: Vector3
 @onready var fire_locked_timer: Timer = %fire_locked_timer
 @onready var feet_ray: RayCast3D = %feet_ray
 
+var airbone_time: float = 0
+
 @export_group("Skin")
 @onready var skin: Node3D = %skin
 @onready var health_indicator: Label3D = %health_indicator
@@ -99,8 +102,11 @@ func _physics_process(delta: float) -> void:
 
   if self.is_on_floor():
     self.flags |= Flags.GROUNDED
+    if self.airbone_time > 0: print(self.airbone_time)
+    self.airbone_time = 0
   else:
     self.flags &= ~Flags.GROUNDED
+    self.airbone_time += delta
 
   if not self.flags & Flags.MOVE_LOCKED:
     self.input_direction = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
@@ -146,7 +152,6 @@ func _physics_process(delta: float) -> void:
     target_angle,
     self.ROTATION_SPEED * 2.0 * delta
   )
-
 func handle_state(delta: float) -> void:
   match self.state:
     State.IDLE:
@@ -190,6 +195,8 @@ func handle_state(delta: float) -> void:
         self.jump_force = self.JUMP_FORCE
         self.set_state(State.FALL)
         return
+      else:
+        self.jump_force = lerp(self.jump_force, self.EXTRA_JUMP_FORCE, delta)
 
       self.move_2d(self.move_direction, self.GROUND_SPEED, self.AIR_ACCELERATION, delta)
       self.velocity.y = self.jump_force
