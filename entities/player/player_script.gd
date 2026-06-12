@@ -3,8 +3,12 @@ class_name Player extends AliveEntity
 func _init() -> void:
   self.health = 1000
 
-enum State {IDLE, RUN, JUMP, FALL, DASH}
-enum Flags {MOVE_LOCKED = 1, TRIGGER_LOCKED = 2, GROUNDED = 4}
+enum State {IDLE, RUN, JUMP, FALL, SWIM, DASH}
+enum Flags {
+  MOVE_LOCKED = 1, TRIGGER_LOCKED = 2,
+  GROUNDED = 4,
+  JUMP_PRESSED = 8, SWIM_PRESSED = 16, TRIGGER_PRESSED = 32
+}
 
 var state: State
 signal state_changed(old_state: State, new_state: State)
@@ -24,12 +28,24 @@ var time: float = 0.0
 var ground_speed: float
 var jump_force: float
 
+#@todo swim!
+@export_group("Swimming")
+@export var SWIM_SPEED: float = 12.0
+@export var SWIM_ACCELERATION: float = 3.0
+
 @export_group("Dashing")
 @export var DASH_SPEED: float = 10.0
 @export var DASH_ACCELERATION: float = 500.0
-@export var DASH_DOWN_FORCE: float = -20.0
 @export var DASH_DURATION_IN_TICKS: int = 30
 var dash_ticks: int = 0 # how many Physics Ticks we've been dashing
+
+"""
+Yo! New idea!
+What if i do SWIM and SHOOT (while swimming) to DASH?
+Splatoon has a thing about using secondary weapon while shooting to dodge...
+
+I should definitelly develop this idea!
+"""
 
 @export_group("Camera")
 @export_range(0.0, 1.0, 0.05, "Sensitivity on mobile")
@@ -45,9 +61,11 @@ var camera_direction: Vector3
 @onready var aim: Marker3D = %aim
 @onready var aim_lock_timer: Timer = %aim_lock_timer
 @onready var fire_locked_timer: Timer = %fire_locked_timer
+@onready var feet_ray: RayCast3D = %feet_ray
 
 @export_group("Skin")
 @onready var skin: Node3D = %skin
+@onready var health_indicator: Label3D = %health_indicator
 @export var ROTATION_SPEED: float = 12.0
 
 @export_group("Combat")
@@ -67,6 +85,8 @@ func _ready() -> void:
     %hud.queue_free()
   Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
   self.aim_lock_timer.timeout.connect(func(): self.aim_locked = false)
+  self.skin.visibility_changed.connect(func(): self.health_indicator.visible = not self.skin.visible)
+  self.health_indicator.visible = false
   # self.state_changed.connect(func(_old: State, new: State): print(State.keys()[new]))
 
 func _physics_process(delta: float) -> void:
@@ -74,7 +94,9 @@ func _physics_process(delta: float) -> void:
   self.camera_direction = self.camera.global_position.direction_to(
     self.aim.global_position
   )
+
   self.ground_speed = Vector2(self.velocity.x, self.velocity.z).length()
+
   if self.is_on_floor():
     self.flags |= Flags.GROUNDED
   else:
@@ -84,14 +106,30 @@ func _physics_process(delta: float) -> void:
     self.input_direction = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
     self.move_direction = Vector3(self.input_direction.x, 0.0, self.input_direction.y).rotated(Vector3.UP, self.pivot.rotation.y)
 
+  if Input.is_action_pressed("jump"):
+    self.flags |= Flags.JUMP_PRESSED
+  else:
+    self.flags &= ~Flags.JUMP_PRESSED
+
+  if Input.is_action_pressed("swim"):
+    self.flags |= Flags.SWIM_PRESSED
+  else:
+    self.flags &= ~Flags.SWIM_PRESSED
+
+  if not self.flags & Flags.TRIGGER_LOCKED:
+    if Input.is_action_pressed("trigger"):
+      self.flags |= Flags.TRIGGER_PRESSED
+    else:
+      self.flags &= ~Flags.TRIGGER_PRESSED
+
   self.handle_state(delta)
 
   self.move_and_slide()
-  
-  if self.flags & Flags.TRIGGER_LOCKED:
-    return
 
-  if Input.is_action_pressed("trigger") and self.fire_locked_timer.is_stopped():
+  self.health_indicator.text = str(self.health)
+
+  if self.flags & Flags.TRIGGER_PRESSED and not self.state == State.DASH \
+      and self.fire_locked_timer.is_stopped():
     self.aim_locked = true
     self.aim_lock_timer.start()
     self.fire_locked_timer.start(self.fire_time)
@@ -102,8 +140,7 @@ func _physics_process(delta: float) -> void:
 
   var target_angle: float = \
     Vector3.FORWARD.signed_angle_to(self.camera_direction, Vector3.UP) \
-  if self.aim_locked else Vector3.FORWARD.signed_angle_to(self.velocity, Vector3.UP)
-
+    if self.aim_locked else Vector3.FORWARD.signed_angle_to(self.velocity, Vector3.UP)
   self.skin.rotation.y = lerp_angle(
     self.skin.rotation.y,
     target_angle,
@@ -115,61 +152,79 @@ func handle_state(delta: float) -> void:
     State.IDLE:
       self.velocity.x = move_toward(self.velocity.x, 0, self.GROUND_ACCELERATION * delta)
       self.velocity.z = move_toward(self.velocity.z, 0, self.GROUND_ACCELERATION * delta)
+
       if self.input_direction.length_squared() > self.MOVE_DEADZONE*self.MOVE_DEADZONE:
         self.set_state(State.RUN) #@issue one tick of input lag for movement...
       elif not self.flags & Flags.GROUNDED:
         self.set_state(State.FALL)
-      elif Input.is_action_pressed("jump"):
+      elif self.flags & Flags.JUMP_PRESSED:
         self.set_state(State.JUMP)
-      elif Input.is_action_just_pressed("dash"):
-        self.set_state(State.DASH)
-        return
+      elif self.flags & Flags.SWIM_PRESSED:
+        self.set_state(State.SWIM)
+
     State.RUN:
       self.move_2d(self.move_direction, self.GROUND_SPEED, self.GROUND_ACCELERATION, delta)
+
       if self.input_direction.length_squared() < self.MOVE_DEADZONE*self.MOVE_DEADZONE:
         self.set_state(State.IDLE)
       elif not self.flags & Flags.GROUNDED:
         self.set_state(State.FALL)
-      elif Input.is_action_pressed("jump"):
+      elif self.flags & Flags.JUMP_PRESSED:
         self.set_state(State.JUMP)
-      elif Input.is_action_just_pressed("dash"):
-        self.set_state(State.DASH)
-        return
+      elif self.flags & Flags.SWIM_PRESSED:
+        self.set_state(State.SWIM)
+
     State.FALL:
       if self.flags & Flags.GROUNDED:
-        self.set_state(State.IDLE)
+        if self.flags & Flags.SWIM_PRESSED:
+          self.set_state(State.SWIM)
+        else:
+          self.set_state(State.IDLE)
         return
-      elif Input.is_action_just_pressed("dash"):
-        self.set_state(State.DASH)
-        return
+
       self.move_2d(self.move_direction, self.AIR_SPEED, self.AIR_ACCELERATION, delta)
       self.velocity.y -= self.GRAVITY * delta
+
     State.JUMP:
-      if not Input.is_action_pressed("jump") or self.jump_force <= 0:
+      if not self.flags & Flags.JUMP_PRESSED or self.jump_force <= 0:
         self.jump_force = self.JUMP_FORCE
         self.set_state(State.FALL)
         return
-      elif Input.is_action_just_pressed("dash"):
-        self.set_state(State.DASH)
-        return
+
       self.move_2d(self.move_direction, self.GROUND_SPEED, self.AIR_ACCELERATION, delta)
       self.velocity.y = self.jump_force
-
       self.jump_force = move_toward(self.jump_force, 0.0, self.GRAVITY * delta)
+
     State.DASH:
       self.dash_ticks += 1
       if self.dash_ticks > self.DASH_DURATION_IN_TICKS:
-        self.set_state(State.FALL)
+        self.set_state(State.SWIM)
         self.dash_ticks = 0
         self.flags &= ~Flags.MOVE_LOCKED
         return
+
       if self.dash_ticks == 1:
         self.flags |= Flags.MOVE_LOCKED
-        #@todo play some kind of effect
+        #@todo effect!
+
       if self.flags & Flags.GROUNDED:
         self.move_2d(self.move_direction, self.DASH_SPEED, self.DASH_ACCELERATION, delta)
       else:
         self.move_3d(self.move_direction + Vector3.DOWN, self.DASH_SPEED, self.DASH_ACCELERATION, delta)
+
+    State.SWIM:
+      if not self.plasma_manager.can_swim(self.feet_ray.get_collision_point(), self.team_color) \
+          or not self.flags & Flags.SWIM_PRESSED:
+        self.skin.visible = true
+        self.set_state(State.RUN)
+        return
+
+      #@todo effect!
+      self.skin.visible = false
+      self.move_2d(self.move_direction, self.SWIM_SPEED, self.SWIM_ACCELERATION, delta)
+
+      if self.flags & Flags.TRIGGER_PRESSED:
+        self.set_state(State.DASH)
     _:
       assert(false, "Unhandled state: " + State.keys()[self.state])
 

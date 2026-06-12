@@ -17,6 +17,8 @@
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uufrl"]
 
+[sub_resource type="SystemFont" id="SystemFont_qnxqa"]
+
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_lcggp"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_lcggp"]
@@ -35,10 +37,20 @@ unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_uufrl")
 
+[node name="feet_ray" type="RayCast3D" parent="." unique_id=305382480]
+unique_name_in_owner = true
+
+[node name="health_indicator" type="Label3D" parent="." unique_id=1447714832]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+billboard = 1
+font = SubResource("SystemFont_qnxqa")
+
 [node name="skin" type="Node3D" parent="." unique_id=1344860767]
 unique_name_in_owner = true
 
 [node name="body" type="MeshInstance3D" parent="skin" unique_id=1131416487]
+unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 mesh = SubResource("CapsuleMesh_lcggp")
 
