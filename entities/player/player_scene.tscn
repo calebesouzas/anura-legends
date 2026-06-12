@@ -103,6 +103,13 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
 
+[node name="trigger" type="TouchScreenButton" parent="hud/control" unique_id=2100857492]
+position = Vector2(1000, 350)
+scale = Vector2(5, 5)
+texture_normal = ExtResource("4_3xm0v")
+texture_pressed = ExtResource("5_qnxqa")
+action = "trigger"
+
 [node name="jump" type="TouchScreenButton" parent="hud/control" unique_id=1989971277]
 position = Vector2(1200, 350)
 scale = Vector2(5, 5)
@@ -110,12 +117,13 @@ texture_normal = ExtResource("10_32adv")
 texture_pressed = ExtResource("11_rbw6g")
 action = "jump"
 
-[node name="trigger" type="TouchScreenButton" parent="hud/control" unique_id=2100857492]
-position = Vector2(1000, 350)
+[node name="swim" type="TouchScreenButton" parent="hud/control" unique_id=1429188447]
+position = Vector2(1200, 200)
+rotation = 3.1415927
 scale = Vector2(5, 5)
-texture_normal = ExtResource("4_3xm0v")
-texture_pressed = ExtResource("5_qnxqa")
-action = "trigger"
+texture_normal = ExtResource("10_32adv")
+texture_pressed = ExtResource("11_rbw6g")
+action = "swim"
 
 [node name="direction_pad" type="Control" parent="hud/control" unique_id=1897145696]
 layout_mode = 1
