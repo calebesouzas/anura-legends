@@ -170,7 +170,7 @@ func _physics_process(delta: float) -> void:
 
   self.health_indicator.text = str(self.health)
 
-  if self.flags & Flags.TRIGGER_PRESSED and not self.state == State.DASH \
+  if self.flags & Flags.TRIGGER_PRESSED and not self.flags & Flags.TRIGGER_LOCKED \
       and self.fire_locked_timer.is_stopped():
     self.aim_locked = true
     self.aim_lock_timer.start()
@@ -242,10 +242,12 @@ func handle_state(delta: float) -> void:
         self.set_state(State.SWIM)
         self.dash_ticks = 0
         self.flags &= ~Flags.MOVE_LOCKED
+        self.flags &= ~Flags.TRIGGER_LOCKED
         return
 
       if self.dash_ticks == 1:
         self.flags |= Flags.MOVE_LOCKED
+        self.flags |= Flags.TRIGGER_LOCKED
         #@todo effect!
 
       if self.flags & Flags.GROUNDED:
@@ -256,10 +258,12 @@ func handle_state(delta: float) -> void:
     State.SWIM:
       if not self.plasma_manager.can_swim(self.feet_ray.get_collision_point(), self.team_color) \
           or not self.flags & Flags.SWIM_PRESSED:
+        self.flags &= ~Flags.TRIGGER_LOCKED
         self.skin.visible = true
         self.set_state(State.RUN)
         return
 
+      self.flags |= Flags.TRIGGER_LOCKED
       #@todo effect!
       self.skin.visible = false
       self.move_2d(
