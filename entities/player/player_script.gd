@@ -38,6 +38,7 @@ var just_dash: bool
 var grounded: bool
 var wanna_move: bool
 
+var prev_state: State
 var state: State
 signal state_changed(old_state: State, new_state: State)
 var state_ticks: int = 0
@@ -109,7 +110,10 @@ var airbone_time: float = 0
 @export_group("Skin")
 @onready var skin: Node3D = %skin
 @onready var health_indicator: Label3D = %health_indicator
-@export var ROTATION_SPEED: float = 12.0
+@export var SKIN_ROTATION_SPEED: float = 12.0
+@export var SKIN_SCALE_SPEED: float = 7.5
+@export var SKIN_FULL_SCALE: float = 1.0
+@export var SKIN_SWIM_SCALE: float = 0.5
 
 @export_group("Combat")
 @export var bullet_scene: PackedScene
@@ -132,7 +136,9 @@ func _ready() -> void:
     %hud.queue_free()
   Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
   aim_lock_timer.timeout.connect(func(): aim_locked = false)
-  skin.visibility_changed.connect(func(): health_indicator.visible = not skin.visible)
+  state_changed.connect(func(old, new):
+    health_indicator.visible = new == State.SWIM and old != State.SWIM
+  )
   health_indicator.visible = false
   for state_key: StringName in State.keys():
     state_speeds.append(self[state_key + "_SPEED"])
@@ -191,17 +197,28 @@ func _physics_process(delta: float) -> void:
     fire_locked_timer.start(fire_time)
     trigger()
 
+  if state == State.SWIM:
+    swim_skin_position(delta)
+  else:
+    normal_skin_position(delta)
+
+  if not trigger_pressed and swim_pressed or swim_locked:
+    swim_skin(delta)
+  else:
+    normal_skin(delta)
+
   if not wanna_move:
     return
 
   var target_angle: float = \
     Vector3.FORWARD.signed_angle_to(camera_direction, Vector3.UP) \
-      if aim_locked else Vector3.FORWARD.signed_angle_to(velocity, Vector3.UP)
+      if aim_locked else Vector3.FORWARD.signed_angle_to(move_direction, Vector3.UP)
   skin.rotation.y = lerp_angle(
     skin.rotation.y,
     target_angle,
-    ROTATION_SPEED * 2.0 * delta
+    SKIN_ROTATION_SPEED * 2.0 * delta
   )
+
 func handle_state(delta: float) -> void:
   match state:
     State.IDLE_MOVE:
@@ -262,15 +279,12 @@ func handle_state(delta: float) -> void:
 
     State.SWIM:
       if not plasma_manager.can_swim(feet_ray.get_collision_point(), team_color) \
-          or not swim_pressed:
+          or not swim_pressed and not swim_locked:
         trigger_locked = false
-        skin.visible = true
         set_state(State.IDLE_MOVE)
         return
 
       trigger_locked = true
-      #@todo effect!
-      skin.visible = false
       move_2d(
         move_direction,
         SWIM_OPPOSITE_ACCELERATION if dot < 0.0 else SWIM_ACCELERATION,
@@ -278,15 +292,19 @@ func handle_state(delta: float) -> void:
       )
 
       if just_dash:
+        trigger_locked = false
         set_state(State.DASH)
       elif jump_pressed:
+        trigger_locked = false
         set_state(State.JUMP)
       elif not grounded:
+        trigger_locked = false
         set_state(State.FALL)
     _:
       assert(false, "Unhandled state: " + State.keys()[state])
 
 func set_state(new_state: State) -> void:
+  prev_state = state
   state_changed.emit(state, new_state)
   state = new_state
   state_ticks = 0
@@ -306,6 +324,21 @@ func get_movement() -> Vector2:
 
 func has_the_dot() -> bool:
   return DOT_POINT - DOT_RANGE < dot and dot < DOT_POINT + DOT_RANGE
+
+func swim_skin(delta: float) -> void:
+  skin.scale.y = move_toward(skin.scale.y, SKIN_SWIM_SCALE, SKIN_SCALE_SPEED * delta)
+
+func swim_skin_position(delta: float) -> void:
+  skin.position.y = move_toward(skin.position.y, -1.0, SKIN_SCALE_SPEED * delta)
+
+func normal_skin(delta: float) -> void:
+  var tween: Tween = create_tween()
+  var target_scale: Vector3 = Vector3(skin.scale.x, SKIN_FULL_SCALE, skin.scale.z)
+  tween.tween_property(skin, "scale", target_scale, SKIN_SCALE_SPEED * delta)
+
+func normal_skin_position(delta: float) -> void:
+  var tween: Tween = create_tween()
+  tween.tween_property(skin, "position", Vector3.ZERO, SKIN_SCALE_SPEED * delta)
 
 func _unhandled_input(event: InputEvent) -> void:
   var is_camera_motion: bool = false
