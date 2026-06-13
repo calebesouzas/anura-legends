@@ -96,6 +96,9 @@ var TOUCH_SENSITIVITY: float = 0.25
 @export_range(0.0, 1.0, 0.05, "Sensitivity on mouse")
 var MOUSE_SENSITIVITY: float = 0.25
 
+@export_range(0.0, 1.0, 0.05, "Sensitivity on controller")
+var CONTROLLER_SENSITIVITY: float = 0.25
+
 var camera_direction: Vector3
 
 @onready var pivot: Node3D = %pivot
@@ -349,6 +352,13 @@ func _unhandled_input(event: InputEvent) -> void:
   elif event is InputEventMouseMotion:
     camera_motion = event.screen_relative * MOUSE_SENSITIVITY
     is_camera_motion = true
+  elif event is InputEventJoypadMotion:
+    if event.axis == JoyAxis.JOY_AXIS_RIGHT_X:
+      camera_motion.x = event.axis_value * CONTROLLER_SENSITIVITY
+      is_camera_motion = true
+    elif event.axis ==  JoyAxis.JOY_AXIS_RIGHT_Y:
+      camera_motion.y = event.axis_value * CONTROLLER_SENSITIVITY
+      is_camera_motion = true
 
   if is_camera_motion:
     pivot.rotation_degrees.y -= camera_motion.x
