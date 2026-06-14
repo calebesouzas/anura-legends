@@ -118,7 +118,7 @@ func handle_state(delta: float) -> void:
       if not grounded:
         state = State.FALL
       elif pressed("jump") or jump_buffered:
-        state = State.JUMP
+        state = dash_or_jump()
 
     State.FALL:
       if grounded:
@@ -126,16 +126,13 @@ func handle_state(delta: float) -> void:
         return
       elif just_pressed("jump") and prev_state == State.IDLE_MOVE \
           and state_ticks < jump_buf_window:
-        state = State.JUMP
+        state = dash_or_jump()
         return
 
       move_2d(move_direction, delta)
       velocity += get_gravity() * delta
 
     State.JUMP:
-      if pressed("adhesion") and can_join():
-        state = State.DASH
-        return
       if state_ticks > jump_window or not pressed("jump") and not jump_buffered:
         state = State.FALL
         return
@@ -202,6 +199,9 @@ func move_2d(
 ) -> void:
   velocity.x = move_toward(velocity.x, direction.x * speed, acceleration * delta)
   velocity.z = move_toward(velocity.z, direction.z * speed, acceleration * delta)
+
+func dash_or_jump() -> State:
+  return State.DASH if pressed("adhesion") and can_join() else State.JUMP
 
 ## adhesion
 func can_join() -> bool:
