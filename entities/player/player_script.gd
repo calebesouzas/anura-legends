@@ -75,6 +75,7 @@ var input_locked: bool = false
 var grounded: bool
 var dot: float
 
+var ticks: int = 0
 var state_ticks: int = 0
 var prev_state: State
 var state: State = State.IDLE_MOVE:
@@ -86,7 +87,9 @@ var state: State = State.IDLE_MOVE:
 var current_speed: float
 
 var jump_window: int = 30
-var jump_buf_window: int = 6
+var jump_buf_window: int = 12
+var jump_buffered: bool
+var last_jump_tick: int
 
 # this is the tick amount that input will be locked
 var dash_window: int = 30
@@ -114,7 +117,7 @@ func handle_state(delta: float) -> void:
 
       if not grounded:
         state = State.FALL
-      elif pressed("jump"):
+      elif pressed("jump") or jump_buffered:
         state = State.JUMP
       elif just_pressed("dash"):
         state = State.DASH
@@ -135,7 +138,7 @@ func handle_state(delta: float) -> void:
       velocity += get_gravity() * delta
 
     State.JUMP:
-      if not pressed("jump") or state_ticks > jump_window:
+      if state_ticks > jump_window or not pressed("jump") and not jump_buffered:
         state = State.FALL
         return
 
@@ -160,11 +163,17 @@ func handle_state(delta: float) -> void:
       assert(false, "Unhandled state: " + State.keys()[state])
 
 func _physics_process(delta: float) -> void:
+  ticks += 1
   state_ticks += 1
 
   current_speed = Vector2(velocity.x, velocity.z).length()
 
   grounded = is_on_floor()
+
+  if just_pressed("jump"):
+    last_jump_tick = ticks
+
+  jump_buffered = ticks - last_jump_tick < jump_buf_window
 
   if not input_locked:
     move_direction = Vector3(input_direction.x, 0.0, input_direction.y) \
