@@ -91,8 +91,11 @@ var jump_buf_window: int = 12
 var jump_buffered: bool
 var last_jump_tick: int
 
-# this is the tick amount that input will be locked
-var dash_window: int = 15
+var dash_window: int = 15 # tick amount that input will be locked
+
+var adhesion_buf_window: int = 12
+var adhesion_buffered: bool
+var last_adhesion_tick: int
 
 const SPEED: float = 5.0
 
@@ -110,7 +113,10 @@ const DASH_FORCE: float = 5.0
 func handle_state(delta: float) -> void:
   match state:
     State.IDLE_MOVE:
-      var factor: float = ADHESION_FACTOR if can_join() and pressed("adhesion") else 1.0
+      var factor: float = \
+        ADHESION_FACTOR \
+          if can_join() and pressed("adhesion") or adhesion_buffered \
+          else 1.0
       if wanna_move:
         move_2d(move_direction, delta, ACCELERATION * factor)
       else:
@@ -168,8 +174,11 @@ func _physics_process(delta: float) -> void:
 
   if just_pressed("jump"):
     last_jump_tick = ticks
-
   jump_buffered = ticks - last_jump_tick < jump_buf_window
+
+  if just_pressed("adhesion"):
+    last_adhesion_tick = ticks
+  adhesion_buffered = ticks - last_adhesion_tick < adhesion_buf_window
 
   if not input_locked:
     move_direction = Vector3(input_direction.x, 0.0, input_direction.y) \
@@ -202,7 +211,9 @@ func move_2d(
   velocity.z = move_toward(velocity.z, direction.z * speed, acceleration * delta)
 
 func dash_or_jump() -> State:
-  return State.DASH if pressed("adhesion") and can_join() else State.JUMP
+  return \
+    State.DASH if (pressed("adhesion") or adhesion_buffered) and can_join() \
+    else State.JUMP
 
 ## adhesion
 func can_join() -> bool:
