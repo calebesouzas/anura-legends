@@ -96,7 +96,7 @@ var dash_window: int = 15
 
 const SPEED: float = 5.0
 
-const ADHESION_FACTOR: float = 2.0
+const ADHESION_FACTOR: float = 3.0
 
 const ACCELERATION: float = 30.0 # reaches `SPEED` in half second
 const FRICTION: float = 60.0 # stops movement in a quarter of a second
@@ -110,10 +110,11 @@ const DASH_FORCE: float = 5.0
 func handle_state(delta: float) -> void:
   match state:
     State.IDLE_MOVE:
+      var factor: float = ADHESION_FACTOR if can_join() and pressed("adhesion") else 1.0
       if wanna_move:
-        move_2d(move_direction, delta)
+        move_2d(move_direction, delta, ACCELERATION * factor)
       else:
-        move_2d(Vector3.ZERO, delta, FRICTION)
+        move_2d(Vector3.ZERO, delta, FRICTION * factor)
 
       if not grounded:
         state = State.FALL
@@ -194,8 +195,8 @@ func _physics_process(delta: float) -> void:
 func move_2d(
     direction: Vector3,
     delta: float,
-    speed: float = SPEED,
-    acceleration: float = ACCELERATION
+    acceleration: float = ACCELERATION,
+    speed: float = SPEED
 ) -> void:
   velocity.x = move_toward(velocity.x, direction.x * speed, acceleration * delta)
   velocity.z = move_toward(velocity.z, direction.z * speed, acceleration * delta)
