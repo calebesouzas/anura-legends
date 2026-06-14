@@ -119,15 +119,10 @@ func handle_state(delta: float) -> void:
         state = State.FALL
       elif pressed("jump") or jump_buffered:
         state = State.JUMP
-      elif just_pressed("dash"):
-        state = State.DASH
 
     State.FALL:
       if grounded:
         state = State.IDLE_MOVE
-        return
-      elif just_pressed("dash"):
-        state = State.DASH
         return
       elif just_pressed("jump") and prev_state == State.IDLE_MOVE \
           and state_ticks < jump_buf_window:
@@ -138,6 +133,9 @@ func handle_state(delta: float) -> void:
       velocity += get_gravity() * delta
 
     State.JUMP:
+      if pressed("adhesion") and can_join():
+        state = State.DASH
+        return
       if state_ticks > jump_window or not pressed("jump") and not jump_buffered:
         state = State.FALL
         return
@@ -204,6 +202,11 @@ func move_2d(
 ) -> void:
   velocity.x = move_toward(velocity.x, direction.x * speed, acceleration * delta)
   velocity.z = move_toward(velocity.z, direction.z * speed, acceleration * delta)
+
+## adhesion
+func can_join() -> bool:
+  if not feet_ray.is_colliding(): return false
+  return plasma_manager.can_join(self)
 
 ## combat
 @export_group("Combat")

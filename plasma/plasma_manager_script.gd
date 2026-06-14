@@ -80,8 +80,8 @@ func paint(exact_position: Vector3, normal: Vector3, color: Team.TeamColor, offs
       continue
     self.blocks.set_cell_item(block_position + offset, Team.team_to_block_color(color))
 
-func can_swim(player_global_position: Vector3, player_color: Team.TeamColor) -> bool:
-  var cell_position: Vector3i = self.blocks.local_to_map(player_global_position + Vector3.DOWN)
+func can_join(player: Player) -> bool:
+  var cell_position: Vector3i = self.blocks.local_to_map(player.feet_ray.get_collision_point() + Vector3.DOWN)
   var block_color: Team.BlockColor = self.blocks.get_cell_item(cell_position) as Team.BlockColor
-  var player_block_color: Team.BlockColor = Team.team_to_block_color(player_color)
+  var player_block_color: Team.BlockColor = Team.team_to_block_color(player.team_color)
   return block_color == player_block_color
