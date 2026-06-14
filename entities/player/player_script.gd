@@ -104,7 +104,7 @@ const FRICTION: float = 60.0 # stops movement in a quarter of a second
 const HIGH_JUMP: float = 2.0
 const JUMP: float = 1.0
 
-const DASH_FORCE: float = 10.0
+const DASH_FORCE: float = 5.0
 
 ### State Machine
 func handle_state(delta: float) -> void:
