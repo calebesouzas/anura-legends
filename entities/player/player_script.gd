@@ -92,7 +92,7 @@ var jump_buffered: bool
 var last_jump_tick: int
 
 # this is the tick amount that input will be locked
-var dash_window: int = 30
+var dash_window: int = 15
 
 const SPEED: float = 5.0
 
@@ -152,7 +152,7 @@ func handle_state(delta: float) -> void:
       if state_ticks == 1:
         input_locked = true
         #@todo effect!
-        velocity += move_direction * DASH_FORCE # no friction!
+        velocity += move_direction.normalized() * DASH_FORCE # no friction!
 
     _:
       assert(false, "Unhandled state: " + State.keys()[state])
