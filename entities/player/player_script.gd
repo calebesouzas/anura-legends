@@ -85,7 +85,8 @@ var current_speed: float
 
 var jump_window: int = 30
 
-var dash_window: int = 6
+# this is the tick amount that input will be locked
+var dash_window: int = 30
 
 const SPEED: float = 5.0
 
