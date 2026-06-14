@@ -76,14 +76,17 @@ var grounded: bool
 var dot: float
 
 var state_ticks: int = 0
+var prev_state: State
 var state: State = State.IDLE_MOVE:
   set(new_state):
+    if prev_state != state: prev_state = state
     state = new_state
     state_ticks = 0
 
 var current_speed: float
 
 var jump_window: int = 30
+var jump_buf_window: int = 6
 
 # this is the tick amount that input will be locked
 var dash_window: int = 30
@@ -122,6 +125,10 @@ func handle_state(delta: float) -> void:
         return
       elif just_pressed("dash"):
         state = State.DASH
+        return
+      elif just_pressed("jump") and prev_state == State.IDLE_MOVE \
+          and state_ticks < jump_buf_window:
+        state = State.JUMP
         return
 
       move_2d(move_direction, delta)
