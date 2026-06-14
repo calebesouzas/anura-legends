@@ -48,7 +48,7 @@ func spawn_new_projectile(
   var bullet: PlasmaProjectile = scene.instantiate()
   bullet.setup(id, self.projectiles.get_child_count(), color, direction, self)
   var player: Player = self.players.get_child(bullet.owner_id)
-  var spawn_position = player.pivot.global_position + bullet.direction
+  var spawn_position = player.bullet_point.global_position
   self.projectiles.add_child(bullet)
   bullet.global_position = spawn_position
   return bullet.id

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://is2uetc08kav"]
 
 [ext_resource type="Script" uid="uid://c3ltnnrsiabaq" path="res://entities/player/player_script.gd" id="1_bk7tw"]
-[ext_resource type="PackedScene" uid="uid://bna5yi5v2qjxn" path="res://entities/projectiles/ball_bullet.tscn" id="2_qnxqa"]
+[ext_resource type="Script" uid="uid://lb7i1yddi7sw" path="res://entities/projectiles/projectile_script.gd" id="2_qnxqa"]
 [ext_resource type="Texture2D" uid="uid://c6ughjbb7w73y" path="res://ui/touch/direction-up-black.png" id="2_ygi5u"]
 [ext_resource type="Texture2D" uid="uid://cbp0amgop1gje" path="res://ui/touch/direction-up-white.png" id="3_n8j47"]
 [ext_resource type="Texture2D" uid="uid://cevpj7tpnxsly" path="res://ui/touch/trigger-black.png" id="4_3xm0v"]
@@ -15,9 +15,27 @@
 [ext_resource type="Texture2D" uid="uid://bl85bxj834ox1" path="res://ui/touch/jump-black.png" id="10_32adv"]
 [ext_resource type="Texture2D" uid="uid://bw5nxmjqado4h" path="res://ui/touch/jump-white.png" id="11_rbw6g"]
 
-[sub_resource type="Curve" id="Curve_qnxqa"]
-_data = [Vector2(0, 0.68539333), 0.0, 2.4044938, 0, 0, Vector2(0.9672896, 0), -2.038593, 0.0, 0, 0]
-point_count = 2
+[sub_resource type="SphereShape3D" id="SphereShape3D_aep8o"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_lw8tk"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_aep8o"]
+albedo_color = Color(0, 0, 1, 1)
+
+[sub_resource type="PackedScene" id="PackedScene_lcggp"]
+_bundled = {
+"conn_count": 0,
+"conns": PackedInt32Array(),
+"editable_instances": [],
+"id_paths": [PackedInt32Array(), PackedInt32Array()],
+"names": PackedStringArray("bullet", "CharacterBody3D", "collision_layer", "script", "speed", "damage", "paint_radius", "reach", "collision", "CollisionShape3D", "shape", "mesh", "MeshInstance3D", "mesh", "surface_material_override/0"),
+"node_count": 3,
+"node_ids": PackedInt32Array(253246150, 29827701, 1378908176),
+"node_paths": [NodePath("."), NodePath(".")],
+"nodes": PackedInt32Array(-1, -1, 1, 0, -1, 6, 2, 0, 3, 1, 4, 2, 5, 3, 6, 4, 7, 5, 0, 1073741824, 0, 9, 8, -1, 1, 10, 6, 0, 1073741825, 0, 12, 11, -1, 2, 13, 7, 14, 8, 0),
+"variants": [0, ExtResource("2_qnxqa"), 2000.0, 100, 2, 1000.0, SubResource("SphereShape3D_aep8o"), SubResource("SphereMesh_lw8tk"), SubResource("StandardMaterial3D_aep8o")],
+"version": 3
+}
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uufrl"]
 
@@ -33,8 +51,7 @@ size = Vector3(0.75, 0.5, 0.5)
 
 [node name="player" type="CharacterBody3D" unique_id=220854978 node_paths=PackedStringArray("respawn_timer")]
 script = ExtResource("1_bk7tw")
-JUMP_CURVE = SubResource("Curve_qnxqa")
-bullet_scene = ExtResource("2_qnxqa")
+bullet_scene = SubResource("PackedScene_lcggp")
 shots_per_second = 5.0
 respawn_timer = NodePath("respawn_timer")
 
@@ -68,19 +85,16 @@ mesh = SubResource("BoxMesh_lcggp")
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7086544, 0)
 
-[node name="height_pivot" type="Node3D" parent="pivot" unique_id=553644735]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+[node name="bullet_point" type="Marker3D" parent="pivot" unique_id=1476770211]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15, -1)
 
-[node name="spring_arm" type="SpringArm3D" parent="pivot/height_pivot" unique_id=226998772]
+[node name="spring_arm" type="SpringArm3D" parent="pivot" unique_id=226998772]
 shape = SubResource("SphereShape3D_32adv")
 spring_length = 5.0
 
-[node name="camera" type="Camera3D" parent="pivot/height_pivot/spring_arm" unique_id=1689409089]
+[node name="camera" type="Camera3D" parent="pivot/spring_arm" unique_id=1689409089]
 unique_name_in_owner = true
-
-[node name="aim" type="Marker3D" parent="pivot/height_pivot/spring_arm/camera" unique_id=1608299313]
-unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
 
 [node name="aim_lock_timer" type="Timer" parent="." unique_id=833833159]
 unique_name_in_owner = true

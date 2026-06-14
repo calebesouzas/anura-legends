@@ -19,37 +19,11 @@ var aim_locked: bool = false
 @onready var skin: Node3D = %skin
 @export var SKIN_ROTATION_SPEED: float = 12.0
 
-@export_group("Combat")
-@export var bullet_scene: PackedScene
-@onready var bullet: PlasmaProjectile = self.bullet_scene.instantiate()
-@export var shots_per_second: float:
-  set(value):
-    shots_per_second = value
-    fire_time = 1.0 / shots_per_second
-var fire_time: float
-
+## input
+@export var MOVE_DEADZONE: float = 0.2
 var input_direction: Vector2
 var move_direction: Vector3
-var wanna_move: bool
 
-enum State {IDLE_MOVE, JUMP, FALL, FLIP, DASH}
-var input_locked: bool = false
-var grounded: bool
-
-var state_ticks: int = 0
-var state: State:
-  set(new_state):
-    state = new_state
-    state_ticks = 0
-
-var current_speed: float
-
-var jump_window: int = 30
-var high_jump_window: int = 10 # slice of `jump_window`
-
-var dot: float
-
-## input
 func pressed(action: StringName) -> bool:
   return Input.is_action_pressed(action)
 
@@ -59,7 +33,6 @@ func just_pressed(action: StringName) -> bool:
 func _process(_delta: float) -> void:
   input_direction = Input.get_vector(
     "move_left", "move_right", "move_forward", "move_backward")
-  health_indicator.text = str(health)
 
 func _unhandled_input(event: InputEvent) -> void:
   var is_camera_motion: bool = false
@@ -95,14 +68,45 @@ func _unhandled_input(event: InputEvent) -> void:
     get_tree().quit()
 
 ## physics
+var wanna_move: bool
+
+enum State {IDLE_MOVE, JUMP, FALL, FLIP, DASH}
+var input_locked: bool = false
+var grounded: bool
+var dot: float
+
+var state_ticks: int = 0
+var state: State = State.IDLE_MOVE:
+  set(new_state):
+    state = new_state
+    state_ticks = 0
+
+var current_speed: float
+
+var jump_window: int = 30
+
+var dash_window: int = 6
+
+const SPEED: float = 5.0
+
+const ADHESION_FACTOR: float = 2.0
+
+const ACCELERATION: float = 30.0 # reaches `SPEED` in half second
+const FRICTION: float = 60.0 # stops movement in a quarter of a second
+
+const HIGH_JUMP: float = 2.0
+const JUMP: float = 1.0
+
+const DASH_FORCE: float = 10.0
+
 ### State Machine
 func handle_state(delta: float) -> void:
   match state:
     State.IDLE_MOVE:
       if wanna_move:
-        move_2d(move_direction, GROUND_ACCELERATION, delta)
+        move_2d(move_direction, delta)
       else:
-        move_2d(Vector3.ZERO, FRICTION, delta)
+        move_2d(Vector3.ZERO, delta, FRICTION)
 
       if not grounded:
         state = State.FALL
@@ -119,19 +123,22 @@ func handle_state(delta: float) -> void:
         state = State.DASH
         return
 
-      move_2d(move_direction, AIR_ACCELERATION, delta)
-      velocity -= get_gravity() * delta
+      move_2d(move_direction, delta)
+      velocity += get_gravity() * delta
 
     State.JUMP:
       if not pressed("jump") or state_ticks > jump_window:
         state = State.FALL
         return
 
-      move_2d(move_direction, AIR_ACCELERATION, delta)
-      velocity.y = (HIGH_JUMP if state_ticks <= high_jump_window else JUMP) * delta
+      move_2d(move_direction, delta)
+      if state_ticks == 1:
+        velocity.y = HIGH_JUMP
+      else:
+        velocity.y += JUMP * delta
 
     State.DASH:
-      if state_ticks > DASH_DURATION_IN_TICKS:
+      if state_ticks > dash_window:
         state = State.FALL
         input_locked = false
         return
@@ -139,9 +146,7 @@ func handle_state(delta: float) -> void:
       if state_ticks == 1:
         input_locked = true
         #@todo effect!
-
-      #@todo add force (kind of) instead of accelerating...
-      move_2d(move_direction, DASH_ACCELERATION, delta)
+        velocity += move_direction * DASH_FORCE # no friction!
 
     _:
       assert(false, "Unhandled state: " + State.keys()[state])
@@ -170,30 +175,43 @@ func _physics_process(delta: float) -> void:
     fire_locked_timer.start(fire_time)
     trigger()
 
-  rotate_skin()
+  rotate_skin(delta)
 
 ## movement
-func move_3d(direction: Vector3, acceleration: float, delta: float) -> void:
-  velocity = velocity.move_toward(direction * final_speed, acceleration * delta)
-
-func move_2d(direction: Vector3, acceleration: float, delta: float) -> void:
-  velocity.x = move_toward(velocity.x, direction.x * final_speed, acceleration * delta)
-  velocity.z = move_toward(velocity.z, direction.z * final_speed, acceleration * delta)
+### move_2D horizontal movement, Y axis ignored
+func move_2d(
+    direction: Vector3,
+    delta: float,
+    speed: float = SPEED,
+    acceleration: float = ACCELERATION
+) -> void:
+  velocity.x = move_toward(velocity.x, direction.x * speed, acceleration * delta)
+  velocity.z = move_toward(velocity.z, direction.z * speed, acceleration * delta)
 
 ## combat
+@export_group("Combat")
+@export var bullet_scene: PackedScene
+@onready var bullet: PlasmaProjectile = self.bullet_scene.instantiate()
+@onready var bullet_point: Marker3D = %bullet_point
+@export var shots_per_second: float:
+  set(value):
+    shots_per_second = value
+    fire_time = 1.0 / shots_per_second
+var fire_time: float
+
 func trigger() -> void:
-  plasma_manager.spawn_new_projectile(id, bullet_scene, team_color, camera_direction)
+  plasma_manager.spawn_new_projectile(id, bullet_scene, team_color, -pivot.basis.z)
 
 ## visual
-func rotate_skin() -> void:
+func rotate_skin(delta: float) -> void:
   if not wanna_move: return
   var target_angle: float = Vector3.FORWARD \
-    .signed_angle_to(camera_direction, Vector3.UP) if aim_locked \
+    .signed_angle_to(-pivot.basis.z, Vector3.UP) if aim_locked \
       else Vector3.FORWARD.signed_angle_to(move_direction, Vector3.UP)
   skin.rotation.y = lerp_angle(
     skin.rotation.y,
     target_angle,
-    SKIN_ROTATION_SPEED * 2.0 * delta
+    SKIN_ROTATION_SPEED * delta
   )
 
 ## misc
