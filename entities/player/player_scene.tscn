@@ -9,8 +9,12 @@
 [ext_resource type="Texture2D" uid="uid://cfv2mu1inqdfr" path="res://ui/touch/direction-right-white.png" id="5_k0nwe"]
 [ext_resource type="Texture2D" uid="uid://csoywosq0dvw2" path="res://ui/touch/trigger-white.png" id="5_qnxqa"]
 [ext_resource type="Texture2D" uid="uid://b72fu8rf3gupj" path="res://ui/touch/direction-down-black.png" id="6_kmx06"]
+[ext_resource type="Texture2D" uid="uid://bs685nl7fqr5s" path="res://ui/touch/dash-black.png" id="7_1h5a1"]
 [ext_resource type="Texture2D" uid="uid://xhslr4r5s7rf" path="res://ui/touch/direction-down-white.png" id="7_k2n06"]
+[ext_resource type="Texture2D" uid="uid://5gu2tmxomwsp" path="res://ui/touch/adhesion-black.png" id="7_ucnxd"]
 [ext_resource type="Texture2D" uid="uid://clf2s0fqt71yh" path="res://ui/touch/direction-left-black.png" id="8_rsjbd"]
+[ext_resource type="Texture2D" uid="uid://beudmhhp075nb" path="res://ui/touch/dash-white.png" id="8_t5o3e"]
+[ext_resource type="Texture2D" uid="uid://bovabpykmt3fy" path="res://ui/touch/adhesion-white.png" id="8_xgoka"]
 [ext_resource type="Texture2D" uid="uid://cdy1i8t58248i" path="res://ui/touch/direction-left-white.png" id="9_db1fq"]
 [ext_resource type="Texture2D" uid="uid://bl85bxj834ox1" path="res://ui/touch/jump-black.png" id="10_32adv"]
 [ext_resource type="Texture2D" uid="uid://bw5nxmjqado4h" path="res://ui/touch/jump-white.png" id="11_rbw6g"]
@@ -124,26 +128,32 @@ grow_vertical = 2
 mouse_filter = 1
 
 [node name="trigger" type="TouchScreenButton" parent="hud/control" unique_id=2100857492]
-position = Vector2(1000, 350)
-scale = Vector2(5, 5)
+position = Vector2(933, 60.00003)
+scale = Vector2(15, 15)
 texture_normal = ExtResource("4_3xm0v")
 texture_pressed = ExtResource("5_qnxqa")
 action = "trigger"
 
 [node name="jump" type="TouchScreenButton" parent="hud/control" unique_id=1989971277]
-position = Vector2(1200, 350)
-scale = Vector2(5, 5)
+position = Vector2(1060, 72.000015)
+scale = Vector2(15, 15)
 texture_normal = ExtResource("10_32adv")
 texture_pressed = ExtResource("11_rbw6g")
 action = "jump"
 
 [node name="adhesion" type="TouchScreenButton" parent="hud/control" unique_id=1429188447]
-position = Vector2(1200, 200)
-rotation = 3.1415927
-scale = Vector2(5, 5)
-texture_normal = ExtResource("10_32adv")
-texture_pressed = ExtResource("11_rbw6g")
+position = Vector2(133, 104)
+scale = Vector2(15, 15)
+texture_normal = ExtResource("7_ucnxd")
+texture_pressed = ExtResource("8_xgoka")
 action = "adhesion"
+
+[node name="dash" type="TouchScreenButton" parent="hud/control" unique_id=970133551]
+position = Vector2(1072, 433.00003)
+scale = Vector2(15, 15)
+texture_normal = ExtResource("7_1h5a1")
+texture_pressed = ExtResource("8_t5o3e")
+action = "dash"
 
 [node name="direction_pad" type="Control" parent="hud/control" unique_id=1897145696]
 layout_mode = 1
@@ -159,7 +169,7 @@ pivot_offset = Vector2(183, 176)
 
 [node name="direction_up" type="TouchScreenButton" parent="hud/control/direction_pad" unique_id=405375197]
 position = Vector2(100, 0)
-scale = Vector2(5, 5)
+scale = Vector2(15, 15)
 texture_normal = ExtResource("2_ygi5u")
 texture_pressed = ExtResource("3_n8j47")
 passby_press = true
@@ -167,7 +177,7 @@ action = "move_forward"
 
 [node name="direction_right" type="TouchScreenButton" parent="hud/control/direction_pad" unique_id=466380470]
 position = Vector2(200, 100)
-scale = Vector2(5, 5)
+scale = Vector2(15, 15)
 texture_normal = ExtResource("4_hycpi")
 texture_pressed = ExtResource("5_k0nwe")
 passby_press = true
@@ -175,7 +185,7 @@ action = "move_right"
 
 [node name="direction_left" type="TouchScreenButton" parent="hud/control/direction_pad" unique_id=1647260839]
 position = Vector2(0, 100)
-scale = Vector2(5, 5)
+scale = Vector2(15, 15)
 texture_normal = ExtResource("8_rsjbd")
 texture_pressed = ExtResource("9_db1fq")
 passby_press = true
@@ -183,7 +193,7 @@ action = "move_left"
 
 [node name="direction_down" type="TouchScreenButton" parent="hud/control/direction_pad" unique_id=313673643]
 position = Vector2(100, 200)
-scale = Vector2(5, 5)
+scale = Vector2(15, 15)
 texture_normal = ExtResource("6_kmx06")
 texture_pressed = ExtResource("7_k2n06")
 passby_press = true
