@@ -236,6 +236,8 @@ func _physics_process(delta: float) -> void:
 
   rotate_skin(delta)
 
+  debug_update()
+
 ## movement
 ### move_2D horizontal movement, Y axis ignored
 func move_2d(
@@ -286,6 +288,24 @@ func rotate_skin(delta: float) -> void:
     target_angle,
     SKIN_ROTATION_SPEED * delta
   )
+
+## debug
+@onready var debug_label: RichTextLabel = %debug_label
+var debug_code_list: Array[Callable] = [
+  feet_ray.is_colliding,
+]
+var debug_keys_list: Array[StringName] = [
+  "can_dash",
+  "grounded",
+  "ticks",
+  "state_ticks"
+]
+
+func debug_update() -> void:
+  for key in debug_keys_list:
+    debug_label.add_text(key + " = " + self[key])
+  for function in debug_code_list:
+    debug_label.add_text(function.get_method() + " = " + function.call())
 
 ## misc
 func _ready() -> void:
