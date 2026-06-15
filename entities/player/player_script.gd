@@ -143,7 +143,7 @@ func handle_state(delta: float) -> void:
         state = State.FALL
       elif jump_wanted():
         state = State.JUMP
-      elif dash_wanted():
+      elif dash_wanted() and can_dash:
         state = State.DASH
 
     State.FALL:
