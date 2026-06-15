@@ -20,7 +20,6 @@ var aim_locked: bool = false
 @export var SKIN_ROTATION_SPEED: float = 12.0
 
 ## input
-const DEFAULT_INPUT_BUF_WINDOW: int = 12
 @export var MOVE_DEADZONE: float = 0.2
 @export var CONTROLLER_CAMERA_DEADZONE: float = 0.04
 var input_direction: Vector2
@@ -31,6 +30,9 @@ func pressed(action: StringName) -> bool:
 
 func just_pressed(action: StringName) -> bool:
   return Input.is_action_just_pressed(action)
+
+func is_action_valid(action_name: StringName) -> bool:
+  return pressed(action_name) or self[action_name + "_buffer"] > 0
 
 func _process(_delta: float) -> void:
   input_direction = Input.get_vector(
@@ -76,10 +78,8 @@ var wanna_move: bool
 
 enum State {IDLE_MOVE, JUMP, FALL, FLIP, DASH}
 var input_locked: bool = false
-var grounded: bool
 var dot: float
 
-var ticks: int = 0
 var state_ticks: int = 0
 var state: State = State.IDLE_MOVE:
   set(new_state):
@@ -88,23 +88,22 @@ var state: State = State.IDLE_MOVE:
 
 var current_speed: float
 
-const JUST_LAND_WINDOW: int = 2
-var last_land_tick: int
+var grounded: bool
 
-var jump_window: int = 30
-var jump_buf_window: int = DEFAULT_INPUT_BUF_WINDOW
-var jump_buffered: bool
-var last_jump_tick: int
+const LANDED_WINDOW: int = 2
+var landed_buffer: int
 
-var dash_window: int = 15 # tick amount that input will be locked
-var dash_buf_window: int = DEFAULT_INPUT_BUF_WINDOW
-var dash_buffered: bool
-var last_dash_tick: int
-var can_dash: bool = false
+const COYOTE_WINDOW: int = 6
+var coyote_buffer: int
 
-var adhesion_buf_window: int = DEFAULT_INPUT_BUF_WINDOW
-var adhesion_buffered: bool
-var last_adhesion_tick: int
+const JUMP_DURATION: int = 20
+const JUMP_WINDOW: int = 6
+var jump_buffer: int
+
+const DASH_DURATION: int = 15 # tick amount that input will be locked
+
+const ADHESION_WINDOW: int = 6
+var adhesion_buffer: int
 
 const SPEED: float = 5.0
 
@@ -124,16 +123,12 @@ func handle_state(delta: float) -> void:
   match state:
     State.IDLE_MOVE:
       var factor: float = 1.0
-      if can_join():
-        can_dash = true
-        if adhesion_wanted():
+      if can_join() and adhesion_buffer > 0:
           factor = ADHESION_FACTOR
-      else:
-        can_dash = false
 
       if wanna_move:
         # no friction when landing and jumping at the same time
-        if state_ticks <= JUST_LAND_WINDOW and jump_wanted():
+        if state_ticks <= LANDED_WINDOW and jump_buffer > 0:
           move_2d(move_direction, delta, AIR_ACCELERATION * factor)
         else:
           move_2d(move_direction, delta, ACCELERATION * factor)
@@ -142,20 +137,15 @@ func handle_state(delta: float) -> void:
 
       if not grounded:
         state = State.FALL
-      elif jump_wanted():
-        state = State.JUMP
-      elif dash_wanted() and can_dash:
-        state = State.DASH
+      elif jump_buffer > 0:
+        state = dash_or_jump()
 
     State.FALL:
       if grounded:
         state = State.IDLE_MOVE
         return
-      elif just_pressed("jump") and can_jump():
-        state = State.JUMP
-        return
-      elif just_pressed("dash") and can_dash:
-        state = State.DASH
+      elif jump_buffer > 0:
+        state = dash_or_jump()
         return
 
       if wanna_move:
@@ -163,7 +153,7 @@ func handle_state(delta: float) -> void:
       velocity += get_gravity() * delta
 
     State.JUMP:
-      if state_ticks > jump_window or not pressed("jump") and not jump_buffered:
+      if state_ticks > JUMP_DURATION or not is_action_valid("jump"):
         state = State.FALL
         return
 
@@ -175,12 +165,8 @@ func handle_state(delta: float) -> void:
       else:
         velocity.y += JUMP * delta
 
-      if dash_wanted() and can_dash:
-        state = State.DASH
-
     State.DASH:
-      can_dash = false
-      if state_ticks > dash_window:
+      if state_ticks > DASH_DURATION:
         state = State.FALL
         input_locked = false
         return
@@ -193,35 +179,37 @@ func handle_state(delta: float) -> void:
           if not grounded
           else move_direction.normalized()) * DASH_FORCE # no friction!
 
-      if just_pressed("jump") and can_jump():
+      if jump_buffer > 0 and coyote_buffer > 0:
         velocity.y += DASH_FORCE
 
     _:
       assert(false, "Unhandled state: " + State.keys()[state])
 
 func _physics_process(delta: float) -> void:
-  ticks += 1
   state_ticks += 1
 
   current_speed = Vector2(velocity.x, velocity.z).length()
 
   if is_on_floor():
-    if not grounded: last_land_tick = ticks
+    if not grounded:
+      landed_buffer = LANDED_WINDOW
+    elif landed_buffer > 0:
+      landed_buffer -= 1
     grounded = true
+    coyote_buffer = COYOTE_WINDOW
   else:
     grounded = false
+    if coyote_buffer > 0: coyote_buffer -= 1
 
   if just_pressed("jump"):
-    last_jump_tick = ticks
-  jump_buffered = ticks - last_jump_tick < jump_buf_window
+    jump_buffer = JUMP_WINDOW
+  elif jump_buffer > 0:
+    jump_buffer -= 1
 
   if just_pressed("adhesion"):
-    last_adhesion_tick = ticks
-  adhesion_buffered = ticks - last_adhesion_tick < adhesion_buf_window
-
-  if just_pressed("dash"):
-    last_dash_tick = ticks
-  dash_buffered = ticks - last_dash_tick < dash_buf_window
+    adhesion_buffer = ADHESION_WINDOW
+  elif adhesion_buffer > 0:
+    adhesion_buffer -= 1
 
   if not input_locked:
     move_direction = Vector3(input_direction.x, 0.0, -input_direction.y) \
@@ -246,6 +234,9 @@ func _physics_process(delta: float) -> void:
 
 ## movement
 ### move_2D horizontal movement, Y axis ignored
+func dash_or_jump() -> State:
+  return State.DASH if is_action_valid("adhesion") else State.JUMP
+
 func move_2d(
     direction: Vector3,
     delta: float,
@@ -259,23 +250,6 @@ func camera_relative_movement() -> Vector3:
   var forward: Vector3 = -camera.global_transform.basis.z
   var right: Vector3 = camera.global_transform.basis.x
   return forward * input_direction.y + right * input_direction.x
-
-### dashes and jumps
-func jump_wanted() -> bool:
-  return jump_buffered or pressed("jump")
-
-func can_jump() -> bool:
-  return grounded or ticks - last_land_tick < jump_buf_window
-
-func dash_wanted() -> bool:
-  return dash_buffered or pressed("dash")
-
-### adhesion
-func adhesion_wanted() -> bool:
-  return adhesion_buffered or pressed("adhesion")
-
-func can_join() -> bool:
-  return plasma_manager.can_join(self)
 
 ## combat
 @export_group("Combat")
@@ -293,6 +267,9 @@ func trigger() -> void:
 
 ### paint
 var ground_color: Team.BlockColor
+
+func can_join() -> bool:
+  return plasma_manager.can_join(self)
 
 ## visual
 func rotate_skin(delta: float) -> void:
@@ -321,16 +298,11 @@ func debug_update() -> void:
   debug.clear()
   debug_field("velocity")
   debug_field("current_speed")
-  debug_field("ticks")
   debug_value("state", State.keys()[state])
   debug_field("state_ticks")
   debug_field("grounded")
   debug_field("dot")
-  debug_field("can_dash")
   debug_value("can_join()", can_join())
-  debug_value("jump_wanted()", jump_wanted())
-  debug_value("dash_wanted()", dash_wanted())
-  debug_value("adhesion_wanted()", adhesion_wanted())
   debug_value("feet_ray.is_colliding()", feet_ray.is_colliding(), false)
   if feet_ray.is_colliding():
     debug_value("; feet_ray.get_collision_point()", feet_ray.get_collision_point())
