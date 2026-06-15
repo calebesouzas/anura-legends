@@ -118,11 +118,11 @@ const DASH_FORCE: float = 5.0
 func handle_state(delta: float) -> void:
   match state:
     State.IDLE_MOVE:
-      can_dash = state_ticks > dash_window and can_join()
-      var factor: float = \
-        ADHESION_FACTOR \
-          if can_join() and adhesion_wanted() \
-          else 1.0
+      var factor: float = 1.0
+      if can_join():
+        can_dash = true
+        if adhesion_wanted():
+          factor = ADHESION_FACTOR
       if wanna_move:
         # don't friction when landing and jumping at the same time
         if state_ticks <= JUST_LAND_WINDOW and jump_wanted():
