@@ -33,7 +33,7 @@ func just_pressed(action: StringName) -> bool:
 
 func _process(_delta: float) -> void:
   input_direction = Input.get_vector(
-    "move_left", "move_right", "move_forward", "move_backward")
+    "move_left", "move_right", "move_backward", "move_forward")
 
 func _unhandled_input(event: InputEvent) -> void:
   var is_camera_motion: bool = false
@@ -187,7 +187,10 @@ func handle_state(delta: float) -> void:
       if state_ticks == 1:
         input_locked = true
         #@todo effect!
-        velocity += move_direction.normalized() * DASH_FORCE # no friction!
+        velocity += \
+        (camera_relative_movement()
+          if not grounded
+          else move_direction.normalized()) * DASH_FORCE # no friction!
 
       if just_pressed("jump"):
         velocity.y += DASH_FORCE
@@ -220,7 +223,7 @@ func _physics_process(delta: float) -> void:
   dash_buffered = ticks - last_dash_tick < dash_buf_window
 
   if not input_locked:
-    move_direction = Vector3(input_direction.x, 0.0, input_direction.y) \
+    move_direction = Vector3(input_direction.x, 0.0, -input_direction.y) \
       .rotated(Vector3.UP, pivot.rotation.y)
     wanna_move = move_direction.length_squared() > MOVE_DEADZONE ** 2
 
@@ -250,6 +253,11 @@ func move_2d(
 ) -> void:
   velocity.x = move_toward(velocity.x, direction.x * speed, acceleration * delta)
   velocity.z = move_toward(velocity.z, direction.z * speed, acceleration * delta)
+
+func camera_relative_movement() -> Vector3:
+  var forward: Vector3 = -camera.global_transform.basis.z
+  var right: Vector3 = camera.global_transform.basis.x
+  return forward * input_direction.y + right * input_direction.x
 
 ### dashes and jumps
 func jump_wanted() -> bool:
