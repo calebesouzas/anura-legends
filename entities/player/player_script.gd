@@ -138,15 +138,19 @@ func handle_state(delta: float) -> void:
 
       if not grounded:
         state = State.FALL
-      elif jump_buffer > 0:
+      elif is_action_valid("jump"):
         state = dash_or_jump()
+        jump_buffer = 0
+        coyote_buffer = 0
 
     State.FALL:
       if grounded:
         state = State.IDLE_MOVE
         return
-      elif jump_buffer > 0:
+      elif jump_buffer > 0 and coyote_buffer > 0:
         state = dash_or_jump()
+        jump_buffer = 0
+        coyote_buffer = 0
         return
 
       if wanna_move:
