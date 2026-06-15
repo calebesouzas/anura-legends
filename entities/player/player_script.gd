@@ -101,6 +101,7 @@ const JUMP_WINDOW: int = 6
 var jump_buffer: int
 
 const DASH_DURATION: int = 15 # tick amount that input will be locked
+const SUPER_DASH_UNLOCK_MOMENT: int = 10
 
 const ADHESION_WINDOW: int = 6
 var adhesion_buffer: int
@@ -179,8 +180,11 @@ func handle_state(delta: float) -> void:
           if not grounded
           else move_direction.normalized()) * DASH_FORCE # no friction!
 
-      if jump_buffer > 0 and coyote_buffer > 0:
+      if jump_buffer > 0 and coyote_buffer > 0 \
+          and state_ticks >= SUPER_DASH_UNLOCK_MOMENT:
         velocity.y += DASH_FORCE
+        jump_buffer = 0
+        coyote_buffer = 0
 
     _:
       assert(false, "Unhandled state: " + State.keys()[state])
