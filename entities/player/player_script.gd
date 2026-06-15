@@ -67,6 +67,8 @@ func _unhandled_input(event: InputEvent) -> void:
     )
   elif event is InputEventKey and event.keycode == KEY_ESCAPE:
     get_tree().quit()
+  elif event.is_action_pressed("debug"):
+    debug.visible = not debug.visible
 
 ## physics
 var wanna_move: bool
@@ -318,6 +320,7 @@ func debug_update() -> void:
 func _ready() -> void:
   if not OS.has_feature("android"):
     %hud.queue_free()
+  debug.visible = false
   Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
   aim_lock_timer.timeout.connect(func(): aim_locked = false)
 
