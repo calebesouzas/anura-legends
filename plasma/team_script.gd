@@ -1,11 +1,11 @@
 class_name Team
 
 enum TeamColor {
-  BLUE, RED
+  INVALID = -1, BLUE, RED
 }
 
 enum BlockColor {
-  NORMAL, BLUE, RED, UNPAINTABLE
+  INVALID = -1, NORMAL, BLUE, RED, UNPAINTABLE
 }
 
 static func team_to_block_color(team: TeamColor) -> BlockColor:

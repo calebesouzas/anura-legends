@@ -81,8 +81,10 @@ func paint(exact_position: Vector3, normal: Vector3, color: Team.TeamColor, offs
     self.blocks.set_cell_item(block_position + offset, Team.team_to_block_color(color))
 
 func can_join(player: Player) -> bool:
-  var cell_position: Vector3i = self.blocks.local_to_map(player.feet_ray.target_position)
+  if not player.feet_ray.is_colliding(): return false
+  var cell_position: Vector3i = self.blocks.local_to_map(player.feet_ray.get_collision_point() + Vector3.DOWN)
   var block_color: Team.BlockColor = self.blocks.get_cell_item(cell_position) as Team.BlockColor
+  player.ground_color = block_color
   if block_color == self.blocks.INVALID_CELL_ITEM: return false
   var player_block_color: Team.BlockColor = Team.team_to_block_color(player.team_color)
   return block_color == player_block_color

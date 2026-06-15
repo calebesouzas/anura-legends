@@ -279,6 +279,9 @@ var fire_time: float
 func trigger() -> void:
   plasma_manager.spawn_new_projectile(id, bullet_scene, team_color, -pivot.basis.z)
 
+### paint
+var ground_color: Team.BlockColor
+
 ## visual
 func rotate_skin(delta: float) -> void:
   if not wanna_move: return
@@ -321,6 +324,7 @@ func debug_update() -> void:
     debug_value("; feet_ray.get_collision_point()", feet_ray.get_collision_point())
   else:
     debug.newline()
+  debug_value("ground_color", Team.BlockColor.keys()[ground_color])
   debug_field("health")
 
 ## misc
