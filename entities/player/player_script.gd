@@ -86,6 +86,7 @@ var state: State = State.IDLE_MOVE:
 
 var current_speed: float
 
+const JUST_LAND_WINDOW: int = 2
 var last_land_tick: int
 
 var jump_window: int = 30
@@ -103,6 +104,7 @@ const SPEED: float = 5.0
 
 const ADHESION_FACTOR: float = 3.0
 
+const AIR_ACCELERATION: float = 3.0
 const ACCELERATION: float = 30.0 # reaches `SPEED` in half second
 const FRICTION: float = 60.0 # stops movement in a quarter of a second
 
@@ -116,11 +118,15 @@ func handle_state(delta: float) -> void:
   match state:
     State.IDLE_MOVE:
       var factor: float = \
-        ADHESION_FACTOR \
-          if can_join() and pressed("adhesion") or adhesion_buffered \
-          else 1.0
+        (ADHESION_FACTOR \
+          if can_join() and adhesion_wanted() \
+          else 1.0)
       if wanna_move:
-        move_2d(move_direction, delta, ACCELERATION * factor)
+        # don't friction when landing and jumping at the same time
+        if state_ticks <= JUST_LAND_WINDOW and jump_wanted():
+          move_2d(move_direction, delta, AIR_ACCELERATION * factor)
+        else:
+          move_2d(move_direction, delta, ACCELERATION * factor)
       else:
         move_2d(Vector3.ZERO, delta, FRICTION * factor)
 
@@ -138,7 +144,8 @@ func handle_state(delta: float) -> void:
         state = dash_or_jump()
         return
 
-      move_2d(move_direction, delta)
+      if wanna_move:
+        move_2d(move_direction, delta, AIR_ACCELERATION)
       velocity += get_gravity() * delta
 
     State.JUMP:
@@ -146,7 +153,8 @@ func handle_state(delta: float) -> void:
         state = State.FALL
         return
 
-      move_2d(move_direction, delta)
+      if wanna_move:
+        move_2d(move_direction, delta, AIR_ACCELERATION)
       if state_ticks == 1:
         velocity.y = HIGH_JUMP
       else:
