@@ -290,22 +290,29 @@ func rotate_skin(delta: float) -> void:
   )
 
 ## debug
-@onready var debug_label: RichTextLabel = %debug_label
-var debug_code_list: Array[Callable] = [
-  feet_ray.is_colliding,
-]
-var debug_keys_list: Array[StringName] = [
-  "can_dash",
-  "grounded",
-  "ticks",
-  "state_ticks"
-]
+@onready var debug: RichTextLabel = %debug
+
+func debug_field(field_name: StringName) -> void:
+  debug.add_text(field_name + " = " + str(self[field_name]))
+  debug.newline()
+
+func debug_value(value_name: StringName, value: Variant) -> void:
+  debug.add_text(value_name + " = " + str(value))
+  debug.newline()
 
 func debug_update() -> void:
-  for key in debug_keys_list:
-    debug_label.add_text(key + " = " + self[key])
-  for function in debug_code_list:
-    debug_label.add_text(function.get_method() + " = " + function.call())
+  debug.clear()
+  debug_field("velocity")
+  debug_field("current_speed")
+  debug_field("ticks")
+  debug_field("state_ticks")
+  debug_field("grounded")
+  debug_field("dot")
+  debug_value("can_join()", can_join())
+  debug_value("jump_wanted()", jump_wanted())
+  debug_value("dash_wanted()", dash_wanted())
+  debug_value("adhesion_wanted()", adhesion_wanted())
+  debug_field("health")
 
 ## misc
 func _ready() -> void:

@@ -227,7 +227,7 @@ theme_override_constants/margin_top = 50
 theme_override_constants/margin_right = 50
 theme_override_constants/margin_bottom = 50
 
-[node name="debug_label" type="RichTextLabel" parent="gui/margin" unique_id=1719110033]
+[node name="debug" type="RichTextLabel" parent="gui/margin" unique_id=1719110033]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 1
