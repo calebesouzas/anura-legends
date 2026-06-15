@@ -163,6 +163,9 @@ func handle_state(delta: float) -> void:
         #@todo effect!
         velocity += move_direction.normalized() * DASH_FORCE # no friction!
 
+      if just_pressed("jump"):
+        velocity.y += DASH_FORCE
+
     _:
       assert(false, "Unhandled state: " + State.keys()[state])
 
