@@ -125,8 +125,11 @@ func handle_state(delta: float) -> void:
         can_dash = true
         if adhesion_wanted():
           factor = ADHESION_FACTOR
+      else:
+        can_dash = false
+
       if wanna_move:
-        # don't friction when landing and jumping at the same time
+        # no friction when landing and jumping at the same time
         if state_ticks <= JUST_LAND_WINDOW and jump_wanted():
           move_2d(move_direction, delta, AIR_ACCELERATION * factor)
         else:
@@ -256,7 +259,6 @@ func adhesion_wanted() -> bool:
   return adhesion_buffered or pressed("adhesion")
 
 func can_join() -> bool:
-  if not feet_ray.is_colliding(): return false
   return plasma_manager.can_join(self)
 
 ## combat
