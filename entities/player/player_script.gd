@@ -298,9 +298,9 @@ func debug_field(field_name: StringName) -> void:
   debug.add_text(field_name + " = " + str(self[field_name]))
   debug.newline()
 
-func debug_value(value_name: StringName, value: Variant) -> void:
+func debug_value(value_name: StringName, value: Variant, new_line: bool = true) -> void:
   debug.add_text(value_name + " = " + str(value))
-  debug.newline()
+  if new_line: debug.newline()
 
 func debug_update() -> void:
   debug.clear()
@@ -316,6 +316,11 @@ func debug_update() -> void:
   debug_value("jump_wanted()", jump_wanted())
   debug_value("dash_wanted()", dash_wanted())
   debug_value("adhesion_wanted()", adhesion_wanted())
+  debug_value("feet_ray.is_colliding()", feet_ray.is_colliding(), false)
+  if feet_ray.is_colliding():
+    debug_value("; feet_ray.get_collision_point()", feet_ray.get_collision_point())
+  else:
+    debug.newline()
   debug_field("health")
 
 ## misc
