@@ -118,9 +118,9 @@ func handle_state(delta: float) -> void:
   match state:
     State.IDLE_MOVE:
       var factor: float = \
-        (ADHESION_FACTOR \
+        ADHESION_FACTOR \
           if can_join() and adhesion_wanted() \
-          else 1.0)
+          else 1.0
       if wanna_move:
         # don't friction when landing and jumping at the same time
         if state_ticks <= JUST_LAND_WINDOW and jump_wanted():
