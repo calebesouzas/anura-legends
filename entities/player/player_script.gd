@@ -95,6 +95,7 @@ var jump_buffered: bool
 var last_jump_tick: int
 
 var dash_window: int = 15 # tick amount that input will be locked
+var can_dash: bool = false
 
 var adhesion_buf_window: int = 12
 var adhesion_buffered: bool
@@ -117,6 +118,7 @@ const DASH_FORCE: float = 5.0
 func handle_state(delta: float) -> void:
   match state:
     State.IDLE_MOVE:
+      can_dash = state_ticks > dash_window and can_join()
       var factor: float = \
         ADHESION_FACTOR \
           if can_join() and adhesion_wanted() \
@@ -161,6 +163,7 @@ func handle_state(delta: float) -> void:
         velocity.y += JUMP * delta
 
     State.DASH:
+      can_dash = false
       if state_ticks > dash_window:
         state = State.FALL
         input_locked = false
@@ -230,15 +233,15 @@ func move_2d(
 func jump_wanted() -> bool:
   return jump_buffered or pressed("jump")
 
-func adhesion_wanted() -> bool:
-  return adhesion_buffered or pressed("adhesion")
-
 func dash_or_jump() -> State:
   return \
-    State.DASH if adhesion_wanted() and can_join() \
+    State.DASH if adhesion_wanted() and can_dash \
     else State.JUMP
 
 ## adhesion
+func adhesion_wanted() -> bool:
+  return adhesion_buffered or pressed("adhesion")
+
 func can_join() -> bool:
   if not feet_ray.is_colliding(): return false
   return plasma_manager.can_join(self)
