@@ -86,6 +86,8 @@ var state: State = State.IDLE_MOVE:
 
 var current_speed: float
 
+var last_land_tick: int
+
 var jump_window: int = 30
 var jump_buf_window: int = 12
 var jump_buffered: bool
@@ -170,7 +172,11 @@ func _physics_process(delta: float) -> void:
 
   current_speed = Vector2(velocity.x, velocity.z).length()
 
-  grounded = is_on_floor()
+  if is_on_floor():
+    if not grounded: last_land_tick = ticks
+    grounded = true
+  else:
+    grounded = false
 
   if just_pressed("jump"):
     last_jump_tick = ticks
