@@ -6,7 +6,7 @@ var TOUCH_SENSITIVITY: float = 0.25
 @export_range(0.0, 1.0, 0.05, "Sensitivity on mouse")
 var MOUSE_SENSITIVITY: float = 0.25
 @export_range(0.0, 1.0, 0.05, "Sensitivity on controller")
-var CONTROLLER_SENSITIVITY: float = 0.25
+var CONTROLLER_SENSITIVITY: float = 5.0
 @onready var pivot: Node3D = %pivot
 @onready var camera: Camera3D = %camera
 var aim_locked: bool = false
@@ -22,6 +22,7 @@ var aim_locked: bool = false
 ## input
 const DEFAULT_INPUT_BUF_WINDOW: int = 12
 @export var MOVE_DEADZONE: float = 0.2
+@export var CONTROLLER_CAMERA_DEADZONE: float = 0.04
 var input_direction: Vector2
 var move_direction: Vector3
 
@@ -34,6 +35,11 @@ func just_pressed(action: StringName) -> bool:
 func _process(_delta: float) -> void:
   input_direction = Input.get_vector(
     "move_left", "move_right", "move_backward", "move_forward")
+  if Input.get_connected_joypads().size() > 0:
+    var camera_motion: Vector2 = Input.get_vector(
+      "camera_right", "camera_left", "camera_down", "camera_up", CONTROLLER_CAMERA_DEADZONE)
+    pivot.rotation_degrees.y += camera_motion.x * CONTROLLER_SENSITIVITY
+    pivot.rotation_degrees.x += camera_motion.y * CONTROLLER_SENSITIVITY
 
 func _unhandled_input(event: InputEvent) -> void:
   var is_camera_motion: bool = false
@@ -45,12 +51,7 @@ func _unhandled_input(event: InputEvent) -> void:
     camera_motion = event.screen_relative * MOUSE_SENSITIVITY
     is_camera_motion = true
   elif event is InputEventJoypadMotion:
-    if event.axis == JoyAxis.JOY_AXIS_RIGHT_X:
-      camera_motion.x = event.axis_value * CONTROLLER_SENSITIVITY
-      is_camera_motion = true
-    elif event.axis ==  JoyAxis.JOY_AXIS_RIGHT_Y:
-      camera_motion.y = event.axis_value * CONTROLLER_SENSITIVITY
-      is_camera_motion = true
+    return
 
   if is_camera_motion:
     pivot.rotation_degrees.y -= camera_motion.x
