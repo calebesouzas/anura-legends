@@ -150,7 +150,7 @@ func handle_state(delta: float) -> void:
       if grounded:
         state = State.IDLE_MOVE
         return
-      elif just_pressed("jump") and ticks - last_land_tick < jump_buf_window:
+      elif just_pressed("jump") and can_jump():
         state = State.JUMP
         return
       elif just_pressed("dash") and can_dash:
@@ -192,7 +192,7 @@ func handle_state(delta: float) -> void:
           if not grounded
           else move_direction.normalized()) * DASH_FORCE # no friction!
 
-      if just_pressed("jump"):
+      if just_pressed("jump") and can_jump():
         velocity.y += DASH_FORCE
 
     _:
@@ -262,6 +262,9 @@ func camera_relative_movement() -> Vector3:
 ### dashes and jumps
 func jump_wanted() -> bool:
   return jump_buffered or pressed("jump")
+
+func can_jump() -> bool:
+  return grounded or ticks - last_land_tick < jump_buf_window
 
 func dash_wanted() -> bool:
   return dash_buffered or pressed("dash")
