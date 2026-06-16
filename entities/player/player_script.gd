@@ -100,6 +100,9 @@ const JUMP_DURATION: int = 20
 const JUMP_WINDOW: int = 6
 var jump_buffer: int
 
+const FLIP_DURATION: int = 1
+var can_flip: bool = false
+
 const DASH_DURATION: int = 15 # tick amount that input will be locked
 const SUPER_DASH_UNLOCK_MOMENT: int = 10
 
@@ -119,13 +122,16 @@ const JUMP: float = 1.0
 
 const DASH_FORCE: float = 5.0
 
+const FLIP_FORCE: float = 6.0
+
 ### State Machine
 func handle_state(delta: float) -> void:
   match state:
     State.IDLE_MOVE:
+      can_flip = true
       var factor: float = 1.0
       if can_join() and adhesion_buffer > 0:
-          factor = ADHESION_FACTOR
+        factor = ADHESION_FACTOR
 
       if wanna_move:
         # no friction when landing and jumping at the same time
@@ -147,10 +153,15 @@ func handle_state(delta: float) -> void:
       if grounded:
         state = State.IDLE_MOVE
         return
-      elif jump_buffer > 0 and coyote_buffer > 0:
+      elif jump_buffer > 1 and coyote_buffer > 0:
         state = dash_or_jump()
         jump_buffer = 0
         coyote_buffer = 0
+        return
+      elif just_pressed("jump") and can_flip \
+          and not is_action_valid("adhesion"):
+        can_flip = false
+        state = State.FLIP
         return
 
       if wanna_move:
@@ -189,6 +200,19 @@ func handle_state(delta: float) -> void:
         velocity.y += DASH_FORCE
         jump_buffer = 0
         coyote_buffer = 0
+
+    State.FLIP:
+      if state_ticks > FLIP_DURATION:
+        state = State.FALL
+        return
+
+      var movement: Vector3 = camera_relative_movement()
+      if velocity.dot(movement) < 0.0:
+        velocity = movement * FLIP_FORCE
+      else:
+        velocity += movement * FLIP_FORCE
+      jump_buffer = 0
+      coyote_buffer = 0
 
     _:
       assert(false, "Unhandled state: " + State.keys()[state])
