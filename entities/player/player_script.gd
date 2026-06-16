@@ -96,7 +96,7 @@ var landed_buffer: int
 const COYOTE_WINDOW: int = 6
 var coyote_buffer: int
 
-const JUMP_DURATION: int = 20
+const JUMP_DURATION: int = 15
 const JUMP_WINDOW: int = 6
 var jump_buffer: int
 
@@ -121,8 +121,8 @@ const AIR_ACCELERATION: float = 3.0
 const ACCELERATION: float = 30.0 # reaches `SPEED` in half second
 const FRICTION: float = 60.0 # stops movement in a quarter of a second
 
-const HIGH_JUMP: float = 2.0
-const JUMP: float = 1.0
+const HIGH_JUMP: float = 3.0
+const JUMP: float = 2.0
 
 ### State Machine
 func handle_state(delta: float) -> void:
