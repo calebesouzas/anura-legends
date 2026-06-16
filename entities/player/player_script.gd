@@ -100,11 +100,13 @@ const JUMP_DURATION: int = 20
 const JUMP_WINDOW: int = 6
 var jump_buffer: int
 
-const FLIP_DURATION: int = 1
+const FLIP_DURATION: int = 15
+const FLIP_FORCE: float = 3.0
 var can_flip: bool = false
 
 const DASH_DURATION: int = 15 # tick amount that input will be locked
 const SUPER_DASH_UNLOCK_MOMENT: int = 10
+const DASH_FORCE: float = 5.0
 
 const ADHESION_WINDOW: int = 6
 var adhesion_buffer: int
@@ -119,10 +121,6 @@ const FRICTION: float = 60.0 # stops movement in a quarter of a second
 
 const HIGH_JUMP: float = 2.0
 const JUMP: float = 1.0
-
-const DASH_FORCE: float = 5.0
-
-const FLIP_FORCE: float = 6.0
 
 ### State Machine
 func handle_state(delta: float) -> void:
@@ -206,13 +204,16 @@ func handle_state(delta: float) -> void:
         state = State.FALL
         return
 
+      jump_buffer = 0
+      coyote_buffer = 0
+
+      if state_ticks > 1: return
+
       var movement: Vector3 = camera_relative_movement()
       if velocity.dot(movement) < 0.0:
         velocity = movement * FLIP_FORCE
       else:
         velocity += movement * FLIP_FORCE
-      jump_buffer = 0
-      coyote_buffer = 0
 
     _:
       assert(false, "Unhandled state: " + State.keys()[state])
