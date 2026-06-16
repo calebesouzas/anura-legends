@@ -45,6 +45,11 @@ if you keep holding jump during a specified tick window).
 > The high (initial) jump force must be at least capable of jumping over a 
 single block...
 
+I could just keep the player in airbone (not falling) mode instead of doing a 
+real variable jump height...
+
+> There is an explaination at [Flip](#flip).
+
 ### Air Strafing
 Moving in the air, with preserved `velocity` but with less or none friction.
 
@@ -59,6 +64,11 @@ to the camera. Looking up and down makes difference! It will normally add to
 
 > Can be used before landing and after a jump or any kind of dash to boost or 
 correct a movement after it has been done!
+
+**NOTE**: when you flip with `direction.length() < MOVE_DEADZONE`, `velocity.y` 
+is set to flip force. Giving you vertical boost!
+
+> This can be used to go up stairs very fast!
 
 ### Dash
 When you [#jump] with **adhesion**. Could be **buffered** and **coyote**'d... 
