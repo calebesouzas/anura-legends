@@ -100,12 +100,6 @@ const JUMP_DURATION: int = 15
 const JUMP_WINDOW: int = 6
 var jump_buffer: int
 
-const FLIP_DURATION: int = 15
-const FLIP_ADD_FORCE: float = 3.0
-const FLIP_SET_FORCE: float = 4.5
-var can_flip: bool = false
-const FLIP_RELOAD_DELAY: int = 6
-
 const DASH_DURATION: int = 15 # tick amount that input will be locked
 const SUPER_DASH_UNLOCK_MOMENT: int = 10
 const DASH_FORCE: float = 5.0
@@ -128,7 +122,6 @@ const JUMP: float = 6.0
 func handle_state(delta: float) -> void:
   match state:
     State.IDLE_MOVE:
-      can_flip = state_ticks > FLIP_RELOAD_DELAY
       var factor: float = 1.0
       if can_join() and adhesion_buffer > 0:
         factor = ADHESION_FACTOR
@@ -158,11 +151,6 @@ func handle_state(delta: float) -> void:
         jump_buffer = 0
         coyote_buffer = 0
         return
-      elif just_pressed("jump") and can_flip \
-          and not is_action_valid("adhesion"):
-        can_flip = false
-        state = State.FLIP
-        return
 
       if wanna_move:
         move_2d(wishdir, delta, AIR_ACCELERATION)
@@ -187,8 +175,6 @@ func handle_state(delta: float) -> void:
         input_locked = false
         return
 
-      can_flip = true
-
       if state_ticks == 1:
         input_locked = true
         #@todo effect!
@@ -202,30 +188,6 @@ func handle_state(delta: float) -> void:
         velocity.y += DASH_FORCE
         jump_buffer = 0
         coyote_buffer = 0
-
-    State.FLIP:
-      if state_ticks > FLIP_DURATION:
-        state = State.FALL
-        skin.rotation_degrees.x = 0
-        return
-
-      jump_buffer = 0
-      coyote_buffer = 0
-
-      rotate_skin(delta * 2, true)
-      if state_ticks > 1:
-        const ANGLE: float = -360 # negarive to go forward
-        skin.rotation_degrees.x = lerp(skin.rotation_degrees.x, ANGLE,
-          (1.0/60) * state_ticks)
-        return
-
-      var movement: Vector3 = camera_relative_movement()
-      if movement.length_squared() < MOVE_DEADZONE ** 2:
-        velocity.y = FLIP_SET_FORCE
-      elif velocity.dot(movement) < 0.0:
-        velocity = movement * FLIP_SET_FORCE
-      else:
-        velocity += movement * FLIP_ADD_FORCE
 
     _:
       assert(false, "Unhandled state: " + State.keys()[state])
