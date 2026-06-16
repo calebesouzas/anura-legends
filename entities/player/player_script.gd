@@ -220,7 +220,9 @@ func handle_state(delta: float) -> void:
         return
 
       var movement: Vector3 = camera_relative_movement()
-      if velocity.dot(movement) < 0.0:
+      if movement.length_squared() < MOVE_DEADZONE ** 2:
+        velocity.y = FLIP_SET_FORCE
+      elif velocity.dot(movement) < 0.0:
         velocity = movement * FLIP_SET_FORCE
       else:
         velocity += movement * FLIP_ADD_FORCE
