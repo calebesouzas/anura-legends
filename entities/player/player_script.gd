@@ -206,12 +206,18 @@ func handle_state(delta: float) -> void:
     State.FLIP:
       if state_ticks > FLIP_DURATION:
         state = State.FALL
+        skin.rotation_degrees.x = 0
         return
 
       jump_buffer = 0
       coyote_buffer = 0
 
-      if state_ticks > 1: return
+      rotate_skin(delta * 2, true)
+      if state_ticks > 1:
+        const ANGLE: float = -360 # negarive to go forward
+        skin.rotation_degrees.x = lerp(skin.rotation_degrees.x, ANGLE,
+          (1.0/60) * state_ticks)
+        return
 
       var movement: Vector3 = camera_relative_movement()
       if velocity.dot(movement) < 0.0:
@@ -309,8 +315,8 @@ func can_join() -> bool:
   return plasma_manager.can_join(self)
 
 ## visual
-func rotate_skin(delta: float) -> void:
-  if not wanna_move: return
+func rotate_skin(delta: float, force: bool = false) -> void:
+  if not wanna_move and not force: return
   var target_angle: float = Vector3.FORWARD \
     .signed_angle_to(-pivot.basis.z, Vector3.UP) if aim_locked \
       else Vector3.FORWARD.signed_angle_to(move_direction, Vector3.UP)
