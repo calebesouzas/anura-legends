@@ -1,5 +1,5 @@
 # Player Mechanics
-A list of all mechanics i want to implement in this prototype.
+A list of all mechanics I want to implement in this prototype.
 
 ## Basic Terms
 **Plasma**: tint, usually mencioning the one of the player's team color.
@@ -20,36 +20,52 @@ elapsed time is still in the defined tick window.
 **Coyote**: the action will still be valid when you press an action after the 
 moment you should, but it's more about jumps after going off the ground.
 
+**High Speed Mode**: when `velocity.length() > NORMAL_SPEED` where 
+`NORMAL_SPEED` should not be less than 10... Maybe the speed of a [super 
+dash](#super-dash) would be fine.
+
 ### Walking
-Normal directional movement on the ground.
+Normal directional movement on the ground. We could zero horizontal `velocity` 
+when moving towards opposite directions (when `velocity.dot(wishdir) < 0.0`).
+
+Then, we will solve that little slide... Which may be potentially not desired.
 > Control (friction) is reduced when in the air.
 
 ### Running
-Walking with **adhesion**, on floor and above **paint**.
+[Walking](#walking) with **adhesion**, on floor and above **paint**.
+
+We could keep running mode by touching **adhesion** once and while we don't 
+suddenly change desired direction.
 
 ### Jumping
 With **jump** but also on floor or **buffered** or **coyote** jump. It allows 
 variable jump height (fixed in the first tick but still boost you up a little 
 if you keep holding jump during a specified tick window).
 
+> The high (initial) jump force must be at least capable of jumping over a 
+single block...
+
 ### Air Strafing
 Moving in the air, with preserved `velocity` but with less or none friction.
 
+Allowing the player to do (#camera-turns) would be cool... But 
+maybe only with **high speed mode**?
+
 ### Flip
-When you **jump** in the air without **adhesion**. It is completelly relative 
+When you [#jump] in the air without **adhesion**. It is completelly relative 
 to the camera. Looking up and down makes difference! It will normally add to 
-`velocity`, but if the `dot_product` is less than 0, it will _set_ the 
+`velocity`, but if `velocity.dot(wishdir)` is less than 0, it will _set_ the 
 `velocity`. It's reset to `true` when you land (and in other cases as well).
+
 > Can be used before landing and after a jump or any kind of dash to boost or 
 correct a movement after it has been done!
 
 ### Dash
-When you **jump** with **adhesion**. Could be **buffered** and **coyote**'d... 
-(coyote time should be for the horizontal version only). It will be totally  
-relative to the camera if done in the air (it is separated from jump). It will 
-have a special effect: locking any input and add a `speed` boost with no 
-friction to the target `direction` (horizontal only for jumping and running) 
-during a defined window.
+When you [#jump] with **adhesion**. Could be **buffered** and **coyote**'d... 
+It will have a special effect: locking any directional input and add a `speed` 
+boost with no friction to `velocity` during a defined window. If you're not 
+already moving at all, it'll go the way the character is directed to.
+
 > We should limit dash count and reload when the player does something related 
 to the combat system. Like killing an enemy or just hitting X times for each 
 new dash, until a dash count limit (also variable, based on the weapon used).
@@ -73,13 +89,14 @@ vertical axis of the `velocity` before the crash. Just like a tiny **dash** but
 upwards.
 
 ### Super Dashing
-When you **jump** right after the end of a **dash**. Basically a grounded dash 
-but with a higher vertical boost instead of just horizontal force. Thus, the 
-horizontal range is reduced.
+When you **jump** a little bit before the end of a **dash**. Basically the force 
+of a normal horizontal dash added to the vertical momentum (at the moment).
+
+> This is the best and only way to go up by doing dashes...
 
 ### Hyper Dashing
-When you **super dash** at the same time you land. The greatest horizontal boost 
-with almost no vertical boost.
+When you **dash** at the same time you land. The greatest horizontal boost (I 
+don't really know how much yet).
 > Tip: you can flip down to touch the ground faster!
 
 ## Combat
@@ -106,12 +123,22 @@ When you dash while holding the trigger and hit an opponent.
 When **retaking**, you take back the **plasma** near you.
 > This heals your health and reloads your _plasma tank_.
 
+### Important Rule
+You can't shoot while in **high speed mode**. You must stop or just decelerating 
+down to the normal speed to be able to shoot again.
+
+> This will make you choose what you want, since you won't do everything at the 
+same time anyways.
+
 ## Game
 Don't really know how to win, what the teams or players have to do...
 
 ### Showdown
 Kill as much enemy team's integrals as possible.
 > Main Game Mode?
+
+>> **IMPORTANT**: for the next event, I should develop this game mode but with 
+static enemies (they just shoot at you but don't move).
 
 ### Domination
 Paint as much terrain as possible.
