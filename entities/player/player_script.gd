@@ -23,7 +23,7 @@ var aim_locked: bool = false
 @export var MOVE_DEADZONE: float = 0.2
 @export var CONTROLLER_CAMERA_DEADZONE: float = 0.04
 var input_direction: Vector2
-var move_direction: Vector3
+var wishdir: Vector3
 
 func pressed(action: StringName) -> bool:
   return Input.is_action_pressed(action)
@@ -136,9 +136,9 @@ func handle_state(delta: float) -> void:
       if wanna_move:
         # no friction when landing and jumping at the same time
         if state_ticks <= LANDED_WINDOW and jump_buffer > 0:
-          move_2d(move_direction, delta, AIR_ACCELERATION * factor)
+          move_2d(wishdir, delta, AIR_ACCELERATION * factor)
         else:
-          move_2d(move_direction, delta, ACCELERATION * factor)
+          move_2d(wishdir, delta, ACCELERATION * factor)
       else:
         move_2d(Vector3.ZERO, delta, FRICTION * factor)
 
@@ -165,7 +165,7 @@ func handle_state(delta: float) -> void:
         return
 
       if wanna_move:
-        move_2d(move_direction, delta, AIR_ACCELERATION)
+        move_2d(wishdir, delta, AIR_ACCELERATION)
       velocity += get_gravity() * delta
 
     State.JUMP:
@@ -174,7 +174,7 @@ func handle_state(delta: float) -> void:
         return
 
       if wanna_move:
-        move_2d(move_direction, delta, AIR_ACCELERATION)
+        move_2d(wishdir, delta, AIR_ACCELERATION)
 
       if state_ticks == 1:
         velocity.y = HIGH_JUMP
@@ -195,7 +195,7 @@ func handle_state(delta: float) -> void:
         velocity += \
         (camera_relative_movement()
           if not grounded
-          else move_direction.normalized()) * DASH_FORCE # no friction!
+          else wishdir.normalized()) * DASH_FORCE # no friction!
 
       if jump_buffer > 0 and coyote_buffer > 0 \
           and state_ticks >= SUPER_DASH_UNLOCK_MOMENT:
@@ -257,11 +257,11 @@ func _physics_process(delta: float) -> void:
     adhesion_buffer -= 1
 
   if not input_locked:
-    move_direction = Vector3(input_direction.x, 0.0, -input_direction.y) \
+    wishdir = Vector3(input_direction.x, 0.0, -input_direction.y) \
       .rotated(Vector3.UP, pivot.rotation.y)
-    wanna_move = move_direction.length_squared() > MOVE_DEADZONE ** 2
+    wanna_move = wishdir.length_squared() > MOVE_DEADZONE ** 2
 
-  dot = velocity.dot(move_direction)
+  dot = velocity.dot(wishdir)
 
   handle_state(delta)
 
@@ -321,7 +321,7 @@ func rotate_skin(delta: float, force: bool = false) -> void:
   if not wanna_move and not force: return
   var target_angle: float = Vector3.FORWARD \
     .signed_angle_to(-pivot.basis.z, Vector3.UP) if aim_locked \
-      else Vector3.FORWARD.signed_angle_to(move_direction, Vector3.UP)
+      else Vector3.FORWARD.signed_angle_to(wishdir, Vector3.UP)
   skin.rotation.y = lerp_angle(
     skin.rotation.y,
     target_angle,
