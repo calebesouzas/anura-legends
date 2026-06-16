@@ -101,7 +101,8 @@ const JUMP_WINDOW: int = 6
 var jump_buffer: int
 
 const FLIP_DURATION: int = 15
-const FLIP_FORCE: float = 3.0
+const FLIP_ADD_FORCE: float = 3.0
+const FLIP_SET_FORCE: float = 4.5
 var can_flip: bool = false
 
 const DASH_DURATION: int = 15 # tick amount that input will be locked
@@ -211,9 +212,9 @@ func handle_state(delta: float) -> void:
 
       var movement: Vector3 = camera_relative_movement()
       if velocity.dot(movement) < 0.0:
-        velocity = movement * FLIP_FORCE
+        velocity = movement * FLIP_SET_FORCE
       else:
-        velocity += movement * FLIP_FORCE
+        velocity += movement * FLIP_ADD_FORCE
 
     _:
       assert(false, "Unhandled state: " + State.keys()[state])
