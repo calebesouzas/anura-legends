@@ -187,6 +187,8 @@ func handle_state(delta: float) -> void:
         input_locked = false
         return
 
+      can_flip = true
+
       if state_ticks == 1:
         input_locked = true
         #@todo effect!
