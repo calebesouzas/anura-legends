@@ -104,6 +104,7 @@ const FLIP_DURATION: int = 15
 const FLIP_ADD_FORCE: float = 3.0
 const FLIP_SET_FORCE: float = 4.5
 var can_flip: bool = false
+const FLIP_RELOAD_DELAY: int = 6
 
 const DASH_DURATION: int = 15 # tick amount that input will be locked
 const SUPER_DASH_UNLOCK_MOMENT: int = 10
@@ -127,7 +128,7 @@ const JUMP: float = 1.0
 func handle_state(delta: float) -> void:
   match state:
     State.IDLE_MOVE:
-      can_flip = true
+      can_flip = state_ticks > FLIP_RELOAD_DELAY
       var factor: float = 1.0
       if can_join() and adhesion_buffer > 0:
         factor = ADHESION_FACTOR
