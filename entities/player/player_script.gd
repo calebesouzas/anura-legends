@@ -181,7 +181,7 @@ func handle_state(delta: float) -> void:
         velocity += \
         (camera_relative_movement()
           if not grounded
-          else wishdir.normalized()) * DASH_FORCE # no friction!
+          else wishdir) * DASH_FORCE # no friction!
 
       if jump_buffer > 0 and coyote_buffer > 0 \
           and state_ticks >= SUPER_DASH_UNLOCK_MOMENT:
