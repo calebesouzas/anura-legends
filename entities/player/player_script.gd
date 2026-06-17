@@ -111,8 +111,12 @@ const SPEED: float = 5.0
 
 const ADHESION_FACTOR: float = 3.0
 
-const AIR_ACCELERATION: float = 3.0
-const ACCELERATION: float = 20.0
+const AIR_ACCELERATION: float = 3.5
+const MAX_AIR_SPEED: float = 10.0
+
+const ACCELERATION: float = 3.5
+const MAX_SPEED: float = 5.0
+
 const FRICTION: float = 40.0
 
 const HIGH_JUMP: float = 3.0
@@ -129,7 +133,7 @@ func accelerate(
   var accel: float = acceleration * delta
   if speed + accel > max_acceleration:
     accel = max_acceleration - speed
-	if accel < 0: accel = 0
+    if accel < 0: accel = 0
   return velocity + dir * accel
 
 func apply_friction(
@@ -138,13 +142,10 @@ func apply_friction(
     friction: float,
     max_speed: float
 ) -> Vector3:
-  var speed: float = current_speed
-  if speed > max_speed:
-    var vel: Vector3 = velocity
-	vel.x = move_toward(vel.x, dir.x * max_speed, friction * delta)
-    vel.z = move_toward(vel.z, dir.z * max_speed, friction * delta)
-	return Vector3(vel.x, velocity.y, vel.z)
-  return velocity # untouched
+  var vel: Vector3 = velocity
+  vel.x = move_toward(vel.x, dir.x * max_speed, friction * delta)
+  vel.z = move_toward(vel.z, dir.z * max_speed, friction * delta)
+  return Vector3(vel.x, velocity.y, vel.z)
 
 func handle_state(delta: float) -> void:
   match state:
@@ -153,14 +154,12 @@ func handle_state(delta: float) -> void:
       if can_join() and is_action_valid("adhesion"):
         factor = ADHESION_FACTOR
 
-      if wanna_move:
-        # no friction when landing and jumping at the same time
-        if state_ticks <= LANDED_WINDOW and jump_buffer > 0:
-          move_2d(wishdir, delta, AIR_ACCELERATION * factor)
-        else:
-          move_2d(wishdir, delta, ACCELERATION * factor)
-      else:
-        move_2d(Vector3.ZERO, delta, FRICTION * factor)
+      velocity = accelerate(wishdir, delta, ACCELERATION, MAX_SPEED)
+
+      # no friction when landing and jumping at the same time
+      if state_ticks > LANDED_WINDOW and jump_buffer <= 0:
+        velocity = apply_friction(wishdir, delta,
+          FRICTION * factor, MAX_SPEED)
 
       if not grounded:
         state = State.FALL
@@ -179,8 +178,7 @@ func handle_state(delta: float) -> void:
         coyote_buffer = 0
         return
 
-      if wanna_move:
-        move_2d(wishdir, delta, AIR_ACCELERATION)
+      velocity = accelerate(wishdir, delta, AIR_ACCELERATION, MAX_AIR_SPEED)
       velocity += get_gravity() * delta
 
     State.JUMP:
@@ -188,8 +186,7 @@ func handle_state(delta: float) -> void:
         state = State.FALL
         return
 
-      if wanna_move:
-        move_2d(wishdir, delta, AIR_ACCELERATION)
+      velocity = accelerate(wishdir, delta, AIR_ACCELERATION, MAX_AIR_SPEED)
 
       if state_ticks == 1:
         velocity.y = HIGH_JUMP
@@ -270,15 +267,6 @@ func _physics_process(delta: float) -> void:
 ### move_2D horizontal movement, Y axis ignored
 func dash_or_jump() -> State:
   return State.DASH if is_action_valid("adhesion") else State.JUMP
-
-func move_2d(
-    direction: Vector3,
-    delta: float,
-    acceleration: float = ACCELERATION,
-    speed: float = SPEED
-) -> void:
-  velocity.x = move_toward(velocity.x, direction.x * speed, acceleration * delta)
-  velocity.z = move_toward(velocity.z, direction.z * speed, acceleration * delta)
 
 func camera_relative_movement() -> Vector3:
   var forward: Vector3 = -camera.global_transform.basis.z
