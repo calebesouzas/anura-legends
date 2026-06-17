@@ -119,6 +119,33 @@ const HIGH_JUMP: float = 3.0
 const JUMP: float = 6.0
 
 ### State Machine
+func accelerate(
+    dir: Vector3,
+    delta: float,
+    acceleration: float,
+    max_acceleration: float
+) -> Vector3:
+  var speed: float = current_speed
+  var accel: float = acceleration * delta
+  if speed + accel > max_acceleration:
+    accel = max_acceleration - speed
+	if accel < 0: accel = 0
+  return velocity + dir * accel
+
+func apply_friction(
+    dir: Vector3,
+    delta: float,
+    friction: float,
+    max_speed: float
+) -> Vector3:
+  var speed: float = current_speed
+  if speed > max_speed:
+    var vel: Vector3 = velocity
+	vel.x = move_toward(vel.x, dir.x * max_speed, friction * delta)
+    vel.z = move_toward(vel.z, dir.z * max_speed, friction * delta)
+	return Vector3(vel.x, velocity.y, vel.z)
+  return velocity # untouched
+
 func handle_state(delta: float) -> void:
   match state:
     State.IDLE_MOVE:
