@@ -123,7 +123,7 @@ func handle_state(delta: float) -> void:
   match state:
     State.IDLE_MOVE:
       var factor: float = 1.0
-      if can_join() and adhesion_buffer > 0:
+      if can_join() and is_action_valid("adhesion"):
         factor = ADHESION_FACTOR
 
       if wanna_move:
