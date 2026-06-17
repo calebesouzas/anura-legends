@@ -123,18 +123,33 @@ const HIGH_JUMP: float = 3.0
 const JUMP: float = 6.0
 
 ### State Machine
+# Quake style but with limited magnitude
 func accelerate(
     dir: Vector3,
     delta: float,
-    acceleration: float,
-    max_acceleration: float
+    wish_speed: float,
+    acceleration: float
 ) -> Vector3:
-  var speed: float = current_speed
-  var accel: float = acceleration * delta
-  if speed + accel > max_acceleration:
-    accel = max_acceleration - speed
-    if accel < 0: accel = 0
-  return velocity + dir * accel
+  var add_accel: float
+  var accel: float
+
+  add_accel = wish_speed - velocity.dot(dir)
+
+  if add_accel <= 0:
+    return velocity
+
+  accel = acceleration * delta * wish_speed
+
+  if accel > add_accel:
+    accel = add_accel
+
+  var vel: Vector3 = velocity + dir * accel
+
+  # cap speed here (it actually reduces a little)
+  if vel.length_squared() > MAX_AIR_SPEED ** 2:
+    return vel.normalized() * MAX_AIR_SPEED
+
+  return vel
 
 func apply_friction(
     dir: Vector3,
@@ -157,7 +172,7 @@ func handle_state(delta: float) -> void:
       velocity = accelerate(wishdir, delta, ACCELERATION, MAX_SPEED)
 
       # no friction when landing and jumping at the same time
-      if state_ticks > LANDED_WINDOW and jump_buffer <= 0:
+      if state_ticks > LANDED_WINDOW:
         velocity = apply_friction(wishdir, delta,
           FRICTION * factor, MAX_SPEED)
 
