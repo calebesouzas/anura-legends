@@ -112,8 +112,8 @@ const SPEED: float = 5.0
 const ADHESION_FACTOR: float = 3.0
 
 const AIR_ACCELERATION: float = 3.0
-const ACCELERATION: float = 30.0 # reaches `SPEED` in half second
-const FRICTION: float = 60.0 # stops movement in a quarter of a second
+const ACCELERATION: float = 20.0
+const FRICTION: float = 40.0
 
 const HIGH_JUMP: float = 3.0
 const JUMP: float = 6.0
