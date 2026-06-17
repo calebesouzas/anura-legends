@@ -102,7 +102,7 @@ var jump_buffer: int
 
 const DASH_DURATION: int = 15 # tick amount that input will be locked
 const SUPER_DASH_UNLOCK_MOMENT: int = 10
-const DASH_FORCE: float = 5.0
+const DASH_FORCE: float = 7.5
 
 const ADHESION_WINDOW: int = 6
 var adhesion_buffer: int
