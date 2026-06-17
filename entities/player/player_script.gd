@@ -98,6 +98,7 @@ var coyote_buffer: int
 
 const JUMP_DURATION: int = 15
 const JUMP_WINDOW: int = 6
+const JUMP_DELAY: int = 6
 var jump_buffer: int
 
 const DASH_DURATION: int = 15 # tick amount that input will be locked
@@ -178,7 +179,7 @@ func handle_state(delta: float) -> void:
 
       if not grounded:
         state = State.FALL
-      elif is_action_valid("jump"):
+      elif jump_buffer > 0 or pressed("jump") and state_ticks > JUMP_DELAY:
         state = dash_or_jump()
         jump_buffer = 0
         coyote_buffer = 0
