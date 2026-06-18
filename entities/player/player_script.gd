@@ -109,11 +109,18 @@ var high_jump_force: float = HIGH_JUMP
 var jump_force: float = JUMP
 
 const DASH_DURATION: int = 15 # tick amount that input will be locked
+const DASH_IMPULSE_DURATION: int = 5
+
+const DASH_TENSION: float = 0.2
+
 const SUPER_DASH_UNLOCK_MOMENT: int = 10
+
 const DASH_FORCE: float = 7.5
 const HIGH_SUPER_DASH_FORCE: float = 3.75
+
 const SUPER_DASH_FORCE: float = 7.5
-const SUPER_DASH_DURATION: int = 20
+const SUPER_DASH_DURATION: int = 30
+
 const DASH_DELAY: int = 15
 var dash_delay: int
 
@@ -228,13 +235,14 @@ func handle_state(delta: float) -> void:
         input_locked = false
         return
 
-      if state_ticks == 1:
-        input_locked = true
-        #@todo effect!
-        velocity += \
-        (camera_relative_movement()
-          if not grounded
-          else wishdir) * DASH_FORCE # no friction!
+      input_locked = true
+      #@todo effect!
+      var dash_dir: Vector3 = -skin.global_transform.basis.z
+      if wanna_move:
+        if grounded: dash_dir = wishdir
+        else: dash_dir = camera_relative_movement()
+
+      velocity = (velocity * DASH_TENSION) + dash_dir * DASH_FORCE
 
       if jump_buffer > 0 and coyote_buffer > 0 \
           and state_ticks >= SUPER_DASH_UNLOCK_MOMENT:
