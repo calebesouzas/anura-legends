@@ -104,6 +104,8 @@ var jump_buffer: int
 const DASH_DURATION: int = 15 # tick amount that input will be locked
 const SUPER_DASH_UNLOCK_MOMENT: int = 10
 const DASH_FORCE: float = 7.5
+const DASH_DELAY: int = 15
+var dash_delay: int
 
 const ADHESION_WINDOW: int = 6
 var adhesion_buffer: int
@@ -210,6 +212,7 @@ func handle_state(delta: float) -> void:
         velocity.y += JUMP * delta
 
     State.DASH:
+      dash_delay = DASH_DELAY
       if state_ticks > DASH_DURATION:
         state = State.FALL
         input_locked = false
@@ -258,6 +261,9 @@ func _physics_process(delta: float) -> void:
   elif adhesion_buffer > 0:
     adhesion_buffer -= 1
 
+  if dash_delay > 0:
+    dash_delay -= 1
+
   if not input_locked:
     wishdir = Vector3(input_direction.x, 0.0, -input_direction.y) \
       .rotated(Vector3.UP, pivot.rotation.y)
@@ -282,7 +288,9 @@ func _physics_process(delta: float) -> void:
 ## movement
 ### move_2D horizontal movement, Y axis ignored
 func dash_or_jump() -> State:
-  return State.DASH if is_action_valid("adhesion") else State.JUMP
+  return State.DASH \
+    if is_action_valid("adhesion") and dash_delay <= 0 \
+    else State.JUMP
 
 func camera_relative_movement() -> Vector3:
   var forward: Vector3 = -camera.global_transform.basis.z
