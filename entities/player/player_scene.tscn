@@ -2,20 +2,11 @@
 
 [ext_resource type="Script" uid="uid://c3ltnnrsiabaq" path="res://entities/player/player_script.gd" id="1_bk7tw"]
 [ext_resource type="Script" uid="uid://lb7i1yddi7sw" path="res://entities/projectiles/projectile_script.gd" id="2_qnxqa"]
-[ext_resource type="Texture2D" uid="uid://c6ughjbb7w73y" path="res://ui/touch/direction-up-black.png" id="2_ygi5u"]
-[ext_resource type="Texture2D" uid="uid://cbp0amgop1gje" path="res://ui/touch/direction-up-white.png" id="3_n8j47"]
 [ext_resource type="Texture2D" uid="uid://cevpj7tpnxsly" path="res://ui/touch/trigger-black.png" id="4_3xm0v"]
-[ext_resource type="Texture2D" uid="uid://v8wu8mu24373" path="res://ui/touch/direction-right-black.png" id="4_hycpi"]
-[ext_resource type="Texture2D" uid="uid://cfv2mu1inqdfr" path="res://ui/touch/direction-right-white.png" id="5_k0nwe"]
 [ext_resource type="Texture2D" uid="uid://csoywosq0dvw2" path="res://ui/touch/trigger-white.png" id="5_qnxqa"]
-[ext_resource type="Texture2D" uid="uid://b72fu8rf3gupj" path="res://ui/touch/direction-down-black.png" id="6_kmx06"]
-[ext_resource type="Texture2D" uid="uid://bs685nl7fqr5s" path="res://ui/touch/dash-black.png" id="7_1h5a1"]
-[ext_resource type="Texture2D" uid="uid://xhslr4r5s7rf" path="res://ui/touch/direction-down-white.png" id="7_k2n06"]
 [ext_resource type="Texture2D" uid="uid://5gu2tmxomwsp" path="res://ui/touch/adhesion-black.png" id="7_ucnxd"]
-[ext_resource type="Texture2D" uid="uid://clf2s0fqt71yh" path="res://ui/touch/direction-left-black.png" id="8_rsjbd"]
-[ext_resource type="Texture2D" uid="uid://beudmhhp075nb" path="res://ui/touch/dash-white.png" id="8_t5o3e"]
 [ext_resource type="Texture2D" uid="uid://bovabpykmt3fy" path="res://ui/touch/adhesion-white.png" id="8_xgoka"]
-[ext_resource type="Texture2D" uid="uid://cdy1i8t58248i" path="res://ui/touch/direction-left-white.png" id="9_db1fq"]
+[ext_resource type="Script" uid="uid://bc8c4c6jnaoj3" path="res://addons/touch_screen_joystick/touch_screen_joystick.gd" id="9_rsjbd"]
 [ext_resource type="Texture2D" uid="uid://bl85bxj834ox1" path="res://ui/touch/jump-black.png" id="10_32adv"]
 [ext_resource type="Texture2D" uid="uid://bw5nxmjqado4h" path="res://ui/touch/jump-white.png" id="11_rbw6g"]
 
@@ -52,6 +43,15 @@ subpixel_positioning = 0
 size = Vector3(0.75, 0.5, 0.5)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_32adv"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1h5a1"]
+size = Vector2(15, 15)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_t5o3e"]
+size = Vector2(15, 15)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ucnxd"]
+size = Vector2(15, 15)
 
 [node name="player" type="CharacterBody3D" unique_id=220854978 node_paths=PackedStringArray("respawn_timer")]
 script = ExtResource("1_bk7tw")
@@ -128,10 +128,11 @@ grow_vertical = 2
 mouse_filter = 1
 
 [node name="trigger" type="TouchScreenButton" parent="hud/control" unique_id=2100857492]
-position = Vector2(933, 60.00003)
+position = Vector2(975.00006, 452.00003)
 scale = Vector2(15, 15)
 texture_normal = ExtResource("4_3xm0v")
 texture_pressed = ExtResource("5_qnxqa")
+shape = SubResource("RectangleShape2D_1h5a1")
 action = "trigger"
 
 [node name="jump" type="TouchScreenButton" parent="hud/control" unique_id=1989971277]
@@ -139,65 +140,35 @@ position = Vector2(1060, 72.000015)
 scale = Vector2(15, 15)
 texture_normal = ExtResource("10_32adv")
 texture_pressed = ExtResource("11_rbw6g")
+shape = SubResource("RectangleShape2D_t5o3e")
 action = "jump"
 
 [node name="adhesion" type="TouchScreenButton" parent="hud/control" unique_id=1429188447]
-position = Vector2(133, 104)
+position = Vector2(353, 101.00001)
 scale = Vector2(15, 15)
 texture_normal = ExtResource("7_ucnxd")
 texture_pressed = ExtResource("8_xgoka")
+shape = SubResource("RectangleShape2D_ucnxd")
 action = "adhesion"
 
-[node name="dash" type="TouchScreenButton" parent="hud/control" unique_id=970133551]
-position = Vector2(1072, 433.00003)
-scale = Vector2(15, 15)
-texture_normal = ExtResource("7_1h5a1")
-texture_pressed = ExtResource("8_t5o3e")
-action = "dash"
-
-[node name="direction_pad" type="Control" parent="hud/control" unique_id=1897145696]
-layout_mode = 1
-anchor_left = 0.2
-anchor_top = 0.66400003
-anchor_right = 0.2
-anchor_bottom = 0.66400003
-offset_left = -180.40001
-offset_top = -180.27203
-offset_right = 179.59999
-offset_bottom = 179.72797
-pivot_offset = Vector2(183, 176)
-
-[node name="direction_up" type="TouchScreenButton" parent="hud/control/direction_pad" unique_id=405375197]
-position = Vector2(100, 0)
-scale = Vector2(15, 15)
-texture_normal = ExtResource("2_ygi5u")
-texture_pressed = ExtResource("3_n8j47")
-passby_press = true
-action = "move_forward"
-
-[node name="direction_right" type="TouchScreenButton" parent="hud/control/direction_pad" unique_id=466380470]
-position = Vector2(200, 100)
-scale = Vector2(15, 15)
-texture_normal = ExtResource("4_hycpi")
-texture_pressed = ExtResource("5_k0nwe")
-passby_press = true
-action = "move_right"
-
-[node name="direction_left" type="TouchScreenButton" parent="hud/control/direction_pad" unique_id=1647260839]
-position = Vector2(0, 100)
-scale = Vector2(15, 15)
-texture_normal = ExtResource("8_rsjbd")
-texture_pressed = ExtResource("9_db1fq")
-passby_press = true
-action = "move_left"
-
-[node name="direction_down" type="TouchScreenButton" parent="hud/control/direction_pad" unique_id=313673643]
-position = Vector2(100, 200)
-scale = Vector2(15, 15)
-texture_normal = ExtResource("6_kmx06")
-texture_pressed = ExtResource("7_k2n06")
-passby_press = true
-action = "move_backward"
+[node name="joystick" type="Control" parent="hud/control" unique_id=461441740]
+anchors_preset = 0
+offset_left = 184.0
+offset_top = 402.0
+offset_right = 224.0
+offset_bottom = 442.0
+mouse_filter = 1
+script = ExtResource("9_rsjbd")
+deadzone = 20.0
+base_radius = 200.0
+knob_radius = 130.0
+color = Color(1, 1, 1, 0.26666668)
+use_input_actions = true
+action_left = &"move_left"
+action_right = &"move_right"
+action_up = &"move_forward"
+action_down = &"move_backward"
+metadata/_custom_type_script = "uid://bc8c4c6jnaoj3"
 
 [node name="gui" type="CanvasLayer" parent="." unique_id=1537477114]
 unique_name_in_owner = true
@@ -231,3 +202,4 @@ theme_override_constants/margin_bottom = 50
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 1
+fit_content = true
