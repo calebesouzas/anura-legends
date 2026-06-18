@@ -96,14 +96,24 @@ var landed_buffer: int
 const COYOTE_WINDOW: int = 6
 var coyote_buffer: int
 
+# Jump duration and force may be increased by successful super dashes!
 const JUMP_DURATION: int = 15
 const JUMP_WINDOW: int = 6
 const JUMP_DELAY: int = 6
+var jump_duration: int = JUMP_DURATION
 var jump_buffer: int
+
+const HIGH_JUMP: float = 3.0
+const JUMP: float = 6.0
+var high_jump_force: float = HIGH_JUMP
+var jump_force: float = JUMP
 
 const DASH_DURATION: int = 15 # tick amount that input will be locked
 const SUPER_DASH_UNLOCK_MOMENT: int = 10
 const DASH_FORCE: float = 7.5
+const HIGH_SUPER_DASH_FORCE: float = 3.75
+const SUPER_DASH_FORCE: float = 7.5
+const SUPER_DASH_DURATION: int = 20
 const DASH_DELAY: int = 15
 var dash_delay: int
 
@@ -121,9 +131,6 @@ const ACCELERATION: float = 3.5
 const MAX_SPEED: float = 5.0
 
 const FRICTION: float = 40.0
-
-const HIGH_JUMP: float = 3.0
-const JUMP: float = 6.0
 
 ### State Machine
 # Quake style but with limited magnitude
@@ -200,16 +207,19 @@ func handle_state(delta: float) -> void:
       velocity += get_gravity() * delta
 
     State.JUMP:
-      if state_ticks > JUMP_DURATION or not is_action_valid("jump"):
+      if state_ticks > jump_duration or not is_action_valid("jump"):
         state = State.FALL
+        high_jump_force = HIGH_JUMP
+        jump_force = JUMP
+        jump_duration = JUMP_DURATION
         return
 
       velocity = accelerate(wishdir, delta, AIR_ACCELERATION, MAX_AIR_SPEED)
 
       if state_ticks == 1:
-        velocity.y = HIGH_JUMP
+        velocity.y = high_jump_force
       else:
-        velocity.y += JUMP * delta
+        velocity.y += jump_force * delta
 
     State.DASH:
       dash_delay = DASH_DELAY
@@ -228,7 +238,11 @@ func handle_state(delta: float) -> void:
 
       if jump_buffer > 0 and coyote_buffer > 0 \
           and state_ticks >= SUPER_DASH_UNLOCK_MOMENT:
-        velocity.y += DASH_FORCE
+        input_locked = false
+        state = State.JUMP
+        high_jump_force = HIGH_SUPER_DASH_FORCE
+        jump_force = SUPER_DASH_FORCE
+        jump_duration = SUPER_DASH_DURATION
         jump_buffer = 0
         coyote_buffer = 0
 
