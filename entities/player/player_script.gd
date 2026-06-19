@@ -139,7 +139,7 @@ const SPEED: float = 5.0
 
 const ADHESION_FACTOR: float = 3.0
 
-const AIR_ACCELERATION: float = 3.5
+const AIR_ACCELERATION: float = 2.15
 const MAX_AIR_SPEED: float = 10.0
 
 const ACCELERATION: float = 3.5
