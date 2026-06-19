@@ -207,11 +207,14 @@ func handle_state(delta: float) -> void:
       if state_ticks > LANDED_WINDOW:
         velocity = apply_friction(wishdir, delta,
           FRICTION * factor, MAX_SPEED)
+      elif jump_buffer > 0: # jumped berofe the end of `LANDED_WINDOW`
+        state = dash_or_jump()
+        jump_buffer = 0
+        coyote_buffer = 0
+        return
 
       if not grounded:
         state = State.FALL
-      #@issue this won't allow another dash right when landing!
-      # potential fix: separating jump from dash logic...
       elif is_action_valid("jump") and state_ticks > JUMP_DELAY:
         state = dash_or_jump()
         jump_buffer = 0
