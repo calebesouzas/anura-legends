@@ -12,8 +12,6 @@ size = Vector3(1, 2, 1)
 albedo_color = Color(1, 0, 0, 1)
 
 [node name="dummy" type="CharacterBody3D" unique_id=1063714536 node_paths=PackedStringArray("respawn_timer")]
-collision_layer = 8
-collision_mask = 5
 up_direction = Vector3(-0.39379898, 0.9191966, 0)
 script = ExtResource("1_mq0lg")
 respawn_timer = NodePath("respawn_timer")

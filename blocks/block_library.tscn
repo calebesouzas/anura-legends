@@ -22,7 +22,6 @@ mesh = SubResource("BoxMesh_ompt3")
 surface_material_override/0 = SubResource("StandardMaterial3D_ompt3")
 
 [node name="body" type="StaticBody3D" parent="normal" unique_id=1689281992]
-collision_mask = 0
 
 [node name="collision" type="CollisionShape3D" parent="normal/body" unique_id=874267428]
 shape = SubResource("BoxShape3D_sdjtf")
@@ -33,8 +32,6 @@ mesh = SubResource("BoxMesh_ompt3")
 surface_material_override/0 = SubResource("StandardMaterial3D_sdjtf")
 
 [node name="body" type="StaticBody3D" parent="blue" unique_id=1048106134]
-collision_layer = 5
-collision_mask = 0
 
 [node name="collision" type="CollisionShape3D" parent="blue/body" unique_id=1667448968]
 shape = SubResource("BoxShape3D_sdjtf")
@@ -45,8 +42,6 @@ mesh = SubResource("BoxMesh_ompt3")
 surface_material_override/0 = SubResource("StandardMaterial3D_vgmxl")
 
 [node name="body" type="StaticBody3D" parent="red" unique_id=1102521648]
-collision_layer = 9
-collision_mask = 0
 
 [node name="collision" type="CollisionShape3D" parent="red/body" unique_id=1430440172]
 shape = SubResource("BoxShape3D_sdjtf")

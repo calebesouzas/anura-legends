@@ -150,7 +150,6 @@ const FRICTION: float = 40.0
 const TOUCH_PLASMA_WINDOW: int = 5
 var touch_plasma_buffer: int
 var touching_plasma: bool
-@onready var plasma_detector: Area3D = %plasma_detector
 
 ### State Machine
 # Quake style but with limited magnitude
@@ -323,9 +322,8 @@ func _physics_process(delta: float) -> void:
   if dash_delay > 0:
     dash_delay -= 1
 
-  # I know I could only use the `signal body_entered`... but it doesn't seem
-  # to auto-update... And I also don't know when the collisions are checked...
-  if plasma_detector.has_overlapping_bodies():
+  # don't even know what to do...
+  if false:
     touching_plasma = true
   else:
     touching_plasma = false
@@ -383,10 +381,6 @@ func trigger() -> void:
 ### paint
 var ground_color: Team.BlockColor
 
-#@todo use Area3D with a mask to player's block color to detect plasma nearby
-func on_plasma_touch(body: Node3D) -> void:
-  touch_plasma_buffer = TOUCH_PLASMA_WINDOW
-
 func can_join() -> bool:
   return plasma_manager.can_join(self)
 
@@ -440,7 +434,6 @@ func _ready() -> void:
   debug.visible = false
   Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
   aim_lock_timer.timeout.connect(func(): aim_locked = false)
-  plasma_detector.body_entered.connect(on_plasma_touch)
 
 func _init() -> void:
   health = 1000
