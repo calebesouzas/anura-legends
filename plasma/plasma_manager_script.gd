@@ -76,9 +76,9 @@ func paint(exact_position: Vector3, normal: Vector3, color: Team.TeamColor, offs
   self.grid.set(block_position, color)
   self.blocks.set_cell_item(block_position, Team.team_to_block_color(color))
   for offset: Vector3i in offsets:
-    if self.blocks.get_cell_item(block_position + offset) == GridMap.INVALID_CELL_ITEM:
-      continue
-    self.blocks.set_cell_item(block_position + offset, Team.team_to_block_color(color))
+    if self.blocks.get_cell_item(block_position + offset) != GridMap.INVALID_CELL_ITEM:
+      self.blocks.set_cell_item(block_position + offset, Team.team_to_block_color(color))
+      self.grid.set(block_position + offset, color)
 
 func can_join(player: Player) -> bool:
   if not player.feet_ray.is_colliding(): return false
