@@ -415,12 +415,15 @@ func debug_value(value_name: StringName, value: Variant, new_line: bool = true) 
 
 func debug_update() -> void:
   debug.clear()
+  debug_value("FPS", Engine.get_frames_per_second())
   debug_field("velocity")
   debug_field("current_speed")
   debug_value("state", State.keys()[state])
   debug_field("state_ticks")
   debug_field("grounded")
   debug_field("dot")
+  debug_field("touching_plasma")
+  debug_field("can_dash")
   debug_value("can_join()", can_join())
   debug_value("feet_ray.is_colliding()", feet_ray.is_colliding(), false)
   if feet_ray.is_colliding():
