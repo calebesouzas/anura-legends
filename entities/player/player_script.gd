@@ -151,6 +151,8 @@ const TOUCH_PLASMA_WINDOW: int = 5
 var touch_plasma_buffer: int
 var touching_plasma: bool
 
+var tile: Vector3i # position at `PlasmaManager.grid`
+
 ### State Machine
 # Quake style but with limited magnitude
 func accelerate(
@@ -322,14 +324,18 @@ func _physics_process(delta: float) -> void:
   if dash_delay > 0:
     dash_delay -= 1
 
-  # don't even know what to do...
-  if false:
-    touching_plasma = true
-  else:
-    touching_plasma = false
-    if touch_plasma_buffer > 0:
-      touch_plasma_buffer -= 1
-
+  tile = Vector3i(
+    roundi(global_position.x),
+    floori(global_position.y) - 1, # right below the feet
+    roundi(global_position.z)
+  )
+  var block_color: Team.BlockColor = plasma_manager.blocks \
+    .get_cell_item(tile) as Team.BlockColor
+  touching_plasma = block_color == Team.team_to_block_color(team_color)
+  if touching_plasma:
+    touch_plasma_buffer = TOUCH_PLASMA_WINDOW
+  elif touch_plasma_buffer > 0:
+    touch_plasma_buffer -= 1
 
   if not input_locked:
     wishdir = Vector3(input_direction.x, 0.0, -input_direction.y) \
