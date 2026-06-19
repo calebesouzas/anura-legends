@@ -152,16 +152,17 @@ shape = SubResource("RectangleShape2D_ucnxd")
 action = "adhesion"
 
 [node name="joystick" type="Control" parent="hud/control" unique_id=461441740]
+custom_minimum_size = Vector2(100, 100)
 anchors_preset = 0
-offset_left = 184.0
-offset_top = 402.0
-offset_right = 224.0
-offset_bottom = 442.0
+offset_left = 70.0
+offset_top = 306.0
+offset_right = 470.0
+offset_bottom = 706.0
 mouse_filter = 1
 script = ExtResource("9_rsjbd")
 deadzone = 20.0
-base_radius = 200.0
-knob_radius = 130.0
+base_radius = 150.0
+knob_radius = 75.0
 color = Color(1, 1, 1, 0.26666668)
 use_input_actions = true
 action_left = &"move_left"
