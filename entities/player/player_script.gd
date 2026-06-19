@@ -147,6 +147,11 @@ const MAX_SPEED: float = 5.0
 
 const FRICTION: float = 40.0
 
+const TOUCH_PLASMA_WINDOW: int = 5
+var touch_plasma_buffer: int
+var touching_plasma: bool
+@onready var plasma_detector: Area3D = %plasma_detector
+
 ### State Machine
 # Quake style but with limited magnitude
 func accelerate(
@@ -191,9 +196,9 @@ func handle_state(delta: float) -> void:
   match state:
     State.IDLE_MOVE:
       var factor: float = 1.0
-      if can_join():
+      if touching_plasma:
         can_dash = true
-        if is_action_valid("adhesion"):
+        if is_action_valid("adhesion") and can_join():
           factor = ADHESION_FACTOR
 
       velocity = accelerate(wishdir, delta, ACCELERATION, MAX_SPEED)
@@ -205,7 +210,9 @@ func handle_state(delta: float) -> void:
 
       if not grounded:
         state = State.FALL
-      elif jump_buffer > 0 or pressed("jump") and state_ticks > JUMP_DELAY:
+      #@issue this won't allow another dash right when landing!
+      # potential fix: separating jump from dash logic...
+      elif is_action_valid("jump") and state_ticks > JUMP_DELAY:
         state = dash_or_jump()
         jump_buffer = 0
         coyote_buffer = 0
@@ -239,25 +246,26 @@ func handle_state(delta: float) -> void:
         velocity.y += jump_force * delta
 
     State.DASH:
-      dash_delay = DASH_DELAY
       if state_ticks > dash_duration:
         #@todo effect!
-        state = State.FALL
         input_locked = false
+        dash_delay = DASH_DELAY
+        state = State.FALL
         return
+
+      # dash reloading delay, no buffer help for this one!
+      if not can_dash and state_ticks > DASH_RELOAD_MOMENT and touching_plasma:
+        can_dash = true
 
       input_locked = true
       #@todo effect!
       var dash_dir: Vector3 = -skin.global_transform.basis.z
-      if grounded:
-        if state_ticks > DASH_RELOAD_MOMENT and can_join():
-          can_dash = true
-        if wanna_move:
-          dash_dir = wishdir
-      elif not wanna_move:
+      if grounded and wanna_move:
+        dash_dir = wishdir
+      elif wanna_move: # just wanna move but not grounded
         dash_dir = camera_relative_movement()
 
-      if landed_buffer > 0:
+      if touching_plasma or touch_plasma_buffer > 0:
         #@todo effect!
         dash_force = HYPER_DASH_FORCE
         dash_duration = HYPER_DASH_DURATION
@@ -273,12 +281,12 @@ func handle_state(delta: float) -> void:
           and state_ticks >= SUPER_DASH_UNLOCK_MOMENT:
         #@todo effect!
         input_locked = false
-        state = State.JUMP
         high_jump_force = HIGH_SUPER_DASH_FORCE
         jump_force = SUPER_DASH_FORCE
         jump_duration = SUPER_DASH_DURATION
         jump_buffer = 0
         coyote_buffer = 0
+        state = State.JUMP
 
     _:
       assert(false, "Unhandled state: " + State.keys()[state])
@@ -312,6 +320,16 @@ func _physics_process(delta: float) -> void:
   if dash_delay > 0:
     dash_delay -= 1
 
+  # I know I could only use the `signal body_entered`... but it doesn't seem
+  # to auto-update... And I also don't know when the collisions are checked...
+  if plasma_detector.has_overlapping_bodies():
+    touching_plasma = true
+  else:
+    touching_plasma = false
+    if touch_plasma_buffer > 0:
+      touch_plasma_buffer -= 1
+
+
   if not input_locked:
     wishdir = Vector3(input_direction.x, 0.0, -input_direction.y) \
       .rotated(Vector3.UP, pivot.rotation.y)
@@ -337,7 +355,7 @@ func _physics_process(delta: float) -> void:
 ### move_2D horizontal movement, Y axis ignored
 func dash_or_jump() -> State:
   return State.DASH \
-    if is_action_valid("adhesion") and dash_delay <= 0 \
+    if is_action_valid("adhesion") and dash_delay <= 0 and can_dash \
     else State.JUMP
 
 func camera_relative_movement() -> Vector3:
@@ -362,7 +380,10 @@ func trigger() -> void:
 ### paint
 var ground_color: Team.BlockColor
 
-#@todo use Area3D with a mask to player's block color to detect plasma mearby
+#@todo use Area3D with a mask to player's block color to detect plasma nearby
+func on_plasma_touch(body: Node3D) -> void:
+  touch_plasma_buffer = TOUCH_PLASMA_WINDOW
+
 func can_join() -> bool:
   return plasma_manager.can_join(self)
 
@@ -413,6 +434,7 @@ func _ready() -> void:
   debug.visible = false
   Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
   aim_lock_timer.timeout.connect(func(): aim_locked = false)
+  plasma_detector.body_entered.connect(on_plasma_touch)
 
 func _init() -> void:
   health = 1000
