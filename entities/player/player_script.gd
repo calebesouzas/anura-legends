@@ -116,6 +116,7 @@ const HYPER_DASH_TENSION: float = 0.3
 var dash_tension: float = DASH_TENSION
 
 const SUPER_DASH_UNLOCK_MOMENT: int = 10
+const HYPER_DASH_WINDOW: int = 3
 
 const DASH_RELOAD_MOMENT: int = 5 # delay to reload dash when done grounded
 
@@ -131,6 +132,8 @@ const DASH_DELAY: int = 15
 var dash_delay: int
 
 var can_dash: bool = false
+var super_dash: bool
+var hyper_dash: bool
 
 const ADHESION_WINDOW: int = 6
 var adhesion_buffer: int
@@ -254,6 +257,8 @@ func handle_state(delta: float) -> void:
         #@todo effect!
         input_locked = false
         dash_delay = DASH_DELAY
+        hyper_dash = false
+        super_dash = false
         state = State.FALL
         return
 
@@ -271,16 +276,12 @@ func handle_state(delta: float) -> void:
       elif wanna_move: # just wanna move but not grounded
         dash_dir = camera_relative_movement()
 
-      #@todo fix: this should happen right when landing or just touching plasma
-      if touching_plasma or touch_plasma_buffer > 0:
+      if state_ticks < HYPER_DASH_WINDOW and touch_plasma_buffer > 0:
         #@todo effect!
         dash_force = HYPER_DASH_FORCE
         dash_duration = HYPER_DASH_DURATION
         dash_tension = HYPER_DASH_TENSION
-      else:
-        dash_force = DASH_FORCE
-        dash_duration = DASH_DURATION
-        dash_tension = DASH_TENSION
+        hyper_dash = true
 
       velocity = (velocity * dash_tension) + dash_dir * dash_force
 
@@ -293,6 +294,7 @@ func handle_state(delta: float) -> void:
         jump_duration = SUPER_DASH_DURATION
         jump_buffer = 0
         coyote_buffer = 0
+        super_dash = true
         state = State.JUMP
 
     _:
@@ -334,11 +336,17 @@ func _physics_process(delta: float) -> void:
   )
   var block_color: Team.BlockColor = plasma_manager.blocks \
     .get_cell_item(tile) as Team.BlockColor
-  touching_plasma = block_color == Team.team_to_block_color(team_color)
-  if touching_plasma:
-    touch_plasma_buffer = TOUCH_PLASMA_WINDOW
-  elif touch_plasma_buffer > 0:
-    touch_plasma_buffer -= 1
+
+  if block_color == Team.team_to_block_color(team_color):
+    if not touching_plasma:
+      touch_plasma_buffer = TOUCH_PLASMA_WINDOW
+    elif touch_plasma_buffer > 0: # ... code repetition ...
+      touch_plasma_buffer -= 1
+    touching_plasma = true
+  else:
+    touching_plasma = false
+    if touch_plasma_buffer > 0:
+      touch_plasma_buffer -= 1
 
   if not input_locked:
     wishdir = Vector3(input_direction.x, 0.0, -input_direction.y) \
@@ -427,6 +435,8 @@ func debug_update() -> void:
   debug_field("dot")
   debug_field("touching_plasma")
   debug_field("can_dash")
+  debug_field("super_dash")
+  debug_field("hyper_dash")
   debug_value("can_join()", can_join())
   debug_value("feet_ray.is_colliding()", feet_ray.is_colliding(), false)
   if feet_ray.is_colliding():
