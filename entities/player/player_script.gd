@@ -257,6 +257,9 @@ func handle_state(delta: float) -> void:
         #@todo effect!
         input_locked = false
         dash_delay = DASH_DELAY
+        dash_force = DASH_FORCE
+        dash_duration = DASH_DURATION
+        dash_tension = DASH_TENSION
         hyper_dash = false
         super_dash = false
         state = State.FALL
@@ -293,6 +296,9 @@ func handle_state(delta: float) -> void:
         jump_force = SUPER_DASH_FORCE
         jump_duration = SUPER_DASH_DURATION
         jump_buffer = 0
+        dash_force = DASH_FORCE
+        dash_duration = DASH_DURATION
+        dash_tension = DASH_TENSION
         coyote_buffer = 0
         super_dash = true
         state = State.JUMP
@@ -331,7 +337,7 @@ func _physics_process(delta: float) -> void:
 
   tile = Vector3i(
     roundi(global_position.x),
-    floori(global_position.y) - 1, # right below the feet
+    roundi(global_position.y) - 1, # right below the feet
     roundi(global_position.z)
   )
   var block_color: Team.BlockColor = plasma_manager.blocks \
