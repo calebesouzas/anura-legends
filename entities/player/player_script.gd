@@ -258,7 +258,9 @@ func handle_state(delta: float) -> void:
         return
 
       # dash reloading delay, no buffer help for this one!
-      if not can_dash and state_ticks > DASH_RELOAD_MOMENT and touching_plasma:
+      if state_ticks <= DASH_RELOAD_MOMENT:
+        can_dash = false
+      elif touching_plasma:
         can_dash = true
 
       input_locked = true
@@ -269,6 +271,7 @@ func handle_state(delta: float) -> void:
       elif wanna_move: # just wanna move but not grounded
         dash_dir = camera_relative_movement()
 
+      #@todo fix: this should happen right when landing or just touching plasma
       if touching_plasma or touch_plasma_buffer > 0:
         #@todo effect!
         dash_force = HYPER_DASH_FORCE
