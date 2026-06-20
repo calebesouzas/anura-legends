@@ -233,6 +233,9 @@ func handle_state(delta: float) -> void:
         jump_buffer = 0
         coyote_buffer = 0
         return
+      elif is_action_valid("adhesion") and can_dash and is_action_valid("jump"):
+        state = State.DASH
+        return
 
       velocity = accelerate(wishdir, delta, AIR_ACCELERATION, MAX_AIR_SPEED)
       velocity += get_gravity() * delta
