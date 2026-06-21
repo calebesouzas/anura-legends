@@ -256,6 +256,9 @@ func handle_state(delta: float) -> void:
         velocity.y += jump_force * delta
 
     State.DASH:
+      var intensity: float = 0
+      var frequency: int = 1
+      var delay: float = 1.0/60*DASH_DURATION
       if state_ticks > dash_duration:
         #@todo effect!
         input_locked = false
@@ -270,6 +273,7 @@ func handle_state(delta: float) -> void:
 
       # dash reloading delay, no buffer help for this one!
       if state_ticks <= DASH_RELOAD_MOMENT:
+        intensity = 0.5
         can_dash = false
       elif touching_plasma:
         can_dash = true
@@ -284,6 +288,9 @@ func handle_state(delta: float) -> void:
 
       if state_ticks < HYPER_DASH_WINDOW and touch_plasma_buffer > 0:
         #@todo effect!
+        intensity = 1.0
+        frequency = 2
+        delay *= 2
         dash_force = HYPER_DASH_FORCE
         dash_duration = HYPER_DASH_DURATION
         dash_tension = HYPER_DASH_TENSION
@@ -294,6 +301,7 @@ func handle_state(delta: float) -> void:
       if jump_buffer > 0 and coyote_buffer > 0 \
           and state_ticks >= SUPER_DASH_UNLOCK_MOMENT:
         #@todo effect!
+        intensity = 0.75
         input_locked = false
         high_jump_force = HIGH_SUPER_DASH_FORCE
         jump_force = SUPER_DASH_FORCE
@@ -305,6 +313,8 @@ func handle_state(delta: float) -> void:
         coyote_buffer = 0
         super_dash = true
         state = State.JUMP
+
+      flash(skin_color.lightened(intensity), frequency, delay)
 
     _:
       assert(false, "Unhandled state: " + State.keys()[state])
@@ -422,6 +432,26 @@ func rotate_skin(delta: float, force: bool = false) -> void:
     SKIN_ROTATION_SPEED * delta
   )
 
+@onready var body: MeshInstance3D = %body
+var material: StandardMaterial3D = StandardMaterial3D.new()
+var skin_color: Color
+func update_color(new_color: Color) -> void:
+  skin_color = new_color
+  update_material_color(new_color)
+
+func update_material_color(new_color: Color) -> void:
+  material.albedo_color = new_color
+  body.material_override = material
+  (body.get_node("front") as MeshInstance3D).material_override = material
+
+func flash(color: Color, loops: int, time: float) -> void:
+  var tween: Tween = create_tween().set_loops(loops)
+  var saved_color: Color = skin_color
+  tween.tween_callback(update_material_color.bind(color))
+  tween.tween_interval(time)
+  tween.tween_callback(update_material_color.bind(saved_color))
+  tween.tween_interval(time)
+
 ## debug
 @onready var debug: RichTextLabel = %debug
 
@@ -462,6 +492,7 @@ func _ready() -> void:
   debug.visible = false
   Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
   aim_lock_timer.timeout.connect(func(): aim_locked = false)
+  update_color(Team.RealColor.get_from_team_color(team_color).lightened(0.25))
 
 func _init() -> void:
   health = 1000

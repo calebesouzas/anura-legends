@@ -1,5 +1,14 @@
 class_name Team
 
+class RealColor:
+  const INVALID: Color = Color.DIM_GRAY
+  const BLUE: Color = Color.BLUE
+  const RED: Color = Color.RED
+  static func get_from_team_color(team: Team.TeamColor) -> Color:
+    if team as int >= 0:
+      return [BLUE, RED][team as int]
+    return INVALID
+
 enum TeamColor {
   INVALID = -1, BLUE, RED
 }
