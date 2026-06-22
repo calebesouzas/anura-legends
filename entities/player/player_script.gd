@@ -149,6 +149,7 @@ const ACCELERATION: float = 3.5
 const MAX_SPEED: float = 5.0
 
 const FRICTION: float = 40.0
+const AIR_REDUCTION: float = 0.8
 
 const TOUCH_PLASMA_WINDOW: int = 5
 var touch_plasma_buffer: int
@@ -181,7 +182,7 @@ func accelerate(
 
   # cap speed here (it actually reduces a little)
   if vel.length_squared() > MAX_AIR_SPEED ** 2:
-    return vel.normalized() * MAX_AIR_SPEED
+    return vel.lerp(vel.normalized() * MAX_AIR_SPEED, AIR_REDUCTION * delta);
 
   return vel
 
@@ -219,6 +220,7 @@ func handle_state(delta: float) -> void:
 
       if not grounded:
         state = State.FALL
+      # remove the second condition to allow auto bunny hopping
       elif is_action_valid("jump") and state_ticks > JUMP_DELAY:
         state = dash_or_jump()
         jump_buffer = 0
