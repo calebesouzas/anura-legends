@@ -42,6 +42,12 @@ func _process(_delta: float) -> void:
       "camera_right", "camera_left", "camera_down", "camera_up", CONTROLLER_CAMERA_DEADZONE)
     pivot.rotation_degrees.y += camera_motion.x * CONTROLLER_SENSITIVITY
     pivot.rotation_degrees.x += camera_motion.y * CONTROLLER_SENSITIVITY
+  health_label.text = str(health)
+  if health < LOW_HEALTH_POINT:
+    health_label.label_settings.font_color = Color.DARK_RED
+  else:
+    health_label.label_settings.font_color = Color.DIM_GRAY
+  health_label.label_settings.outline_color = health_label.label_settings.font_color.darkened(0.2)
 
 func _unhandled_input(event: InputEvent) -> void:
   var is_camera_motion: bool = false
@@ -205,6 +211,9 @@ func handle_state(delta: float) -> void:
         can_dash = true
         if is_action_valid("adhesion") and can_join():
           factor = ADHESION_FACTOR
+          heal_amount = STICKY_HEAL_AMOUNT
+        else:
+          heal_amount = NORMAL_HEAL_AMOUNT
 
       velocity = accelerate(wishdir, delta, ACCELERATION, MAX_SPEED)
 
@@ -297,6 +306,7 @@ func handle_state(delta: float) -> void:
         dash_duration = HYPER_DASH_DURATION
         dash_tension = HYPER_DASH_TENSION
         hyper_dash = true
+        heal_amount = HYPER_HEAL_AMOUNT
 
       velocity = (velocity * dash_tension) + dash_dir * dash_force
 
@@ -364,6 +374,9 @@ func _physics_process(delta: float) -> void:
     elif touch_plasma_buffer > 0: # ... code repetition ...
       touch_plasma_buffer -= 1
     touching_plasma = true
+    health += heal_amount
+    if health > initial_health:
+      health = initial_health
   else:
     touching_plasma = false
     if touch_plasma_buffer > 0:
@@ -381,9 +394,6 @@ func _physics_process(delta: float) -> void:
   move_and_slide()
 
   if pressed("trigger") and fire_locked_timer.is_stopped():
-    aim_locked = true
-    aim_lock_timer.start()
-    fire_locked_timer.start(fire_time)
     trigger()
 
   rotate_skin(delta)
@@ -412,8 +422,20 @@ func camera_relative_movement() -> Vector3:
     shots_per_second = value
     fire_time = 1.0 / shots_per_second
 var fire_time: float
+@export var plasma_cost: int = 50
+const NORMAL_HEAL_AMOUNT: int = 2
+const STICKY_HEAL_AMOUNT: int = 5
+const HYPER_HEAL_AMOUNT: int = 10
+var heal_amount: int = NORMAL_HEAL_AMOUNT
 
 func trigger() -> void:
+  health -= plasma_cost
+  if health < 10:
+    health = 10
+    return
+  aim_locked = true
+  aim_lock_timer.start()
+  fire_locked_timer.start(fire_time)
   plasma_manager.spawn_new_projectile(id, bullet_scene, team_color, -pivot.basis.z)
 
 ### paint
@@ -453,6 +475,9 @@ func flash(color: Color, loops: int, time: float) -> void:
   tween.tween_interval(time)
   tween.tween_callback(update_material_color.bind(saved_color))
   tween.tween_interval(time)
+
+@onready var health_label: Label = %health_label
+const LOW_HEALTH_POINT: int = 200
 
 ## debug
 @onready var debug: RichTextLabel = %debug
