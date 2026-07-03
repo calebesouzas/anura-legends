@@ -39,6 +39,7 @@ func spawn_new_player(color: Team.TeamColor, spawn_position: Vector3 = self.worl
   player.team_color = color
   self.players.add_child(player)
   player.global_position = spawn_position
+  player.respawn_global_position = spawn_position
   player.visible = true
 
 func spawn_new_projectile(

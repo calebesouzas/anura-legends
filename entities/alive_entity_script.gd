@@ -57,6 +57,7 @@ func play_kill_effect() -> void:
 
 func respawn() -> void:
   self.global_position = self.respawn_global_position
+  self.velocity = Vector3.ZERO
   self.health = self.initial_health
   self.vulnerable = true
   self.collision_layer = self.saved_collision_layer
