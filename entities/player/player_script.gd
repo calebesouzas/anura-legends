@@ -81,6 +81,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## physics
 var wanna_move: bool
+var dash_dir: Vector3
 
 enum State {IDLE_MOVE, JUMP, FALL, DASH}
 var input_locked: bool = false
@@ -269,7 +270,7 @@ func handle_state(delta: float) -> void:
     State.DASH:
       var intensity: float = 0
       var frequency: int = 1
-      var delay: float = 1.0/60*DASH_DURATION
+      var delay: float = 1.0/60*dash_duration
       if state_ticks > dash_duration:
         #@todo effect!
         input_locked = false
@@ -289,20 +290,32 @@ func handle_state(delta: float) -> void:
       elif touching_plasma:
         can_dash = true
 
-      input_locked = true
       #@todo effect!
-      var dash_dir: Vector3 = -skin.global_transform.basis.z
-      if grounded and wanna_move:
+      if not wanna_move:
+        dash_dir = -skin.global_transform.basis.z
+      elif grounded:
+        if dot < 0 and just_pressed("adhesion"): # Dash Cancel!
+          input_locked = false
+          dash_delay = DASH_DELAY
+          dash_force = DASH_FORCE
+          dash_duration = DASH_DURATION
+          dash_tension = DASH_TENSION
+          hyper_dash = false
+          super_dash = false
+          state = State.IDLE_MOVE
+          return
+
         dash_dir = wishdir
-      elif wanna_move: # just wanna move but not grounded
+      elif wanna_move and not input_locked or pressed("adhesion"):
         dash_dir = camera_relative_movement()
+
+      input_locked = true
 
       if state_ticks < HYPER_DASH_WINDOW and landed_buffer > 0 \
           and (touch_plasma_buffer > 0 or touching_plasma):
         #@todo effect!
         intensity = 1.0
         frequency = 2
-        delay *= 2
         dash_force = HYPER_DASH_FORCE
         dash_duration = HYPER_DASH_DURATION
         dash_tension = HYPER_DASH_TENSION
@@ -383,12 +396,12 @@ func _physics_process(delta: float) -> void:
     if touch_plasma_buffer > 0:
       touch_plasma_buffer -= 1
 
-  if not input_locked:
-    wishdir = Vector3(input_direction.x, 0.0, -input_direction.y) \
-      .rotated(Vector3.UP, pivot.rotation.y)
-    wanna_move = wishdir.length_squared() > MOVE_DEADZONE ** 2
+  var direct: Vector3 = ground_camera_relative_movement()
+  dot = velocity.dot(direct)
 
-  dot = velocity.dot(wishdir)
+  if not input_locked:
+    wishdir = direct
+    wanna_move = wishdir.length_squared() > MOVE_DEADZONE ** 2
 
   handle_state(delta)
 
@@ -413,6 +426,9 @@ func camera_relative_movement() -> Vector3:
   var right: Vector3 = camera.global_transform.basis.x
   return forward * input_direction.y + right * input_direction.x
 
+func ground_camera_relative_movement() -> Vector3:
+  return Vector3(input_direction.x, 0.0, -input_direction.y) \
+    .rotated(Vector3.UP, pivot.rotation.y)
 ## combat
 @export_group("Combat")
 @export var bullet_scene: PackedScene
