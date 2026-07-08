@@ -82,7 +82,7 @@ func _unhandled_input(event: InputEvent) -> void:
 ## physics
 var wanna_move: bool
 
-enum State {IDLE_MOVE, JUMP, FALL, FLIP, DASH}
+enum State {IDLE_MOVE, JUMP, FALL, DASH}
 var input_locked: bool = false
 var dot: float
 
