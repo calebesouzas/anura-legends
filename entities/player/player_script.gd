@@ -122,7 +122,7 @@ const HYPER_DASH_TENSION: float = 0.3
 var dash_tension: float = DASH_TENSION
 
 const SUPER_DASH_UNLOCK_MOMENT: int = 10
-const HYPER_DASH_WINDOW: int = 3
+const HYPER_DASH_WINDOW: int = 9
 
 const DASH_RELOAD_MOMENT: int = 5 # delay to reload dash when done grounded
 
@@ -297,7 +297,8 @@ func handle_state(delta: float) -> void:
       elif wanna_move: # just wanna move but not grounded
         dash_dir = camera_relative_movement()
 
-      if state_ticks < HYPER_DASH_WINDOW and touch_plasma_buffer > 0:
+      if state_ticks < HYPER_DASH_WINDOW and landed_buffer > 0 \
+          and (touch_plasma_buffer > 0 or touching_plasma):
         #@todo effect!
         intensity = 1.0
         frequency = 2
