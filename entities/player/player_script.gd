@@ -271,7 +271,6 @@ func handle_state(delta: float) -> void:
       if state_ticks == 1:
         flash(skin_color.lightened(0.1), 1, 1.0/60.0*4)
       elif state_ticks > dash_duration:
-        #@todo effect!
         input_locked = false
         dash_delay = DASH_DELAY
         dash_force = DASH_FORCE
@@ -288,7 +287,6 @@ func handle_state(delta: float) -> void:
       elif touching_plasma:
         can_dash = true
 
-      #@todo effect!
       if not wanna_move:
         if grounded and just_pressed("adhesion"): # Dash Cancel!
           input_locked = false
@@ -312,7 +310,6 @@ func handle_state(delta: float) -> void:
 
       if state_ticks < HYPER_DASH_WINDOW and landed_buffer > 0 \
           and (touch_plasma_buffer > 0 or touching_plasma):
-        #@todo effect!
         dash_force = HYPER_DASH_FORCE
         dash_duration = HYPER_DASH_DURATION
         dash_tension = HYPER_DASH_TENSION
@@ -324,7 +321,6 @@ func handle_state(delta: float) -> void:
 
       if jump_buffer > 0 and coyote_buffer > 0 \
           and state_ticks >= SUPER_DASH_UNLOCK_MOMENT:
-        #@todo effect!
         input_locked = false
         high_jump_force = HIGH_SUPER_DASH_FORCE
         jump_force = SUPER_DASH_FORCE
