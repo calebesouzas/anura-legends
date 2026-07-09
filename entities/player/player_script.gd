@@ -83,7 +83,7 @@ func _unhandled_input(event: InputEvent) -> void:
 var wanna_move: bool
 var dash_dir: Vector3
 
-enum State {IDLE_MOVE, JUMP, FALL, DASH}
+enum State {IDLE_MOVE, JUMP, FALL, DASH, AFTER_DASH}
 var input_locked: bool = false
 var dot: float
 
@@ -131,9 +131,11 @@ const DASH_FORCE: float = 7.5
 const HYPER_DASH_FORCE: float = 12.0
 var dash_force: float = DASH_FORCE
 
-const DASH_DURATION: int = 15 # tick amount that input will be locked
-const HYPER_DASH_DURATION: int = 20
+const DASH_DURATION: int = 8 # tick amount that input will be locked
+const HYPER_DASH_DURATION: int = 18
 var dash_duration: int = DASH_DURATION
+
+const AFTER_DASH_WINDOW: int = 12
 
 const DASH_DELAY: int = 15
 var dash_delay: int
@@ -271,35 +273,10 @@ func handle_state(delta: float) -> void:
       if state_ticks == 1:
         flash(skin_color.lightened(0.1), 1, 1.0/60.0*4)
       elif state_ticks > dash_duration:
-        input_locked = false
-        dash_delay = DASH_DELAY
-        dash_force = DASH_FORCE
-        dash_duration = DASH_DURATION
-        dash_tension = DASH_TENSION
-        hyper_dash = false
-        super_dash = false
-        state = State.FALL
+        state = State.AFTER_DASH
         return
 
-      # dash reloading delay, no buffer help for this one!
-      if state_ticks <= DASH_RELOAD_MOMENT:
-        can_dash = false
-      elif touching_plasma:
-        can_dash = true
-
       if not wanna_move:
-        if grounded and just_pressed("adhesion"): # Dash Cancel!
-          input_locked = false
-          dash_delay = DASH_DELAY
-          dash_force = DASH_FORCE
-          dash_duration = DASH_DURATION
-          dash_tension = DASH_TENSION
-          hyper_dash = false
-          super_dash = false
-          flash(skin_color.lightened(0.8), 1, 1.0/60.0*15)
-          state = State.IDLE_MOVE
-          return
-
         dash_dir = -skin.global_transform.basis.z
       elif grounded:
         dash_dir = wishdir
@@ -319,8 +296,21 @@ func handle_state(delta: float) -> void:
 
       velocity = (velocity * dash_tension) + dash_dir * dash_force
 
-      if jump_buffer > 0 and coyote_buffer > 0 \
-          and state_ticks >= SUPER_DASH_UNLOCK_MOMENT:
+    State.AFTER_DASH:
+      if touching_plasma:
+        can_dash = true
+
+      if state_ticks > AFTER_DASH_WINDOW:
+        input_locked = false
+        dash_delay = DASH_DELAY
+        dash_force = DASH_FORCE
+        dash_duration = DASH_DURATION
+        dash_tension = DASH_TENSION
+        hyper_dash = false
+        super_dash = false
+        state = State.IDLE_MOVE if grounded else State.FALL
+
+      elif jump_buffer > 0 and coyote_buffer > 0:
         input_locked = false
         high_jump_force = HIGH_SUPER_DASH_FORCE
         jump_force = SUPER_DASH_FORCE
@@ -334,6 +324,19 @@ func handle_state(delta: float) -> void:
         flash(skin_color.lightened(0.3), 1, 1.0/60.0*5)
         state = State.JUMP
 
+      # Dash Lock!
+      elif grounded and adhesion_buffer > 0 and (not wanna_move or dot < 0):
+        input_locked = false
+        dash_delay = DASH_DELAY
+        dash_force = DASH_FORCE
+        dash_duration = DASH_DURATION
+        dash_tension = DASH_TENSION
+        hyper_dash = false
+        super_dash = false
+        flash(skin_color.lightened(0.8), 1, 1.0/60.0*15)
+        state = State.IDLE_MOVE
+
+      velocity = (velocity * dash_tension) + dash_dir * dash_force
     _:
       assert(false, "Unhandled state: " + State.keys()[state])
 
