@@ -140,7 +140,7 @@ const AFTER_DASH_WINDOW: int = 12
 const DASH_DELAY: int = 15
 var dash_delay: int
 
-var can_dash: bool = false
+var dash_loaded: bool = false
 var super_dash: bool
 var hyper_dash: bool
 
@@ -163,6 +163,14 @@ const AIR_REDUCTION: float = 0.8
 const TOUCH_PLASMA_WINDOW: int = 5
 var touch_plasma_buffer: int
 var touching_plasma: bool
+
+const TENTION_TIME: float = 1.0
+@onready var tension_timer: Timer = %tension_timer
+var tension_level: int = 1
+const MAX_TENSION_LEVEL: int = 4
+
+const EXHAUSTION_TIME: float = 2.0
+@onready var exhaustion_timer: Timer = %exhaustion_timer
 
 var tile: Vector3i # position at `PlasmaManager.grid`
 
@@ -211,7 +219,7 @@ func handle_state(delta: float) -> void:
     State.IDLE_MOVE:
       var factor: float = 1.0
       if touching_plasma:
-        can_dash = true
+        dash_loaded = true
         if is_action_valid("adhesion") and can_join():
           factor = ADHESION_FACTOR
           heal_amount = STICKY_HEAL_AMOUNT
@@ -247,7 +255,7 @@ func handle_state(delta: float) -> void:
         jump_buffer = 0
         coyote_buffer = 0
         return
-      elif is_action_valid("adhesion") and can_dash and is_action_valid("jump"):
+      elif is_action_valid("adhesion") and can_dash() and is_action_valid("jump"):
         state = State.DASH
         return
 
@@ -298,7 +306,7 @@ func handle_state(delta: float) -> void:
 
     State.AFTER_DASH:
       if touching_plasma:
-        can_dash = true
+        dash_loaded = true
 
       if state_ticks > AFTER_DASH_WINDOW:
         input_locked = false
@@ -410,10 +418,19 @@ func _physics_process(delta: float) -> void:
   debug_update()
 
 ## movement
-### move_2D horizontal movement, Y axis ignored
+func up_tension() -> void:
+  tension_level += 1
+  tension_timer.start(TENTION_TIME)
+
+func is_exhausted() -> bool:
+  return not exhaustion_timer.is_stopped()
+
+func can_dash() -> bool:
+  return dash_loaded and dash_delay <= 0 and not is_exhausted()
+
 func dash_or_jump() -> State:
   return State.DASH \
-    if is_action_valid("adhesion") and dash_delay <= 0 and can_dash \
+    if is_action_valid("adhesion") and can_dash() \
     else State.JUMP
 
 func camera_relative_movement() -> Vector3:
@@ -424,6 +441,7 @@ func camera_relative_movement() -> Vector3:
 func ground_camera_relative_movement() -> Vector3:
   return Vector3(input_direction.x, 0.0, -input_direction.y) \
     .rotated(Vector3.UP, pivot.rotation.y)
+
 ## combat
 @export_group("Combat")
 @export var bullet_scene: PackedScene
@@ -434,6 +452,8 @@ func ground_camera_relative_movement() -> Vector3:
     shots_per_second = value
     fire_time = 1.0 / shots_per_second
 var fire_time: float
+@onready var saved_shots_per_second: float = shots_per_second
+
 @export var plasma_cost: int = 50
 const NORMAL_HEAL_AMOUNT: int = 2
 const STICKY_HEAL_AMOUNT: int = 5
@@ -449,6 +469,18 @@ func trigger() -> void:
   aim_lock_timer.start()
   fire_locked_timer.start(fire_time)
   plasma_manager.spawn_new_projectile(id, bullet_scene, team_color, -pivot.basis.z)
+
+func save_shots() -> float:
+  saved_shots_per_second = shots_per_second
+  return saved_shots_per_second
+
+func set_shots(sps: float) -> float:
+  save_shots()
+  shots_per_second = sps
+  return shots_per_second
+
+func restore_shots(sps: float = saved_shots_per_second) -> void:
+  shots_per_second = sps
 
 ### paint
 var ground_color: Team.BlockColor
@@ -471,7 +503,9 @@ func rotate_skin(delta: float, force: bool = false) -> void:
 @onready var body: MeshInstance3D = %body
 var material: StandardMaterial3D = StandardMaterial3D.new()
 var skin_color: Color
+var saved_color: Color
 func update_color(new_color: Color) -> void:
+  saved_color = skin_color
   skin_color = new_color
   update_material_color(new_color)
 
@@ -482,7 +516,7 @@ func update_material_color(new_color: Color) -> void:
 
 func flash(color: Color, loops: int, time: float) -> void:
   var tween: Tween = create_tween().set_loops(loops)
-  var saved_color: Color = skin_color
+  saved_color = skin_color
   tween.tween_callback(update_material_color.bind(color))
   tween.tween_interval(time)
   tween.tween_callback(update_material_color.bind(saved_color))
@@ -512,7 +546,7 @@ func debug_update() -> void:
   debug_field("grounded")
   debug_field("dot")
   debug_field("touching_plasma")
-  debug_field("can_dash")
+  debug_field("dash_loaded")
   debug_field("super_dash")
   debug_field("hyper_dash")
   debug_value("can_join()", can_join())
@@ -532,6 +566,14 @@ func _ready() -> void:
   Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
   aim_lock_timer.timeout.connect(func(): aim_locked = false)
   update_color(Team.RealColor.get_from_team_color(team_color).lightened(0.25))
+  tension_timer.timeout.connect(func():
+    if tension_level > 1:
+      tension_level -= 1
+    else:
+      exhaustion_timer.start(EXHAUSTION_TIME)
+      update_color(skin_color.darkened(0.4)))
+  exhaustion_timer.timeout.connect(func():
+    update_color(saved_color))
 
 func _init() -> void:
   health = 1000
