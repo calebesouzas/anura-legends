@@ -279,6 +279,7 @@ func handle_state(delta: float) -> void:
 
     State.DASH:
       if state_ticks == 1:
+        dash_loaded = false
         flash(skin_color.lightened(0.1), 1, 1.0/60.0*4)
       elif state_ticks > dash_duration:
         state = State.AFTER_DASH
