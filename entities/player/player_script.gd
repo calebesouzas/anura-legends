@@ -132,7 +132,7 @@ const HYPER_DASH_FORCE: float = 12.0
 var dash_force: float = DASH_FORCE
 
 const DASH_DURATION: int = 8 # tick amount that input will be locked
-const HYPER_DASH_DURATION: int = 18
+const HYPER_DASH_DURATION: int = 12
 var dash_duration: int = DASH_DURATION
 
 const AFTER_DASH_WINDOW: int = 12
