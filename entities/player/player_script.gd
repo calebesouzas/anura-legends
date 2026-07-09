@@ -268,10 +268,9 @@ func handle_state(delta: float) -> void:
         velocity.y += jump_force * delta
 
     State.DASH:
-      var intensity: float = 0
-      var frequency: int = 1
-      var delay: float = 1.0/60*dash_duration
-      if state_ticks > dash_duration:
+      if state_ticks == 1:
+        flash(skin_color.lightened(0.1), 1, 1.0/60.0*4)
+      elif state_ticks > dash_duration:
         #@todo effect!
         input_locked = false
         dash_delay = DASH_DELAY
@@ -285,16 +284,13 @@ func handle_state(delta: float) -> void:
 
       # dash reloading delay, no buffer help for this one!
       if state_ticks <= DASH_RELOAD_MOMENT:
-        intensity = 0.5
         can_dash = false
       elif touching_plasma:
         can_dash = true
 
       #@todo effect!
       if not wanna_move:
-        dash_dir = -skin.global_transform.basis.z
-      elif grounded:
-        if dot < 0 and just_pressed("adhesion"): # Dash Cancel!
+        if grounded and just_pressed("adhesion"): # Dash Cancel!
           input_locked = false
           dash_delay = DASH_DELAY
           dash_force = DASH_FORCE
@@ -302,9 +298,12 @@ func handle_state(delta: float) -> void:
           dash_tension = DASH_TENSION
           hyper_dash = false
           super_dash = false
+          flash(skin_color.lightened(0.8), 1, 1.0/60.0*15)
           state = State.IDLE_MOVE
           return
 
+        dash_dir = -skin.global_transform.basis.z
+      elif grounded:
         dash_dir = wishdir
       elif wanna_move and not input_locked or pressed("adhesion"):
         dash_dir = camera_relative_movement()
@@ -314,12 +313,11 @@ func handle_state(delta: float) -> void:
       if state_ticks < HYPER_DASH_WINDOW and landed_buffer > 0 \
           and (touch_plasma_buffer > 0 or touching_plasma):
         #@todo effect!
-        intensity = 1.0
-        frequency = 2
         dash_force = HYPER_DASH_FORCE
         dash_duration = HYPER_DASH_DURATION
         dash_tension = HYPER_DASH_TENSION
         hyper_dash = true
+        flash(skin_color.lightened(0.6), 4, 1.0/60.0*5)
         heal_amount = HYPER_HEAL_AMOUNT
 
       velocity = (velocity * dash_tension) + dash_dir * dash_force
@@ -327,7 +325,6 @@ func handle_state(delta: float) -> void:
       if jump_buffer > 0 and coyote_buffer > 0 \
           and state_ticks >= SUPER_DASH_UNLOCK_MOMENT:
         #@todo effect!
-        intensity = 0.75
         input_locked = false
         high_jump_force = HIGH_SUPER_DASH_FORCE
         jump_force = SUPER_DASH_FORCE
@@ -338,9 +335,8 @@ func handle_state(delta: float) -> void:
         dash_tension = DASH_TENSION
         coyote_buffer = 0
         super_dash = true
+        flash(skin_color.lightened(0.3), 1, 1.0/60.0*5)
         state = State.JUMP
-
-      flash(skin_color.lightened(intensity), frequency, delay)
 
     _:
       assert(false, "Unhandled state: " + State.keys()[state])
