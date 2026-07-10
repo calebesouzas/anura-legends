@@ -495,7 +495,8 @@ func trigger() -> void:
   aim_locked = true
   aim_lock_timer.start()
   fire_locked_timer.start(fire_time/tension_level)
-  plasma_manager.spawn_new_projectile(id, bullet_scene, team_color, -pivot.basis.z)
+  plasma_manager.spawn_new_projectile(id, bullet_scene, team_color,
+	  -pivot.basis.z + velocity.normalized())
 
 func save_shots() -> float:
   saved_shots_per_second = shots_per_second
