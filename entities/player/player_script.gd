@@ -171,7 +171,9 @@ var touching_plasma: bool
 const TENSION_TIME: float = 1.0
 @onready var tension_timer: Timer = %tension_timer
 var tension_level: int = 1
-const MAX_TENSION_LEVEL: int = 4
+var got_high_tension: bool
+const MAX_TENSION_LEVEL: int = 5
+const HIGH_TENSION: int = 3
 
 @onready var dash_lock_timer: Timer = %dash_lock_timer
 const DASH_LOCK_TIME: float = 0.5
@@ -358,7 +360,7 @@ func handle_state(delta: float) -> void:
         super_dash = false
         trigger_locked = false
         flash(skin_color.lightened(0.8), 1, 1.0/60.0*15)
-        up_tension()
+        increase_tension()
         dash_lock()
         state = State.IDLE_MOVE
 
@@ -445,13 +447,29 @@ func _physics_process(delta: float) -> void:
   debug_update()
 
 ## movement
-func up_tension() -> void:
+func increase_tension() -> void:
   if tension_level < MAX_TENSION_LEVEL:
     tension_level += 1
+  got_high_tension = tension_level >= HIGH_TENSION
   tension_timer.start(TENSION_TIME)
+
+func decrease_tension() -> void:
+  if tension_level > 1:
+    tension_level -= 1
+    tension_timer.start(TENSION_TIME)
+  elif got_high_tension:
+    tension_timer.stop()
+    exhaustion_timer.start(EXHAUSTION_TIME)
+    got_high_tension = false
+    update_color(exhausted_color)
 
 func is_exhausted() -> bool:
   return not exhaustion_timer.is_stopped()
+
+func recover() -> void:
+  tension_level = 1
+  tension_timer.stop()
+  update_color(normal_color)
 
 func dash_lock() -> void:
   dash_lock_timer.stop()
@@ -599,19 +617,9 @@ func _ready() -> void:
   exhausted_color = normal_color.darkened(0.6)
   update_color(normal_color)
 
-  tension_timer.timeout.connect(func():
-    if tension_level > 1:
-      tension_level -= 1
-      tension_timer.start(TENSION_TIME)
-    else:
-      tension_timer.stop()
-      exhaustion_timer.start(EXHAUSTION_TIME)
-      update_color(exhausted_color))
+  tension_timer.timeout.connect(decrease_tension)
 
-  exhaustion_timer.timeout.connect(func():
-    tension_level = 1
-    tension_timer.stop()
-    update_color(normal_color))
+  exhaustion_timer.timeout.connect(recover)
 
 func _init() -> void:
   health = 1000
