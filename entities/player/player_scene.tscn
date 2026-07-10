@@ -91,7 +91,6 @@ unique_name_in_owner = true
 mesh = SubResource("CapsuleMesh_lcggp")
 
 [node name="front" type="MeshInstance3D" parent="skin/body" unique_id=1421419547]
-
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -0.5)
 mesh = SubResource("BoxMesh_lcggp")
 
@@ -169,6 +168,12 @@ texture_normal = ExtResource("7_ucnxd")
 texture_pressed = ExtResource("8_xgoka")
 shape = SubResource("RectangleShape2D_ucnxd")
 action = "adhesion"
+
+[node name="debug" type="TouchScreenButton" parent="hud/control" unique_id=718419556]
+position = Vector2(44.00003, 30)
+scale = Vector2(15, 15)
+shape = SubResource("RectangleShape2D_ucnxd")
+action = "debug"
 
 [node name="joystick" type="Control" parent="hud/control" unique_id=461441740]
 custom_minimum_size = Vector2(100, 100)
