@@ -169,6 +169,9 @@ const TENSION_TIME: float = 1.0
 var tension_level: int = 1
 const MAX_TENSION_LEVEL: int = 4
 
+@onready var dash_lock_timer: Timer = %dash_lock_timer
+const DASH_LOCK_TIME: float = 0.5
+
 const EXHAUSTION_TIME: float = 2.0
 @onready var exhaustion_timer: Timer = %exhaustion_timer
 
@@ -226,6 +229,7 @@ func handle_state(delta: float) -> void:
         else:
           heal_amount = NORMAL_HEAL_AMOUNT
 
+      # maybe use Dash Lock
       velocity = accelerate(wishdir, delta, ACCELERATION, MAX_SPEED)
 
       # no friction when landing and jumping at the same time
@@ -345,6 +349,7 @@ func handle_state(delta: float) -> void:
         super_dash = false
         flash(skin_color.lightened(0.8), 1, 1.0/60.0*15)
         up_tension()
+        dash_lock()
         state = State.IDLE_MOVE
 
       velocity = (velocity * dash_tension) + dash_dir * dash_force
@@ -428,6 +433,10 @@ func up_tension() -> void:
 
 func is_exhausted() -> bool:
   return not exhaustion_timer.is_stopped()
+
+func dash_lock() -> void:
+  dash_lock_timer.stop()
+  dash_lock_timer.start(DASH_LOCK_TIME)
 
 func can_dash() -> bool:
   return dash_loaded and dash_delay <= 0 and not is_exhausted()
@@ -551,21 +560,10 @@ func debug_update() -> void:
   debug_field("state_ticks")
   debug_field("grounded")
   debug_field("dot")
-  debug_field("touching_plasma")
-  debug_field("dash_loaded")
-  debug_field("super_dash")
-  debug_field("hyper_dash")
   debug_field("tension_level")
   debug_value("tension_timer.is_stopped()", tension_timer.is_stopped())
   debug_value("exhaustion_timer.is_stopped()", exhaustion_timer.is_stopped())
-  debug_value("can_join()", can_join())
-  debug_value("feet_ray.is_colliding()", feet_ray.is_colliding(), false)
-  if feet_ray.is_colliding():
-    debug_value("; feet_ray.get_collision_point()", feet_ray.get_collision_point())
-  else:
-    debug.newline()
-  debug_value("ground_color", Team.BlockColor.keys()[ground_color])
-  debug_field("health")
+  debug_value("dash_lock_timer.is_stopped()", dash_lock_timer.is_stopped())
 
 ## misc
 func _ready() -> void:
