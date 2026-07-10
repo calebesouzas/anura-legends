@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://is2uetc08kav"]
 
 [ext_resource type="Script" uid="uid://c3ltnnrsiabaq" path="res://entities/player/player_script.gd" id="1_bk7tw"]
-[ext_resource type="PackedScene" uid="uid://bna5yi5v2qjxn" path="res://entities/projectiles/ball_bullet.tscn" id="2_rsjbd"]
+[ext_resource type="Script" uid="uid://lb7i1yddi7sw" path="res://entities/projectiles/projectile_script.gd" id="2_qnxqa"]
 [ext_resource type="Texture2D" uid="uid://cevpj7tpnxsly" path="res://ui/touch/trigger-black.png" id="4_3xm0v"]
 [ext_resource type="Texture2D" uid="uid://csoywosq0dvw2" path="res://ui/touch/trigger-white.png" id="5_qnxqa"]
 [ext_resource type="Texture2D" uid="uid://5gu2tmxomwsp" path="res://ui/touch/adhesion-black.png" id="7_ucnxd"]
@@ -9,6 +9,28 @@
 [ext_resource type="Script" uid="uid://bc8c4c6jnaoj3" path="res://addons/touch_screen_joystick/touch_screen_joystick.gd" id="9_rsjbd"]
 [ext_resource type="Texture2D" uid="uid://bl85bxj834ox1" path="res://ui/touch/jump-black.png" id="10_32adv"]
 [ext_resource type="Texture2D" uid="uid://bw5nxmjqado4h" path="res://ui/touch/jump-white.png" id="11_rbw6g"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_aep8o"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_lw8tk"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_aep8o"]
+albedo_color = Color(0, 0, 1, 1)
+
+[sub_resource type="PackedScene" id="PackedScene_lcggp"]
+_bundled = {
+"conn_count": 0,
+"conns": PackedInt32Array(),
+"editable_instances": [],
+"id_paths": [PackedInt32Array(), PackedInt32Array()],
+"names": PackedStringArray("bullet", "CharacterBody3D", "collision_layer", "script", "speed", "damage", "paint_radius", "reach", "collision", "CollisionShape3D", "shape", "mesh", "MeshInstance3D", "mesh", "surface_material_override/0"),
+"node_count": 3,
+"node_ids": PackedInt32Array(253246150, 29827701, 1378908176),
+"node_paths": [NodePath("."), NodePath(".")],
+"nodes": PackedInt32Array(-1, -1, 1, 0, -1, 6, 2, 0, 3, 1, 4, 2, 5, 3, 6, 4, 7, 5, 0, 1073741824, 0, 9, 8, -1, 1, 10, 6, 0, 1073741825, 0, 12, 11, -1, 2, 13, 7, 14, 8, 0),
+"variants": [0, ExtResource("2_qnxqa"), 2000.0, 100, 2, 1000.0, SubResource("SphereShape3D_aep8o"), SubResource("SphereMesh_lw8tk"), SubResource("StandardMaterial3D_aep8o")],
+"version": 3
+}
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uufrl"]
 
@@ -32,7 +54,6 @@ size = Vector2(15, 15)
 size = Vector2(15, 15)
 
 [sub_resource type="SystemFont" id="SystemFont_rsjbd"]
-subpixel_positioning = 0
 
 [sub_resource type="LabelSettings" id="LabelSettings_rsjbd"]
 font = SubResource("SystemFont_rsjbd")
@@ -43,7 +64,7 @@ shadow_color = Color(0, 0, 0, 0.42745098)
 
 [node name="player" type="CharacterBody3D" unique_id=220854978 node_paths=PackedStringArray("respawn_timer")]
 script = ExtResource("1_bk7tw")
-bullet_scene = ExtResource("2_rsjbd")
+bullet_scene = SubResource("PackedScene_lcggp")
 shots_per_second = 5.0
 respawn_timer = NodePath("respawn_timer")
 
