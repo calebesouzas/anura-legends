@@ -122,8 +122,9 @@ one_shot = true
 unique_name_in_owner = true
 one_shot = true
 
-[node name="dash_timer" type="Timer" parent="." unique_id=1505179781]
+[node name="dash_lock_timer" type="Timer" parent="." unique_id=1505179781]
 unique_name_in_owner = true
+one_shot = true
 
 [node name="tension_timer" type="Timer" parent="." unique_id=1930831594]
 unique_name_in_owner = true
