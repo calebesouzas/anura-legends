@@ -164,7 +164,7 @@ const TOUCH_PLASMA_WINDOW: int = 5
 var touch_plasma_buffer: int
 var touching_plasma: bool
 
-const TENTION_TIME: float = 1.0
+const TENSION_TIME: float = 1.0
 @onready var tension_timer: Timer = %tension_timer
 var tension_level: int = 1
 const MAX_TENSION_LEVEL: int = 4
@@ -343,6 +343,7 @@ func handle_state(delta: float) -> void:
         hyper_dash = false
         super_dash = false
         flash(skin_color.lightened(0.8), 1, 1.0/60.0*15)
+        up_tension()
         state = State.IDLE_MOVE
 
       velocity = (velocity * dash_tension) + dash_dir * dash_force
@@ -420,11 +421,12 @@ func _physics_process(delta: float) -> void:
 
 ## movement
 func up_tension() -> void:
-  tension_level += 1
-  tension_timer.start(TENTION_TIME)
+  if tension_level < MAX_TENSION_LEVEL:
+    tension_level += 1
+  tension_timer.start(TENSION_TIME)
 
 func is_exhausted() -> bool:
-  return not exhaustion_timer.is_stopped()
+  return tension_level == 0 and not exhaustion_timer.is_stopped()
 
 func can_dash() -> bool:
   return dash_loaded and dash_delay <= 0 and not is_exhausted()
@@ -550,6 +552,9 @@ func debug_update() -> void:
   debug_field("dash_loaded")
   debug_field("super_dash")
   debug_field("hyper_dash")
+  debug_field("tension_level")
+  debug_value("tension_timer.is_stopped()", tension_timer.is_stopped())
+  debug_value("exhaustion_timer.is_stopped()", exhaustion_timer.is_stopped())
   debug_value("can_join()", can_join())
   debug_value("feet_ray.is_colliding()", feet_ray.is_colliding(), false)
   if feet_ray.is_colliding():
@@ -567,13 +572,20 @@ func _ready() -> void:
   Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
   aim_lock_timer.timeout.connect(func(): aim_locked = false)
   update_color(Team.RealColor.get_from_team_color(team_color).lightened(0.25))
+
   tension_timer.timeout.connect(func():
-    if tension_level > 1:
+    if tension_level > 0:
       tension_level -= 1
-    else:
+      if tension_level != 0:
+        tension_timer.start(TENSION_TIME)
+
+    if tension_level == 0 and exhaustion_timer.is_stopped():
+      tension_timer.stop()
       exhaustion_timer.start(EXHAUSTION_TIME)
       update_color(skin_color.darkened(0.4)))
+
   exhaustion_timer.timeout.connect(func():
+    tension_level = 1
     update_color(saved_color))
 
 func _init() -> void:
