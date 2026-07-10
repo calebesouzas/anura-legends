@@ -426,7 +426,7 @@ func up_tension() -> void:
   tension_timer.start(TENSION_TIME)
 
 func is_exhausted() -> bool:
-  return tension_level == 0 and not exhaustion_timer.is_stopped()
+  return not exhaustion_timer.is_stopped()
 
 func can_dash() -> bool:
   return dash_loaded and dash_delay <= 0 and not is_exhausted()
@@ -506,6 +506,8 @@ func rotate_skin(delta: float, force: bool = false) -> void:
 @onready var body: MeshInstance3D = %body
 var material: StandardMaterial3D = StandardMaterial3D.new()
 var skin_color: Color
+var normal_color: Color
+var exhausted_color: Color
 var saved_color: Color
 func update_color(new_color: Color) -> void:
   saved_color = skin_color
@@ -571,22 +573,23 @@ func _ready() -> void:
   debug.visible = false
   Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
   aim_lock_timer.timeout.connect(func(): aim_locked = false)
-  update_color(Team.RealColor.get_from_team_color(team_color).lightened(0.25))
+  normal_color = Team.RealColor.get_from_team_color(team_color).lightened(0.25)
+  exhausted_color = normal_color.darkened(0.6)
+  update_color(normal_color)
 
   tension_timer.timeout.connect(func():
-    if tension_level > 0:
+    if tension_level > 1:
       tension_level -= 1
-      if tension_level != 0:
-        tension_timer.start(TENSION_TIME)
-
-    if tension_level == 0 and exhaustion_timer.is_stopped():
+      tension_timer.start(TENSION_TIME)
+    else:
       tension_timer.stop()
       exhaustion_timer.start(EXHAUSTION_TIME)
-      update_color(skin_color.darkened(0.4)))
+      update_color(exhausted_color))
 
   exhaustion_timer.timeout.connect(func():
     tension_level = 1
-    update_color(saved_color))
+    tension_timer.stop()
+    update_color(normal_color))
 
 func _init() -> void:
   health = 1000
