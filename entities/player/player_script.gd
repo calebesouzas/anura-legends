@@ -290,6 +290,7 @@ func handle_state(delta: float) -> void:
     State.DASH:
       if state_ticks == 1:
         dash_loaded = false
+        trigger_locked = true
         flash(skin_color.lightened(0.1), 1, 1.0/60.0*4)
       elif state_ticks > dash_duration - tension_level + 1:
         state = State.AFTER_DASH
@@ -328,6 +329,7 @@ func handle_state(delta: float) -> void:
         dash_tension = DASH_TENSION
         hyper_dash = false
         super_dash = false
+        trigger_locked = false
         state = State.IDLE_MOVE if grounded else State.FALL
 
       elif jump_buffer > 0 and coyote_buffer > 0:
@@ -340,6 +342,7 @@ func handle_state(delta: float) -> void:
         dash_tension = DASH_TENSION
         coyote_buffer = 0
         super_dash = true
+        trigger_locked = false
         flash(skin_color.lightened(0.3), 1, 1.0/60.0*5)
         state = State.JUMP
 
@@ -352,6 +355,7 @@ func handle_state(delta: float) -> void:
         dash_tension = DASH_TENSION
         hyper_dash = false
         super_dash = false
+        trigger_locked = false
         flash(skin_color.lightened(0.8), 1, 1.0/60.0*15)
         up_tension()
         dash_lock()
@@ -432,7 +436,7 @@ func _physics_process(delta: float) -> void:
 
   move_and_slide()
 
-  if pressed("trigger") and fire_locked_timer.is_stopped():
+  if pressed("trigger") and fire_locked_timer.is_stopped() and not trigger_locked:
     trigger()
 
   rotate_skin(delta)
@@ -486,6 +490,8 @@ const NORMAL_HEAL_AMOUNT: int = 2
 const STICKY_HEAL_AMOUNT: int = 5
 const HYPER_HEAL_AMOUNT: int = 10
 var heal_amount: int = NORMAL_HEAL_AMOUNT
+
+var trigger_locked: bool
 
 func trigger() -> void:
   health -= plasma_cost/tension_level
