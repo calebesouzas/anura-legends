@@ -85,7 +85,6 @@ var dash_dir: Vector3
 
 enum State {IDLE_MOVE, JUMP, FALL, DASH, AFTER_DASH}
 var input_locked: bool = false
-var dot: float
 
 var state_ticks: int = 0
 var state: State = State.IDLE_MOVE:
@@ -96,6 +95,11 @@ var state: State = State.IDLE_MOVE:
 var current_speed: float
 
 var grounded: bool
+
+const DOT_WINDOW: int = 3
+var dot_buffer: int
+
+var dot: float
 
 const LANDED_WINDOW: int = 2
 var landed_buffer: int
@@ -174,6 +178,8 @@ const DASH_LOCK_TIME: float = 0.5
 
 const EXHAUSTION_TIME: float = 2.0
 @onready var exhaustion_timer: Timer = %exhaustion_timer
+
+const DIR_CHANGE_POINT: float = 0.25
 
 var tile: Vector3i # position at `PlasmaManager.grid`
 
@@ -311,11 +317,11 @@ func handle_state(delta: float) -> void:
         * (dash_force * tension_level)
 
     State.AFTER_DASH:
+      input_locked = false
       if touching_plasma:
         dash_loaded = true
 
       if state_ticks > AFTER_DASH_WINDOW:
-        input_locked = false
         dash_delay = DASH_DELAY
         dash_force = DASH_FORCE
         dash_duration = DASH_DURATION
@@ -325,7 +331,6 @@ func handle_state(delta: float) -> void:
         state = State.IDLE_MOVE if grounded else State.FALL
 
       elif jump_buffer > 0 and coyote_buffer > 0:
-        input_locked = false
         high_jump_force = HIGH_SUPER_DASH_FORCE
         jump_force = SUPER_DASH_FORCE
         jump_duration = SUPER_DASH_DURATION
@@ -339,8 +344,8 @@ func handle_state(delta: float) -> void:
         state = State.JUMP
 
       # Dash Lock!
-      elif grounded and adhesion_buffer > 0 and (not wanna_move or dot < 0):
-        input_locked = false
+      elif grounded and adhesion_buffer > 0 \
+          and (not wanna_move or (dot < 0 and dot_buffer > 0)):
         dash_delay = DASH_DELAY
         dash_force = DASH_FORCE
         dash_duration = DASH_DURATION
@@ -408,7 +413,16 @@ func _physics_process(delta: float) -> void:
       touch_plasma_buffer -= 1
 
   var direct: Vector3 = ground_camera_relative_movement()
-  dot = velocity.dot(direct)
+  var new_dot: float = velocity.normalized().dot(direct)
+
+  # direction just changed
+  if (new_dot < dot - DIR_CHANGE_POINT or new_dot > dot + DIR_CHANGE_POINT) \
+      and dot_buffer != DOT_WINDOW:
+    dot_buffer = DOT_WINDOW
+  elif dot_buffer > 0:
+    dot_buffer -= 1
+
+  dot = new_dot
 
   if not input_locked:
     wishdir = direct
@@ -560,6 +574,7 @@ func debug_update() -> void:
   debug_field("state_ticks")
   debug_field("grounded")
   debug_field("dot")
+  debug_field("dot_buffer")
   debug_field("tension_level")
   debug_value("tension_timer.is_stopped()", tension_timer.is_stopped())
   debug_value("exhaustion_timer.is_stopped()", exhaustion_timer.is_stopped())
