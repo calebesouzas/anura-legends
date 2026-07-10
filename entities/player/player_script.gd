@@ -281,7 +281,7 @@ func handle_state(delta: float) -> void:
       if state_ticks == 1:
         dash_loaded = false
         flash(skin_color.lightened(0.1), 1, 1.0/60.0*4)
-      elif state_ticks > dash_duration:
+      elif state_ticks > dash_duration - tension_level + 1:
         state = State.AFTER_DASH
         return
 
@@ -303,7 +303,8 @@ func handle_state(delta: float) -> void:
         flash(skin_color.lightened(0.6), 4, 1.0/60.0*5)
         heal_amount = HYPER_HEAL_AMOUNT
 
-      velocity = (velocity * dash_tension) + dash_dir * dash_force
+      velocity = (velocity * dash_tension) + dash_dir \
+        * (dash_force * tension_level)
 
     State.AFTER_DASH:
       if touching_plasma:
@@ -464,13 +465,13 @@ const HYPER_HEAL_AMOUNT: int = 10
 var heal_amount: int = NORMAL_HEAL_AMOUNT
 
 func trigger() -> void:
-  health -= plasma_cost
+  health -= plasma_cost/tension_level
   if health < 10:
     health = 10
     return
   aim_locked = true
   aim_lock_timer.start()
-  fire_locked_timer.start(fire_time)
+  fire_locked_timer.start(fire_time/tension_level)
   plasma_manager.spawn_new_projectile(id, bullet_scene, team_color, -pivot.basis.z)
 
 func save_shots() -> float:
