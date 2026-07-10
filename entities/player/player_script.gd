@@ -180,6 +180,7 @@ const EXHAUSTION_TIME: float = 2.0
 @onready var exhaustion_timer: Timer = %exhaustion_timer
 
 const DIR_CHANGE_POINT: float = 0.25
+const VELO_INFLUENCE: float = 0.25
 
 var tile: Vector3i # position at `PlasmaManager.grid`
 
@@ -502,7 +503,7 @@ func trigger() -> void:
   aim_lock_timer.start()
   fire_locked_timer.start(fire_time/tension_level)
   plasma_manager.spawn_new_projectile(id, bullet_scene, team_color,
-	  -pivot.basis.z + velocity.normalized())
+	  -pivot.basis.z + velocity.normalized() * VELO_INFLUENCE)
 
 func save_shots() -> float:
   saved_shots_per_second = shots_per_second
