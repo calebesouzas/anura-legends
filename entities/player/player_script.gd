@@ -295,7 +295,7 @@ func handle_state(delta: float) -> void:
         dash_loaded = false
         trigger_locked = true
         flash(skin_color.lightened(0.1), 1, 1.0/60.0*4)
-      elif state_ticks > dash_duration - tension_level + 1:
+      elif state_ticks > dash_duration:
         state = State.AFTER_DASH
         return
 
@@ -317,8 +317,7 @@ func handle_state(delta: float) -> void:
         flash(skin_color.lightened(0.6), 4, 1.0/60.0*5)
         heal_amount = HYPER_HEAL_AMOUNT
 
-      velocity = (velocity * dash_tension) + dash_dir \
-        * (dash_force * tension_level)
+      apply_dash()
 
     State.AFTER_DASH:
       input_locked = false
@@ -364,7 +363,7 @@ func handle_state(delta: float) -> void:
         dash_lock()
         state = State.IDLE_MOVE
 
-      velocity = (velocity * dash_tension) + dash_dir * dash_force
+      apply_dash()
     _:
       assert(false, "Unhandled state: " + State.keys()[state])
 
@@ -474,6 +473,10 @@ func recover() -> void:
 func dash_lock() -> void:
   dash_lock_timer.stop()
   dash_lock_timer.start(DASH_LOCK_TIME)
+
+func apply_dash() -> void:
+  velocity = (velocity * dash_tension) + dash_dir \
+    * (dash_force * tension_level - tension_level)
 
 func can_dash() -> bool:
   return dash_loaded and dash_delay <= 0 and not is_exhausted()
