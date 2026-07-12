@@ -229,6 +229,8 @@ func apply_friction(
 func handle_state(delta: float) -> void:
   match state:
     State.IDLE_MOVE:
+      coyote_buffer = 0
+
       var factor: float = 1.0
       if touching_plasma:
         dash_loaded = true
@@ -245,30 +247,30 @@ func handle_state(delta: float) -> void:
       if state_ticks > LANDED_WINDOW:
         velocity = apply_friction(wishdir, delta,
           FRICTION * factor, MAX_SPEED)
-      elif jump_buffer > 0: # jumped berofe the end of `LANDED_WINDOW`
-        state = dash_or_jump()
-        jump_buffer = 0
-        coyote_buffer = 0
+      # jumped berofe the end of `LANDED_WINDOW`, did a Bunny Hop!
+      elif jump_buffer > 0:
+        state = State.JUMP
+        return
+
+      if just_pressed("dash") and can_dash():
+        state = State.DASH
         return
 
       if not grounded:
         state = State.FALL
       # remove the second condition to allow auto bunny hopping
       elif is_action_valid("jump") and state_ticks > JUMP_DELAY:
-        state = dash_or_jump()
-        jump_buffer = 0
-        coyote_buffer = 0
+        state = State.JUMP
 
     State.FALL:
       if grounded:
         state = State.IDLE_MOVE
         return
-      elif jump_buffer > 1 and coyote_buffer > 0:
-        state = dash_or_jump()
-        jump_buffer = 0
+      elif jump_buffer > 0 and coyote_buffer > 0:
+        state = State.JUMP
         coyote_buffer = 0
         return
-      elif is_action_valid("adhesion") and can_dash() and is_action_valid("jump"):
+      elif just_pressed("dash") and can_dash():
         state = State.DASH
         return
 
