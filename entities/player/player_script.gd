@@ -116,7 +116,7 @@ var jump_duration: int = JUMP_DURATION
 var jump_buffer: int
 
 const HIGH_JUMP: float = 3.0
-const JUMP: float = 6.0
+const JUMP: float = 1.5
 const HIGH_SUPER_DASH_FORCE: float = 3.75
 const SUPER_DASH_FORCE: float = 7.5
 var high_jump_force: float = HIGH_JUMP
@@ -135,11 +135,11 @@ const DASH_FORCE: float = 7.5
 const HYPER_DASH_FORCE: float = 12.0
 var dash_force: float = DASH_FORCE
 
-const DASH_DURATION: int = 8 # tick amount that input will be locked
-const HYPER_DASH_DURATION: int = 12
+const DASH_DURATION: int = 10 # tick amount that input will be locked
+const HYPER_DASH_DURATION: int = 20
 var dash_duration: int = DASH_DURATION
 
-const AFTER_DASH_WINDOW: int = 12
+const AFTER_DASH_WINDOW: int = 10
 
 const DASH_DELAY: int = 15
 var dash_delay: int
@@ -170,7 +170,7 @@ var touching_plasma: bool
 
 const TENSION_TIME: float = 1.0
 @onready var tension_timer: Timer = %tension_timer
-var tension_level: int = 1
+var tension_level: int
 var got_high_tension: bool
 const MAX_TENSION_LEVEL: int = 5
 const HIGH_TENSION: int = 3
@@ -310,7 +310,7 @@ func handle_state(delta: float) -> void:
 
       input_locked = true
 
-      if state_ticks < HYPER_DASH_WINDOW and landed_buffer > 0 \
+      if landed_buffer > 0 \
           and (touch_plasma_buffer > 0 or touching_plasma):
         dash_force = HYPER_DASH_FORCE
         dash_duration = HYPER_DASH_DURATION
@@ -455,7 +455,7 @@ func increase_tension() -> void:
   tension_timer.start(TENSION_TIME)
 
 func decrease_tension() -> void:
-  if tension_level > 1:
+  if tension_level > 0:
     tension_level -= 1
     tension_timer.start(TENSION_TIME)
   elif got_high_tension:
@@ -468,7 +468,7 @@ func is_exhausted() -> bool:
   return not exhaustion_timer.is_stopped()
 
 func recover() -> void:
-  tension_level = 1
+  tension_level = 0
   tension_timer.stop()
   update_color(normal_color)
 
@@ -478,15 +478,10 @@ func dash_lock() -> void:
 
 func apply_dash() -> void:
   velocity = (velocity * dash_tension) + dash_dir \
-    * (dash_force * tension_level - tension_level)
+    * (dash_force + tension_level)
 
 func can_dash() -> bool:
   return dash_loaded and dash_delay <= 0 and not is_exhausted()
-
-func dash_or_jump() -> State:
-  return State.DASH \
-    if is_action_valid("adhesion") and can_dash() \
-    else State.JUMP
 
 func camera_relative_movement() -> Vector3:
   var forward: Vector3 = -camera.global_transform.basis.z
@@ -518,13 +513,13 @@ var heal_amount: int = NORMAL_HEAL_AMOUNT
 var trigger_locked: bool
 
 func trigger() -> void:
-  health -= plasma_cost/tension_level
+  health -= plasma_cost if tension_level == 0 else plasma_cost/tension_level
   if health < 10:
     health = 10
     return
   aim_locked = true
   aim_lock_timer.start()
-  fire_locked_timer.start(fire_time/tension_level)
+  fire_locked_timer.start(fire_time if tension_level == 0 else fire_time/tension_level)
   plasma_manager.spawn_new_projectile(id, bullet_scene, team_color,
 	  -pivot.basis.z + velocity.normalized() * VELO_INFLUENCE)
 
