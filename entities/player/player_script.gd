@@ -144,7 +144,7 @@ const AFTER_DASH_WINDOW: int = 10
 const DASH_DELAY: int = 15
 var dash_delay: int
 
-var dash_loaded: bool = false
+var dashes_loaded: int
 var super_dash: bool
 var hyper_dash: bool
 
@@ -233,7 +233,7 @@ func handle_state(delta: float) -> void:
 
       var factor: float = 1.0
       if touching_plasma:
-        dash_loaded = true
+        dashes_loaded = 1
         if is_action_valid("adhesion") and can_join():
           factor = ADHESION_FACTOR
           heal_amount = STICKY_HEAL_AMOUNT
@@ -294,7 +294,7 @@ func handle_state(delta: float) -> void:
 
     State.DASH:
       if state_ticks == 1:
-        dash_loaded = false
+        dashes_loaded -= 1
         trigger_locked = true
         flash(skin_color.lightened(0.1), 1, 1.0/60.0*4)
       elif state_ticks > dash_duration:
@@ -315,6 +315,8 @@ func handle_state(delta: float) -> void:
         dash_force = HYPER_DASH_FORCE
         dash_duration = HYPER_DASH_DURATION
         dash_tension = HYPER_DASH_TENSION
+        if not hyper_dash:
+          dashes_loaded += 1
         hyper_dash = true
         flash(skin_color.lightened(0.6), 4, 1.0/60.0*5)
         heal_amount = HYPER_HEAL_AMOUNT
@@ -323,8 +325,6 @@ func handle_state(delta: float) -> void:
 
     State.AFTER_DASH:
       input_locked = false
-      if touching_plasma:
-        dash_loaded = true
 
       if state_ticks > AFTER_DASH_WINDOW:
         dash_delay = DASH_DELAY
@@ -346,6 +346,7 @@ func handle_state(delta: float) -> void:
         dash_tension = DASH_TENSION
         coyote_buffer = 0
         super_dash = true
+        dashes_loaded += 1
         trigger_locked = false
         flash(skin_color.lightened(0.3), 1, 1.0/60.0*5)
         state = State.JUMP
@@ -481,7 +482,7 @@ func apply_dash() -> void:
     * (dash_force + tension_level)
 
 func can_dash() -> bool:
-  return dash_loaded and dash_delay <= 0 and not is_exhausted()
+  return dashes_loaded > 0 and dash_delay <= 0 and not is_exhausted()
 
 func camera_relative_movement() -> Vector3:
   var forward: Vector3 = -camera.global_transform.basis.z
