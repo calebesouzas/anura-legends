@@ -131,8 +131,8 @@ const HYPER_DASH_WINDOW: int = 9
 
 const DASH_RELOAD_MOMENT: int = 5 # delay to reload dash when done grounded
 
-const DASH_FORCE: float = 7.5
-const HYPER_DASH_FORCE: float = 12.0
+const DASH_FORCE: float = 12.0
+const HYPER_DASH_FORCE: float = 18.0
 var dash_force: float = DASH_FORCE
 
 const DASH_DURATION: int = 10 # tick amount that input will be locked
@@ -174,6 +174,7 @@ var tension_level: int
 var got_high_tension: bool
 const MAX_TENSION_LEVEL: int = 5
 const HIGH_TENSION: int = 3
+const TENSION_FACTOR: float = 2.0
 
 @onready var dash_lock_timer: Timer = %dash_lock_timer
 const DASH_LOCK_TIME: float = 0.5
@@ -452,7 +453,8 @@ func _physics_process(delta: float) -> void:
 func increase_tension() -> void:
   if tension_level < MAX_TENSION_LEVEL:
     tension_level += 1
-  got_high_tension = tension_level >= HIGH_TENSION
+  if tension_level >= HIGH_TENSION:
+    got_high_tension = true
   tension_timer.start(TENSION_TIME)
 
 func decrease_tension() -> void:
@@ -479,7 +481,7 @@ func dash_lock() -> void:
 
 func apply_dash() -> void:
   velocity = (velocity * dash_tension) + dash_dir \
-    * (dash_force + tension_level)
+    * (dash_force + tension_level * TENSION_FACTOR)
 
 func can_dash() -> bool:
   return dashes_loaded > 0 and dash_delay <= 0 and not is_exhausted()
