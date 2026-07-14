@@ -81,6 +81,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## physics
 var wanna_move: bool
+const WANNA_MOVE_BUFFER: int = 12
+var wanna_move_buffer: int
 var dash_dir: Vector3
 
 enum State {IDLE_MOVE, JUMP, FALL, DASH, AFTER_DASH}
@@ -131,9 +133,13 @@ const HYPER_DASH_WINDOW: int = 9
 
 const DASH_RELOAD_MOMENT: int = 5 # delay to reload dash when done grounded
 
-const DASH_FORCE: float = 12.0
-const HYPER_DASH_FORCE: float = 18.0
+const DASH_FORCE: float = 8.0
 var dash_force: float = DASH_FORCE
+
+const HYPER_DASH_FACTOR: float = 0.5
+
+const STRONG_DASH_FACTOR: float = 0.5 # percentage to be added
+var got_strong_dash: bool
 
 const DASH_DURATION: int = 10 # tick amount that input will be locked
 const HYPER_DASH_DURATION: int = 20
@@ -168,11 +174,11 @@ const TOUCH_PLASMA_WINDOW: int = 5
 var touch_plasma_buffer: int
 var touching_plasma: bool
 
-const TENSION_TIME: float = 1.0
+const TENSION_TIME: float = 2.0
 @onready var tension_timer: Timer = %tension_timer
 var tension_level: int
 var got_high_tension: bool
-const MAX_TENSION_LEVEL: int = 5
+const MAX_TENSION_LEVEL: int = 10
 const HIGH_TENSION: int = 3
 const TENSION_FACTOR: float = 2.0
 
@@ -298,6 +304,9 @@ func handle_state(delta: float) -> void:
         dashes_loaded -= 1
         trigger_locked = true
         flash(skin_color.lightened(0.1), 1, 1.0/60.0*4)
+        if wanna_move_buffer > 0:
+          got_strong_dash = true
+          dash_force += dash_force * STRONG_DASH_FACTOR
       elif state_ticks > dash_duration:
         state = State.AFTER_DASH
         return
@@ -313,11 +322,11 @@ func handle_state(delta: float) -> void:
 
       if landed_buffer > 0 \
           and (touch_plasma_buffer > 0 or touching_plasma):
-        dash_force = HYPER_DASH_FORCE
         dash_duration = HYPER_DASH_DURATION
         dash_tension = HYPER_DASH_TENSION
         if not hyper_dash:
           dashes_loaded += 1
+          dash_force += dash_force * HYPER_DASH_FACTOR
         hyper_dash = true
         flash(skin_color.lightened(0.6), 4, 1.0/60.0*5)
         heal_amount = HYPER_HEAL_AMOUNT
@@ -335,6 +344,7 @@ func handle_state(delta: float) -> void:
         hyper_dash = false
         super_dash = false
         trigger_locked = false
+        got_strong_dash = false
         state = State.IDLE_MOVE if grounded else State.FALL
 
       elif jump_buffer > 0 and coyote_buffer > 0:
@@ -349,6 +359,7 @@ func handle_state(delta: float) -> void:
         super_dash = true
         dashes_loaded += 1
         trigger_locked = false
+        got_strong_dash = false
         flash(skin_color.lightened(0.3), 1, 1.0/60.0*5)
         state = State.JUMP
 
@@ -362,6 +373,7 @@ func handle_state(delta: float) -> void:
         hyper_dash = false
         super_dash = false
         trigger_locked = false
+        got_strong_dash = false
         flash(skin_color.lightened(0.8), 1, 1.0/60.0*15)
         increase_tension()
         dash_lock()
@@ -436,7 +448,12 @@ func _physics_process(delta: float) -> void:
 
   if not input_locked:
     wishdir = direct
+    var old_wanna_move: bool = wanna_move
     wanna_move = wishdir.length_squared() > MOVE_DEADZONE ** 2
+    if not old_wanna_move and wanna_move:
+      wanna_move_buffer = WANNA_MOVE_BUFFER
+    elif wanna_move_buffer > 0:
+      wanna_move_buffer -= 1
 
   handle_state(delta)
 
@@ -604,8 +621,13 @@ func debug_update() -> void:
   debug_field("grounded")
   debug_field("dot")
   debug_field("dot_buffer")
+  debug_field("wanna_move_buffer")
+  debug_field("dashes_loaded")
+  debug_field("dash_force")
+  debug_field("got_strong_dash")
   debug_field("tension_level")
   debug_value("tension_timer.is_stopped()", tension_timer.is_stopped())
+  debug_field("got_high_tension")
   debug_value("exhaustion_timer.is_stopped()", exhaustion_timer.is_stopped())
   debug_value("dash_lock_timer.is_stopped()", dash_lock_timer.is_stopped())
 
