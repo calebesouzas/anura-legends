@@ -4,7 +4,9 @@
 [ext_resource type="Script" uid="uid://lb7i1yddi7sw" path="res://entities/projectiles/projectile_script.gd" id="2_qnxqa"]
 [ext_resource type="Texture2D" uid="uid://cevpj7tpnxsly" path="res://ui/touch/trigger-black.png" id="4_3xm0v"]
 [ext_resource type="Texture2D" uid="uid://csoywosq0dvw2" path="res://ui/touch/trigger-white.png" id="5_qnxqa"]
+[ext_resource type="Texture2D" uid="uid://bs685nl7fqr5s" path="res://ui/touch/dash-black.png" id="7_32adv"]
 [ext_resource type="Texture2D" uid="uid://5gu2tmxomwsp" path="res://ui/touch/adhesion-black.png" id="7_ucnxd"]
+[ext_resource type="Texture2D" uid="uid://beudmhhp075nb" path="res://ui/touch/dash-white.png" id="8_rbw6g"]
 [ext_resource type="Texture2D" uid="uid://bovabpykmt3fy" path="res://ui/touch/adhesion-white.png" id="8_xgoka"]
 [ext_resource type="Script" uid="uid://bc8c4c6jnaoj3" path="res://addons/touch_screen_joystick/touch_screen_joystick.gd" id="9_rsjbd"]
 [ext_resource type="Texture2D" uid="uid://bl85bxj834ox1" path="res://ui/touch/jump-black.png" id="10_32adv"]
@@ -155,12 +157,20 @@ shape = SubResource("RectangleShape2D_1h5a1")
 action = "trigger"
 
 [node name="jump" type="TouchScreenButton" parent="hud/control" unique_id=1989971277]
-position = Vector2(1060, 72.000015)
+position = Vector2(975, 72.000015)
 scale = Vector2(15, 15)
 texture_normal = ExtResource("10_32adv")
 texture_pressed = ExtResource("11_rbw6g")
 shape = SubResource("RectangleShape2D_t5o3e")
 action = "jump"
+
+[node name="dash" type="TouchScreenButton" parent="hud/control" unique_id=463076060]
+position = Vector2(1227, 4.0000076)
+scale = Vector2(15, 15)
+texture_normal = ExtResource("7_32adv")
+texture_pressed = ExtResource("8_rbw6g")
+shape = SubResource("RectangleShape2D_t5o3e")
+action = "dash"
 
 [node name="adhesion" type="TouchScreenButton" parent="hud/control" unique_id=1429188447]
 position = Vector2(353, 101.00001)
@@ -171,7 +181,7 @@ shape = SubResource("RectangleShape2D_ucnxd")
 action = "adhesion"
 
 [node name="debug" type="TouchScreenButton" parent="hud/control" unique_id=718419556]
-position = Vector2(44.00003, 30)
+position = Vector2(677.00006, 43.999996)
 scale = Vector2(15, 15)
 shape = SubResource("RectangleShape2D_ucnxd")
 action = "debug"
