@@ -149,7 +149,7 @@ grow_vertical = 2
 mouse_filter = 1
 
 [node name="trigger" type="TouchScreenButton" parent="hud/control" unique_id=2100857492]
-position = Vector2(975.00006, 452.00003)
+position = Vector2(975, 452)
 scale = Vector2(15, 15)
 texture_normal = ExtResource("4_3xm0v")
 texture_pressed = ExtResource("5_qnxqa")
@@ -157,7 +157,7 @@ shape = SubResource("RectangleShape2D_1h5a1")
 action = "trigger"
 
 [node name="jump" type="TouchScreenButton" parent="hud/control" unique_id=1989971277]
-position = Vector2(975, 72.000015)
+position = Vector2(962, 72)
 scale = Vector2(15, 15)
 texture_normal = ExtResource("10_32adv")
 texture_pressed = ExtResource("11_rbw6g")
@@ -165,7 +165,7 @@ shape = SubResource("RectangleShape2D_t5o3e")
 action = "jump"
 
 [node name="dash" type="TouchScreenButton" parent="hud/control" unique_id=463076060]
-position = Vector2(1227, 4.0000076)
+position = Vector2(1204, 58)
 scale = Vector2(15, 15)
 texture_normal = ExtResource("7_32adv")
 texture_pressed = ExtResource("8_rbw6g")
@@ -173,7 +173,7 @@ shape = SubResource("RectangleShape2D_t5o3e")
 action = "dash"
 
 [node name="adhesion" type="TouchScreenButton" parent="hud/control" unique_id=1429188447]
-position = Vector2(353, 101.00001)
+position = Vector2(353, 101)
 scale = Vector2(15, 15)
 texture_normal = ExtResource("7_ucnxd")
 texture_pressed = ExtResource("8_xgoka")
@@ -181,7 +181,7 @@ shape = SubResource("RectangleShape2D_ucnxd")
 action = "adhesion"
 
 [node name="debug" type="TouchScreenButton" parent="hud/control" unique_id=718419556]
-position = Vector2(677.00006, 43.999996)
+position = Vector2(677, 44)
 scale = Vector2(15, 15)
 shape = SubResource("RectangleShape2D_ucnxd")
 action = "debug"
