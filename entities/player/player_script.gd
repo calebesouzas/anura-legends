@@ -183,7 +183,7 @@ const HIGH_TENSION: int = 3
 const TENSION_FACTOR: float = 2.0
 
 @onready var dash_lock_timer: Timer = %dash_lock_timer
-const DASH_LOCK_TIME: float = 0.5
+const DASH_LOCK_TIME: float = 1.0/60*DASH_DELAY
 
 const EXHAUSTION_TIME: float = 2.0
 @onready var exhaustion_timer: Timer = %exhaustion_timer
@@ -252,7 +252,7 @@ func handle_state(delta: float) -> void:
 
       # no friction when landing and jumping at the same time
       if state_ticks > LANDED_WINDOW:
-        velocity = apply_friction(wishdir, delta,
+        velocity = apply_friction(wishdir if not input_locked else Vector3.ZERO, delta,
           FRICTION * factor, MAX_SPEED)
       # jumped berofe the end of `LANDED_WINDOW`, did a Bunny Hop!
       elif jump_buffer > 0:
@@ -300,17 +300,6 @@ func handle_state(delta: float) -> void:
         velocity.y += jump_force * delta
 
     State.DASH:
-      if state_ticks == 1:
-        dashes_loaded -= 1
-        trigger_locked = true
-        flash(skin_color.lightened(0.1), 1, 1.0/60.0*4)
-        if wanna_move_buffer > 0:
-          got_strong_dash = true
-          dash_force += dash_force * STRONG_DASH_FACTOR
-      elif state_ticks > dash_duration:
-        state = State.AFTER_DASH
-        return
-
       if not wanna_move:
         dash_dir = -skin.global_transform.basis.z
       elif grounded:
@@ -319,6 +308,18 @@ func handle_state(delta: float) -> void:
         dash_dir = camera_relative_movement()
 
       input_locked = true
+
+      if state_ticks == 1:
+        dashes_loaded -= 1
+        trigger_locked = true
+        flash(skin_color.lightened(0.1), 1, 1.0/60.0*4)
+        if wanna_move_buffer > 0:
+          got_strong_dash = true
+          dash_force += dash_force * STRONG_DASH_FACTOR
+        apply_dash()
+      elif state_ticks > dash_duration:
+        state = State.AFTER_DASH
+        return
 
       if landed_buffer > 0 \
           and (touch_plasma_buffer > 0 or touching_plasma):
@@ -330,8 +331,7 @@ func handle_state(delta: float) -> void:
         hyper_dash = true
         flash(skin_color.lightened(0.6), 4, 1.0/60.0*5)
         heal_amount = HYPER_HEAL_AMOUNT
-
-      apply_dash()
+        apply_dash()
 
     State.AFTER_DASH:
       input_locked = false
@@ -364,8 +364,7 @@ func handle_state(delta: float) -> void:
         state = State.JUMP
 
       # Dash Lock!
-      elif grounded and adhesion_buffer > 0 \
-          and (not wanna_move or (dot < 0 and dot_buffer > 0)):
+      elif grounded and adhesion_buffer > 0:
         dash_delay = DASH_DELAY
         dash_force = DASH_FORCE
         dash_duration = DASH_DURATION
@@ -378,8 +377,6 @@ func handle_state(delta: float) -> void:
         increase_tension()
         dash_lock()
         state = State.IDLE_MOVE
-
-      apply_dash()
     _:
       assert(false, "Unhandled state: " + State.keys()[state])
 
@@ -495,10 +492,17 @@ func recover() -> void:
 func dash_lock() -> void:
   dash_lock_timer.stop()
   dash_lock_timer.start(DASH_LOCK_TIME)
+  input_locked = true
+
+func dash_locked() -> bool:
+  return not dash_lock_timer.is_stopped()
 
 func apply_dash() -> void:
-  velocity = (velocity * dash_tension) + dash_dir \
-    * (dash_force + tension_level * TENSION_FACTOR)
+  var force: float = dash_force
+  if not grounded:
+    force += tension_level * TENSION_FACTOR
+
+  velocity = velocity * dash_tension + dash_dir * force
 
 func can_dash() -> bool:
   return dashes_loaded > 0 and dash_delay <= 0 and not is_exhausted()
@@ -645,6 +649,8 @@ func _ready() -> void:
   tension_timer.timeout.connect(decrease_tension)
 
   exhaustion_timer.timeout.connect(recover)
+
+  dash_lock_timer.timeout.connect(func(): input_locked = false)
 
 func _init() -> void:
   health = 1000
