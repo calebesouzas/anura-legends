@@ -391,6 +391,7 @@ func handle_state(delta: float) -> void:
         got_strong_dash = false
         flash(skin_color.lightened(0.8), 1, 1.0/60.0*15)
         increase_tension()
+        dash_set = true
         dash_lock()
         state = State.IDLE_MOVE
     _:
