@@ -196,7 +196,7 @@ const TENSION_FACTOR: float = 2.0
 @onready var dash_lock_timer: Timer = %dash_lock_timer
 const DASH_LOCK_TIME: float = 1.0/60*DASH_DELAY
 
-const EXHAUSTION_TIME: float = 2.0
+const EXHAUSTION_TIME: float = 3.0
 @onready var exhaustion_timer: Timer = %exhaustion_timer
 
 const DIR_CHANGE_POINT: float = 0.25
@@ -360,6 +360,8 @@ func handle_state(delta: float) -> void:
         super_dash = false
         trigger_locked = false
         got_strong_dash = false
+        if dashes_loaded == 0:
+          be_exhausted()
         state = State.IDLE_MOVE if grounded else State.FALL
 
       elif jump_buffer > 0 and coyote_buffer > 0:
@@ -491,13 +493,18 @@ func decrease_tension() -> void:
     tension_level -= 1
     tension_timer.start(TENSION_TIME)
 
+func be_exhausted() -> void:
+  if not is_exhausted():
+    exhaustion_timer.start(EXHAUSTION_TIME)
+    dash_reload_timer.stop()
+    update_color(exhausted_color)
+
 func is_exhausted() -> bool:
   return not exhaustion_timer.is_stopped()
 
 func recover() -> void:
-  tension_level = 0
-  tension_timer.stop()
   update_color(normal_color)
+  dash_reload_timer.start(DASH_RELOAD_TIME)
 
 func dash_lock() -> void:
   dash_lock_timer.stop()
@@ -532,8 +539,6 @@ func unload_dash() -> void:
   # don't touch the reloader!
   if dashes_loaded > 0:
     dashes_loaded -= 1
-    if dashes_loaded == 0:
-      dash_reload_timer.start(DASH_RELOAD_TIME)
 
 func load_dash() -> void:
   if not dash_reload_timer.is_stopped(): return
