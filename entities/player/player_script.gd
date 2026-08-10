@@ -124,8 +124,8 @@ const SUPER_DASH_FORCE: float = 7.5
 var high_jump_force: float = HIGH_JUMP
 var jump_force: float = JUMP
 
-const DASH_TENSION: float = 0.2
-const HYPER_DASH_TENSION: float = 0.3
+const DASH_TENSION: float = 0.02
+const HYPER_DASH_TENSION: float = 0.01
 var dash_tension: float = DASH_TENSION
 
 const SUPER_DASH_UNLOCK_MOMENT: int = 10
