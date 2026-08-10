@@ -131,8 +131,6 @@ var dash_tension: float = DASH_TENSION
 const SUPER_DASH_UNLOCK_MOMENT: int = 10
 const HYPER_DASH_WINDOW: int = 9
 
-const DASH_RELOAD_MOMENT: int = 5 # delay to reload dash when done grounded
-
 const DASH_FORCE: float = 8.0
 var dash_force: float = DASH_FORCE
 
@@ -150,7 +148,22 @@ const AFTER_DASH_WINDOW: int = 10
 const DASH_DELAY: int = 15
 var dash_delay: int
 
-var dashes_loaded: int
+const DASH_RELOAD_TIME: float = 2.0
+@onready var dash_reload_timer: Timer = %dash_reload_timer
+
+#@todo add indicator bar to the GUI
+# layout:
+# __  -- -- --
+# 1   2  3  4
+# 1 = dash set?
+# 2..4 = dashes loaded (brawl stars ammo bar style)
+# __ = lighter background
+# -- = darker background
+const MAX_DASHES: int = 3
+var dashes_loaded: int # the one that reloads with time
+# the one that actually counts and is set in specific conditions
+var dash_set: bool
+
 var super_dash: bool
 var hyper_dash: bool
 
@@ -177,9 +190,7 @@ var touching_plasma: bool
 const TENSION_TIME: float = 2.0
 @onready var tension_timer: Timer = %tension_timer
 var tension_level: int
-var got_high_tension: bool
-const MAX_TENSION_LEVEL: int = 10
-const HIGH_TENSION: int = 3
+const MAX_TENSION_LEVEL: int = 3
 const TENSION_FACTOR: float = 2.0
 
 @onready var dash_lock_timer: Timer = %dash_lock_timer
@@ -240,7 +251,9 @@ func handle_state(delta: float) -> void:
 
       var factor: float = 1.0
       if touching_plasma:
-        dashes_loaded = 1
+        if state_ticks > LANDED_WINDOW:
+          set_dash()
+
         if is_action_valid("adhesion") and can_join():
           factor = ADHESION_FACTOR
           heal_amount = STICKY_HEAL_AMOUNT
@@ -251,13 +264,15 @@ func handle_state(delta: float) -> void:
       velocity = accelerate(wishdir, delta, ACCELERATION, MAX_SPEED)
 
       # no friction when landing and jumping at the same time
-      if state_ticks > LANDED_WINDOW:
+      if landed_buffer == 0:
         velocity = apply_friction(wishdir if not input_locked else Vector3.ZERO, delta,
           FRICTION * factor, MAX_SPEED)
       # jumped berofe the end of `LANDED_WINDOW`, did a Bunny Hop!
       elif jump_buffer > 0:
         state = State.JUMP
         return
+      elif not dash_set:
+        set_dash()
 
       if just_pressed("dash") and can_dash():
         state = State.DASH
@@ -310,7 +325,7 @@ func handle_state(delta: float) -> void:
       input_locked = true
 
       if state_ticks == 1:
-        dashes_loaded -= 1
+        unset_dash()
         trigger_locked = true
         flash(skin_color.lightened(0.1), 1, 1.0/60.0*4)
         if wanna_move_buffer > 0:
@@ -361,6 +376,7 @@ func handle_state(delta: float) -> void:
         trigger_locked = false
         got_strong_dash = false
         flash(skin_color.lightened(0.3), 1, 1.0/60.0*5)
+        set_dash()
         state = State.JUMP
 
       # Dash Lock!
@@ -467,19 +483,12 @@ func _physics_process(delta: float) -> void:
 func increase_tension() -> void:
   if tension_level < MAX_TENSION_LEVEL:
     tension_level += 1
-  if tension_level >= HIGH_TENSION:
-    got_high_tension = true
   tension_timer.start(TENSION_TIME)
 
 func decrease_tension() -> void:
   if tension_level > 0:
     tension_level -= 1
     tension_timer.start(TENSION_TIME)
-  elif got_high_tension:
-    tension_timer.stop()
-    exhaustion_timer.start(EXHAUSTION_TIME)
-    got_high_tension = false
-    update_color(exhausted_color)
 
 func is_exhausted() -> bool:
   return not exhaustion_timer.is_stopped()
@@ -505,7 +514,33 @@ func apply_dash() -> void:
   velocity = velocity * dash_tension + dash_dir * force
 
 func can_dash() -> bool:
-  return dashes_loaded > 0 and dash_delay <= 0 and not is_exhausted()
+  return dash_set and dash_delay <= 0 and not is_exhausted()
+
+func set_dash(force: bool = false) -> void:
+  if not force and dashes_loaded == 0:
+    return
+  if not dash_set:
+    dash_set = true
+    unload_dash()
+
+func unset_dash() -> void:
+  if dash_set:
+    dash_set = false
+
+func unload_dash() -> void:
+  # don't touch the reloader!
+  if dashes_loaded > 0:
+    dashes_loaded -= 1
+    if dashes_loaded == 0:
+      dash_reload_timer.start(DASH_RELOAD_TIME)
+
+func load_dash() -> void:
+  if not dash_reload_timer.is_stopped(): return
+  if dashes_loaded < MAX_DASHES:
+    dash_reload_timer.start(DASH_RELOAD_TIME)
+    dashes_loaded += 1
+  else:
+    dash_reload_timer.stop()
 
 func camera_relative_movement() -> Vector3:
   var forward: Vector3 = -camera.global_transform.basis.z
@@ -627,11 +662,11 @@ func debug_update() -> void:
   debug_field("dot_buffer")
   debug_field("wanna_move_buffer")
   debug_field("dashes_loaded")
+  debug_field("dash_set")
   debug_field("dash_force")
   debug_field("got_strong_dash")
   debug_field("tension_level")
   debug_value("tension_timer.is_stopped()", tension_timer.is_stopped())
-  debug_field("got_high_tension")
   debug_value("exhaustion_timer.is_stopped()", exhaustion_timer.is_stopped())
   debug_value("dash_lock_timer.is_stopped()", dash_lock_timer.is_stopped())
 
@@ -651,6 +686,8 @@ func _ready() -> void:
   exhaustion_timer.timeout.connect(recover)
 
   dash_lock_timer.timeout.connect(func(): input_locked = false)
+  dash_reload_timer.timeout.connect(load_dash)
+  load_dash()
 
 func _init() -> void:
   health = 1000
