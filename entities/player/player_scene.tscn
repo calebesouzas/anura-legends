@@ -8,7 +8,6 @@
 [ext_resource type="Texture2D" uid="uid://5gu2tmxomwsp" path="res://ui/touch/adhesion-black.png" id="7_ucnxd"]
 [ext_resource type="Texture2D" uid="uid://beudmhhp075nb" path="res://ui/touch/dash-white.png" id="8_rbw6g"]
 [ext_resource type="Texture2D" uid="uid://bovabpykmt3fy" path="res://ui/touch/adhesion-white.png" id="8_xgoka"]
-[ext_resource type="Script" uid="uid://bc8c4c6jnaoj3" path="res://addons/touch_screen_joystick/touch_screen_joystick.gd" id="9_rsjbd"]
 [ext_resource type="Texture2D" uid="uid://bl85bxj834ox1" path="res://ui/touch/jump-black.png" id="10_32adv"]
 [ext_resource type="Texture2D" uid="uid://bw5nxmjqado4h" path="res://ui/touch/jump-white.png" id="11_rbw6g"]
 
@@ -190,25 +189,19 @@ scale = Vector2(15, 15)
 shape = SubResource("RectangleShape2D_ucnxd")
 action = "debug"
 
-[node name="joystick" type="Control" parent="hud/control" unique_id=461441740]
-custom_minimum_size = Vector2(100, 100)
-anchors_preset = 0
-offset_left = 70.0
-offset_top = 306.0
-offset_right = 470.0
-offset_bottom = 706.0
-mouse_filter = 1
-script = ExtResource("9_rsjbd")
-deadzone = 20.0
-base_radius = 150.0
-knob_radius = 75.0
-color = Color(1, 1, 1, 0.26666668)
-use_input_actions = true
+[node name="joystick" type="VirtualJoystick" parent="hud/control" unique_id=1262403561]
+layout_mode = 0
+offset_left = 237.0
+offset_top = 481.0
+offset_right = 277.0
+offset_bottom = 521.0
+joystick_mode = 2
+joystick_size = 313.0
+tip_size = 114.0
 action_left = &"move_left"
 action_right = &"move_right"
 action_up = &"move_forward"
 action_down = &"move_backward"
-metadata/_custom_type_script = "uid://bc8c4c6jnaoj3"
 
 [node name="gui" type="CanvasLayer" parent="." unique_id=1537477114]
 unique_name_in_owner = true
@@ -238,13 +231,29 @@ theme_override_constants/margin_top = 50
 theme_override_constants/margin_right = 50
 theme_override_constants/margin_bottom = 50
 
-[node name="debug" type="RichTextLabel" parent="gui/margin" unique_id=1719110033]
-unique_name_in_owner = true
+[node name="main_vsplit" type="HSplitContainer" parent="gui/margin" unique_id=1563671084]
 layout_mode = 2
+split_offsets = PackedInt32Array(670)
+dragging_enabled = false
+dragger_visibility = 1
+split_offset = 670
+
+[node name="debug" type="RichTextLabel" parent="gui/margin/main_vsplit" unique_id=1719110033]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
 mouse_filter = 1
 fit_content = true
 
-[node name="health_label" type="Label" parent="gui/margin" unique_id=9956043]
+[node name="health_dashbar_split" type="VSplitContainer" parent="gui/margin/main_vsplit" unique_id=366473145]
+layout_mode = 2
+size_flags_vertical = 8
+dragging_enabled = false
+dragger_visibility = 1
+
+[node name="health_label" type="Label" parent="gui/margin/main_vsplit/health_dashbar_split" unique_id=9956043]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 8
@@ -253,3 +262,9 @@ text = "1000"
 label_settings = SubResource("LabelSettings_rsjbd")
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="gui/margin/main_vsplit/health_dashbar_split" unique_id=972334771]
+custom_minimum_size = Vector2(0, 15)
+layout_mode = 2
+size_flags_vertical = 1
+show_percentage = false
