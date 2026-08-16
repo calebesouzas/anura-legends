@@ -6,7 +6,10 @@
 
 [sub_resource type="Environment" id="Environment_3l573"]
 background_mode = 1
-background_color = Color(0, 0.5778433, 0.8595153, 1)
+background_color = Color(0, 0.5568628, 1, 1)
+ambient_light_source = 2
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 0.51
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_sa51i"]
 size = Vector3(500, 1, 500)
@@ -18,7 +21,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 
 [node name="sun" type="DirectionalLight3D" parent="." unique_id=88342058]
 transform = Transform3D(1, 0, 0, 0, -4.3711385e-08, 0.99999994, 0, -0.99999994, -4.3711385e-08, 0, 15, 0)
+visible = false
+light_energy = 0.529
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 0.0
+light_bake_mode = 0
 shadow_enabled = true
+shadow_normal_bias = 0.235
+shadow_blur = 0.0
 directional_shadow_mode = 0
 
 [node name="environment" type="WorldEnvironment" parent="." unique_id=1214889743]
