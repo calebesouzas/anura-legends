@@ -34,3 +34,23 @@ Helpers, protectors, utilities, accessories, traps.
     - Can be destroyed by enemies.
 10. Chain
     - Locks the enemy you hit with it.
+
+# Movement
+## Dash
+### Stages
+Could use many dash stages (variants of `Player.State`) for different mechanics.
+
+### Free Dash
+Could allow Air Dash-like when grounded with adhesion.
+
+This would be a better way to go up and touch ground faster!
+
+### L-Dash
+We could have a curved dash.
+
+# Camera
+## Touch
+Could add an area in which drags control camera, so if the player swipes the 
+finger outside this area, nothing happens...
+
+This would probably fix a lot of problems with `Control` nodes.
