@@ -77,7 +77,7 @@ func _unhandled_input(event: InputEvent) -> void:
   elif event is InputEventKey and event.keycode == KEY_ESCAPE:
     get_tree().quit()
   elif event.is_action_pressed("debug"):
-    debug.visible = not debug.visible
+    debug_all = not debug_all
 
 ## physics
 var wanna_move: bool
@@ -647,6 +647,7 @@ const LOW_HEALTH_POINT: int = 200
 
 ## debug
 @onready var debug: RichTextLabel = %debug
+var debug_all: bool
 
 func debug_field(field_name: StringName) -> void:
   debug.add_text(field_name + " = " + str(self[field_name]))
@@ -659,6 +660,7 @@ func debug_value(value_name: StringName, value: Variant, new_line: bool = true) 
 func debug_update() -> void:
   debug.clear()
   debug_value("FPS", Engine.get_frames_per_second())
+  if not debug_all: return
   debug_field("velocity")
   debug_field("current_speed")
   debug_value("state", State.keys()[state])
@@ -680,7 +682,6 @@ func debug_update() -> void:
 func _ready() -> void:
   if not OS.has_feature("android"):
     %hud.queue_free()
-  debug.visible = false
   Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
   aim_lock_timer.timeout.connect(func(): aim_locked = false)
   normal_color = Team.RealColor.get_from_team_color(team_color).lightened(0.25)
