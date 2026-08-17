@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://bovabpykmt3fy" path="res://ui/touch/adhesion-white.png" id="8_xgoka"]
 [ext_resource type="Texture2D" uid="uid://bl85bxj834ox1" path="res://ui/touch/jump-black.png" id="10_32adv"]
 [ext_resource type="Texture2D" uid="uid://bw5nxmjqado4h" path="res://ui/touch/jump-white.png" id="11_rbw6g"]
+[ext_resource type="Script" uid="uid://bc8c4c6jnaoj3" path="res://addons/touch_screen_joystick/touch_screen_joystick.gd" id="9_rsjbd"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_aep8o"]
 
@@ -189,19 +190,25 @@ scale = Vector2(15, 15)
 shape = SubResource("RectangleShape2D_ucnxd")
 action = "debug"
 
-[node name="joystick" type="VirtualJoystick" parent="hud/control" unique_id=1262403561]
-layout_mode = 0
-offset_left = 237.0
-offset_top = 481.0
-offset_right = 277.0
-offset_bottom = 521.0
-joystick_mode = 2
-joystick_size = 313.0
-tip_size = 114.0
+[node name="joystick" type="Control" parent="hud/control" unique_id=1262403561]
+custom_minimum_size = Vector2(100, 100)
+anchors_preset = 0
+offset_left = 70.0
+offset_top = 306.0
+offset_right = 470.0
+offset_bottom = 706.0
+mouse_filter = 1
+script = ExtResource("9_rsjbd")
+deadzone = 20.0
+base_radius = 150.0
+knob_radius = 75.0
+color = Color(1, 1, 1, 0.266666668)
+use_input_actions = true
 action_left = &"move_left"
 action_right = &"move_right"
 action_up = &"move_forward"
 action_down = &"move_backward"
+metadata/_custom_type_script = "uid://bc8c4c6jnaoj3"
 
 [node name="gui" type="CanvasLayer" parent="." unique_id=1537477114]
 unique_name_in_owner = true
