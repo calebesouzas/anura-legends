@@ -8,9 +8,9 @@
 [ext_resource type="Texture2D" uid="uid://5gu2tmxomwsp" path="res://ui/touch/adhesion-black.png" id="7_ucnxd"]
 [ext_resource type="Texture2D" uid="uid://beudmhhp075nb" path="res://ui/touch/dash-white.png" id="8_rbw6g"]
 [ext_resource type="Texture2D" uid="uid://bovabpykmt3fy" path="res://ui/touch/adhesion-white.png" id="8_xgoka"]
+[ext_resource type="Script" uid="uid://bc8c4c6jnaoj3" path="res://addons/touch_screen_joystick/touch_screen_joystick.gd" id="9_rsjbd"]
 [ext_resource type="Texture2D" uid="uid://bl85bxj834ox1" path="res://ui/touch/jump-black.png" id="10_32adv"]
 [ext_resource type="Texture2D" uid="uid://bw5nxmjqado4h" path="res://ui/touch/jump-white.png" id="11_rbw6g"]
-[ext_resource type="Script" uid="uid://bc8c4c6jnaoj3" path="res://addons/touch_screen_joystick/touch_screen_joystick.gd" id="9_rsjbd"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_aep8o"]
 
@@ -202,7 +202,7 @@ script = ExtResource("9_rsjbd")
 deadzone = 20.0
 base_radius = 150.0
 knob_radius = 75.0
-color = Color(1, 1, 1, 0.266666668)
+color = Color(1, 1, 1, 0.26666668)
 use_input_actions = true
 action_left = &"move_left"
 action_right = &"move_right"
