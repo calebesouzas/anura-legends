@@ -2,19 +2,19 @@ class_name Team
 
 class RealColor:
   const INVALID: Color = Color.DIM_GRAY
-  const BLUE: Color = Color.BLUE
   const RED: Color = Color.RED
+  const BLUE: Color = Color.BLUE
   static func get_from_team_color(team: Team.TeamColor) -> Color:
     if team as int >= 0:
-      return [BLUE, RED][team as int]
+      return [RED, BLUE][team as int]
     return INVALID
 
 enum TeamColor {
-  INVALID = -1, BLUE, RED
+  INVALID = -1, RED, BLUE
 }
 
 enum BlockColor {
-  INVALID = -1, NORMAL, BLUE, RED, UNPAINTABLE
+  INVALID = -1, NORMAL, RED, BLUE, UNPAINTABLE
 }
 
 static func team_to_block_color(team: TeamColor) -> BlockColor:
