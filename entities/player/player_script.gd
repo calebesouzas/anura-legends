@@ -151,14 +151,6 @@ var dash_delay: int
 const DASH_RELOAD_TIME: float = 2.0
 @onready var dash_reload_timer: Timer = %dash_reload_timer
 
-#@todo add indicator bar to the GUI
-# layout:
-# __  -- -- --
-# 1   2  3  4
-# 1 = dash set?
-# 2..4 = dashes loaded (brawl stars ammo bar style)
-# __ = lighter background
-# -- = darker background
 const MAX_DASHES: int = 3
 var dashes_loaded: int # the one that reloads with time
 # the one that actually counts and is set in specific conditions
@@ -198,6 +190,7 @@ const DASH_LOCK_TIME: float = 1.0/60*DASH_DELAY
 
 const EXHAUSTION_TIME: float = 3.0
 @onready var exhaustion_timer: Timer = %exhaustion_timer
+const EXHAUSTION_VFX_TIME: float = 1.0/60.0*10
 
 const DIR_CHANGE_POINT: float = 0.25
 const VELO_INFLUENCE: float = 0.25
@@ -480,6 +473,8 @@ func _physics_process(delta: float) -> void:
 
   rotate_skin(delta)
 
+  dash_bar_update(delta)
+
   debug_update()
 
 ## movement
@@ -497,6 +492,7 @@ func be_exhausted() -> void:
   if not is_exhausted():
     exhaustion_timer.start(EXHAUSTION_TIME)
     dash_reload_timer.stop()
+    dash_cur_bar = null
     update_color(exhausted_color)
 
 func is_exhausted() -> bool:
@@ -504,6 +500,7 @@ func is_exhausted() -> bool:
 
 func recover() -> void:
   update_color(normal_color)
+  dash_cur_bar = dash_bars[0]
   dash_reload_timer.start(DASH_RELOAD_TIME)
 
 func dash_lock() -> void:
@@ -524,15 +521,56 @@ func apply_dash() -> void:
 func can_dash() -> bool:
   return dash_set and dash_delay <= 0 and not is_exhausted()
 
+#@todo add indicator bar to the GUI
+# layout:
+# __  -- -- --
+# 1   2  3  4
+# 1 = dash set?
+# 2..4 = dashes loaded (brawl stars ammo bar style)
+# __ = lighter background
+# -- = darker background
+
+@onready var dash_set_bar: TextureProgressBar = %dash_set_bar
+@onready var dash_bar_0: TextureProgressBar = %dash_bar_0
+@onready var dash_bar_1: TextureProgressBar = %dash_bar_1
+@onready var dash_bar_2: TextureProgressBar = %dash_bar_2
+@onready var dash_bars: Array[TextureProgressBar] = [
+  dash_bar_0,
+  dash_bar_1,
+  dash_bar_2,
+]
+@onready var dash_cur_bar: TextureProgressBar = dash_bars[0]
+
+func dash_bar_update(delta: float) -> void:
+  if dashes_loaded >= dash_bars.size() or dash_cur_bar == null \
+      or is_exhausted():
+    if is_exhausted():
+      create_tween().tween_property(
+        dash_bars[dashes_loaded], "value", 0.0, EXHAUSTION_VFX_TIME)
+    return
+
+  dash_cur_bar = dash_bars[dashes_loaded]
+  dash_cur_bar.value = dash_reload_timer.wait_time - dash_reload_timer.time_left
+
+func prepare_bars() -> void:
+  for bar: TextureProgressBar in dash_bars:
+    bar.max_value = DASH_RELOAD_TIME
+    bar.step = 0.0
+    bar.min_value = 0.0
+
 func set_dash(force: bool = false) -> void:
   if not force and dashes_loaded == 0:
     return
   if not dash_set:
     dash_set = true
+    dash_set_bar.value = dash_set_bar.max_value
+    dash_cur_bar.value = dash_cur_bar.min_value
     unload_dash()
 
 func unset_dash() -> void:
   if dash_set:
+    dash_set_bar.value = dash_set_bar.min_value
+    dash_cur_bar.value = 0.0
     dash_set = false
 
 func unload_dash() -> void:
@@ -694,6 +732,7 @@ func _ready() -> void:
 
   dash_lock_timer.timeout.connect(func(): input_locked = false)
   dash_reload_timer.timeout.connect(load_dash)
+  prepare_bars()
   load_dash()
 
 func _init() -> void:

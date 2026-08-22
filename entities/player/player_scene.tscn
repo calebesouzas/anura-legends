@@ -11,6 +11,8 @@
 [ext_resource type="Script" uid="uid://bc8c4c6jnaoj3" path="res://addons/touch_screen_joystick/touch_screen_joystick.gd" id="9_rsjbd"]
 [ext_resource type="Texture2D" uid="uid://bl85bxj834ox1" path="res://ui/touch/jump-black.png" id="10_32adv"]
 [ext_resource type="Texture2D" uid="uid://bw5nxmjqado4h" path="res://ui/touch/jump-white.png" id="11_rbw6g"]
+[ext_resource type="Texture2D" uid="uid://cr8j2rul7voed" path="res://ui/dash_bars/dash_bar_bg.png" id="12_3xm0v"]
+[ext_resource type="Texture2D" uid="uid://bno16pbyl2no8" path="res://ui/dash_bars/dash_bar_fg.png" id="13_qnxqa"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_aep8o"]
 
@@ -270,8 +272,79 @@ label_settings = SubResource("LabelSettings_rsjbd")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ProgressBar" type="ProgressBar" parent="gui/margin/main_vsplit/health_dashbar_split" unique_id=972334771]
-custom_minimum_size = Vector2(0, 15)
+[node name="HSplitContainer" type="HSplitContainer" parent="gui/margin/main_vsplit/health_dashbar_split" unique_id=1246378617]
+clip_contents = true
 layout_mode = 2
-size_flags_vertical = 1
-show_percentage = false
+size_flags_horizontal = 8
+dragging_enabled = false
+dragger_visibility = 2
+
+[node name="HSplitContainer" type="HSplitContainer" parent="gui/margin/main_vsplit/health_dashbar_split/HSplitContainer" unique_id=1218093384]
+layout_mode = 2
+size_flags_horizontal = 8
+split_offsets = PackedInt32Array(125)
+dragging_enabled = false
+dragger_visibility = 2
+split_offset = 125
+
+[node name="dash_set_bar" type="TextureProgressBar" parent="gui/margin/main_vsplit/health_dashbar_split/HSplitContainer/HSplitContainer" unique_id=1650060350]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(125, 15)
+custom_maximum_size = Vector2(150, 18)
+layout_mode = 2
+max_value = 1.0
+nine_patch_stretch = true
+stretch_margin_left = 3
+stretch_margin_top = 3
+stretch_margin_right = 3
+stretch_margin_bottom = 3
+texture_under = ExtResource("12_3xm0v")
+texture_progress = ExtResource("13_qnxqa")
+tint_under = Color(0.7840916, 0.7840916, 0.7840916, 1)
+
+[node name="dash_bar_0" type="TextureProgressBar" parent="gui/margin/main_vsplit/health_dashbar_split/HSplitContainer/HSplitContainer" unique_id=1692599934]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(125, 15)
+custom_maximum_size = Vector2(150, 18)
+layout_mode = 2
+nine_patch_stretch = true
+stretch_margin_left = 3
+stretch_margin_top = 3
+stretch_margin_right = 3
+stretch_margin_bottom = 3
+texture_under = ExtResource("12_3xm0v")
+texture_progress = ExtResource("13_qnxqa")
+
+[node name="HSplitContainer2" type="HSplitContainer" parent="gui/margin/main_vsplit/health_dashbar_split/HSplitContainer" unique_id=669958376]
+layout_mode = 2
+size_flags_horizontal = 8
+split_offsets = PackedInt32Array(125)
+dragging_enabled = false
+dragger_visibility = 2
+split_offset = 125
+
+[node name="dash_bar_1" type="TextureProgressBar" parent="gui/margin/main_vsplit/health_dashbar_split/HSplitContainer/HSplitContainer2" unique_id=652004517]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(125, 15)
+custom_maximum_size = Vector2(150, 18)
+layout_mode = 2
+nine_patch_stretch = true
+stretch_margin_left = 3
+stretch_margin_top = 3
+stretch_margin_right = 3
+stretch_margin_bottom = 3
+texture_under = ExtResource("12_3xm0v")
+texture_progress = ExtResource("13_qnxqa")
+
+[node name="dash_bar_2" type="TextureProgressBar" parent="gui/margin/main_vsplit/health_dashbar_split/HSplitContainer/HSplitContainer2" unique_id=482185926]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(125, 15)
+custom_maximum_size = Vector2(150, 18)
+layout_mode = 2
+nine_patch_stretch = true
+stretch_margin_left = 3
+stretch_margin_top = 3
+stretch_margin_right = 3
+stretch_margin_bottom = 3
+texture_under = ExtResource("12_3xm0v")
+texture_progress = ExtResource("13_qnxqa")
