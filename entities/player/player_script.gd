@@ -386,7 +386,7 @@ func handle_state(delta: float) -> void:
         got_strong_dash = false
         flash(skin_color.lightened(0.8), 1, 1.0/60.0*15)
         increase_tension()
-        dash_set = true
+        set_dash(true)
         dash_lock()
         state = State.IDLE_MOVE
     _:
@@ -565,7 +565,8 @@ func set_dash(force: bool = false) -> void:
     dash_set = true
     dash_set_bar.value = dash_set_bar.max_value
     dash_cur_bar.value = dash_cur_bar.min_value
-    unload_dash()
+    if not force:
+      unload_dash()
 
 func unset_dash() -> void:
   if dash_set:
