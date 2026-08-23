@@ -334,7 +334,7 @@ func handle_state(delta: float) -> void:
         dash_duration = HYPER_DASH_DURATION
         dash_tension = HYPER_DASH_TENSION
         if not hyper_dash:
-          dashes_loaded += 1
+          instant_load_dash()
           dash_force += dash_force * HYPER_DASH_FACTOR
         hyper_dash = true
         flash(skin_color.lightened(0.6), 4, 1.0/60.0*5)
@@ -367,7 +367,7 @@ func handle_state(delta: float) -> void:
         dash_tension = DASH_TENSION
         coyote_buffer = 0
         super_dash = true
-        dashes_loaded += 1
+        instant_load_dash()
         trigger_locked = false
         got_strong_dash = false
         flash(skin_color.lightened(0.3), 1, 1.0/60.0*5)
@@ -585,6 +585,16 @@ func load_dash() -> void:
     dashes_loaded += 1
   else:
     dash_reload_timer.stop()
+
+func instant_load_dash(count: int = 1) -> void:
+  if dashes_loaded + count > MAX_DASHES: return
+
+  var max_index: int = clampi(dashes_loaded + count, 0, dash_bars.size() - 1)
+  for index in range(dashes_loaded, max_index):
+    var bar: TextureProgressBar = dash_bars[index]
+    bar.value = bar.max_value
+
+  dashes_loaded += count
 
 func camera_relative_movement() -> Vector3:
   var forward: Vector3 = -camera.global_transform.basis.z
