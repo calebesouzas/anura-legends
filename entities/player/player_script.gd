@@ -261,11 +261,12 @@ func handle_state(delta: float) -> void:
         velocity = apply_friction(wishdir if not input_locked else Vector3.ZERO, delta,
           FRICTION * factor, MAX_SPEED)
       # jumped berofe the end of `LANDED_WINDOW`, did a Bunny Hop!
-      elif jump_buffer > 0:
-        state = State.JUMP
-        return
-      elif not dash_set:
-        set_dash()
+      else:
+        if not dash_set:
+          set_dash()
+        if jump_buffer > 0:
+          state = State.JUMP
+          return
 
       if just_pressed("dash") and can_dash():
         state = State.DASH
