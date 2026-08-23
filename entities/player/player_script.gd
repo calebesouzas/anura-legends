@@ -128,16 +128,10 @@ const DASH_TENSION: float = 0.02
 const HYPER_DASH_TENSION: float = 0.01
 var dash_tension: float = DASH_TENSION
 
-const SUPER_DASH_UNLOCK_MOMENT: int = 10
-const HYPER_DASH_WINDOW: int = 9
-
 const DASH_FORCE: float = 8.0
 var dash_force: float = DASH_FORCE
 
 const HYPER_DASH_FACTOR: float = 0.5
-
-const STRONG_DASH_FACTOR: float = 0.5 # percentage to be added
-var got_strong_dash: bool
 
 const DASH_DURATION: int = 10 # tick amount that input will be locked
 const HYPER_DASH_DURATION: int = 20
@@ -322,9 +316,6 @@ func handle_state(delta: float) -> void:
         unset_dash()
         trigger_locked = true
         flash(skin_color.lightened(0.1), 1, 1.0/60.0*4)
-        if wanna_move_buffer > 0:
-          got_strong_dash = true
-          dash_force += dash_force * STRONG_DASH_FACTOR
         apply_dash()
       elif state_ticks > dash_duration:
         state = State.AFTER_DASH
@@ -353,7 +344,6 @@ func handle_state(delta: float) -> void:
         hyper_dash = false
         super_dash = false
         trigger_locked = false
-        got_strong_dash = false
         if dashes_loaded == 0:
           be_exhausted()
         state = State.IDLE_MOVE if grounded else State.FALL
@@ -370,7 +360,6 @@ func handle_state(delta: float) -> void:
         super_dash = true
         instant_load_dash()
         trigger_locked = false
-        got_strong_dash = false
         flash(skin_color.lightened(0.3), 1, 1.0/60.0*5)
         set_dash()
         state = State.JUMP
@@ -384,7 +373,6 @@ func handle_state(delta: float) -> void:
         hyper_dash = false
         super_dash = false
         trigger_locked = false
-        got_strong_dash = false
         flash(skin_color.lightened(0.8), 1, 1.0/60.0*15)
         increase_tension()
         set_dash(true)
@@ -722,7 +710,6 @@ func debug_update() -> void:
   debug_field("dashes_loaded")
   debug_field("dash_set")
   debug_field("dash_force")
-  debug_field("got_strong_dash")
   debug_field("tension_level")
   debug_value("tension_timer.is_stopped()", tension_timer.is_stopped())
   debug_value("exhaustion_timer.is_stopped()", exhaustion_timer.is_stopped())
