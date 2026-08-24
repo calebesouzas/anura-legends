@@ -59,8 +59,8 @@ func _physics_process(delta: float) -> void:
 func generate_paint_offsets() -> Array[Vector3i]:
   var offsets: Array[Vector3i] = []
   # this one is going to be badly slow
-  for x: int in range(-self.paint_radius, self.paint_radius):
-    for y: int in range(-self.paint_radius, self.paint_radius):
-      for z: int in range(-self.paint_radius, self.paint_radius):
+  for x: int in range(-self.paint_radius, self.paint_radius + 1):
+    for y: int in range(-self.paint_radius, self.paint_radius + 1):
+      for z: int in range(-self.paint_radius, self.paint_radius + 1):
         offsets.append(Vector3i(x, y, z))
   return offsets
