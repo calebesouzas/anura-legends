@@ -63,7 +63,7 @@ func setup_astars() -> void:
   ]
 
   for cell: Vector3i in blocks.get_used_cells():
-    for astar: AStar3D in astars:
+    for astar: AStar3D in astars.values():
       var id: int = astar.get_available_point_id()
       var block_position: Vector3 = blocks.to_global(blocks.map_to_local(cell))
 
@@ -127,14 +127,11 @@ func paint(exact_position: Vector3, normal: Vector3, color: Team.TeamColor, offs
   grid.set(block_position, color)
   blocks.set_cell_item(block_position, Team.team_to_block_color(color))
 
-  var this_astar: AStar3D
-  var other_astar: AStar3D
+  var this_astar: AStar3D = astars.get(color)
+  var other_astar: AStar3D = astars.get(
+    Team.TeamColor.RED if color == Team.TeamColor.BLUE \
+    else Team.TeamColor.BLUE)
 
-  for index: int in range(Team.TeamColor.size() - 1):
-    if Team.TeamColor.find_key(color) == Team.TeamColor.keys()[index + 1]:
-      this_astar = astars[index]
-    else:
-      other_astar = astars[index]
 
   var id: int = this_astar.get_closest_point(block_position)
   this_astar.set_point_weight_scale(id, 0.5)
