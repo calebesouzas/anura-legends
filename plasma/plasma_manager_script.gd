@@ -133,7 +133,7 @@ func paint(exact_position: Vector3, normal: Vector3, color: Team.TeamColor, offs
     else Team.TeamColor.BLUE)
 
 
-  var id: int = this_astar.get_closest_point(block_position)
+  var id: int = world.block_position_to_index(block_position)
   this_astar.set_point_weight_scale(id, 0.5)
   other_astar.set_point_weight_scale(id, 5.0)
 
@@ -142,7 +142,7 @@ func paint(exact_position: Vector3, normal: Vector3, color: Team.TeamColor, offs
       blocks.set_cell_item(block_position + offset, Team.team_to_block_color(color))
       grid.set(block_position + offset, color)
 
-      var neighbor_id: int = this_astar.get_closest_point(block_position + offset)
+      var neighbor_id: int = world.block_position_to_index(block_position + offset)
       this_astar.set_point_weight_scale(neighbor_id, 0.5)
       other_astar.set_point_weight_scale(neighbor_id, 5.0)
 
