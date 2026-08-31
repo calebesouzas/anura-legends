@@ -64,14 +64,14 @@ func setup_astars() -> void:
 
   for cell: Vector3i in blocks.get_used_cells():
     for astar: AStar3D in astars.values():
-      var id: int = astar.get_available_point_id()
       var block_position: Vector3 = blocks.to_global(blocks.map_to_local(cell))
+      var id: int = world.block_position_to_index(block_position)
 
       astar.add_point(id, block_position)
 
       for direction: Vector3 in directions:
-        var neighbor_id: int = astar.get_available_point_id()
         var neighbor_position: Vector3 = block_position + direction
+        var neighbor_id: int = world.block_position_to_index(neighbor_position)
 
         astar.add_point(neighbor_id, neighbor_position)
         astar.connect_points(id, neighbor_id)
